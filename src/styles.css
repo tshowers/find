@@ -1,1 +1,107 @@
 /* You can add global styles to this file, and also import other style files */
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: 'Segoe UI', 'Inter', sans-serif;
+  background: #f8fafc;
+}
+
+/* ─── TODD design tokens ─────────────────────────────────────────────────
+   Vendored from taliferrotech/frontend/src/styles.css so find-home's
+   component styles (which reference these custom properties) resolve
+   correctly outside of the TODD monorepo.
+   ─────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --color-primary: #00bfff;
+  --color-primary-hover: #0095cc;
+  --color-primary-active: #006a99;
+  --color-primary-disabled: #d0f0ff;
+  --color-danger: #dc3545;
+  --color-danger-hover: #c82333;
+  --color-danger-active: #bd2130;
+  --color-danger-disabled: #f5b5bb;
+  --border-radius: 25px;
+  --tl-blue: #00bfff;
+  --tl-blue-mid: #0095cc;
+  --tl-blue-deep: #006a99;
+  --tl-blue-light: #d0f0ff;
+  --tl-blue-glow: rgba(0, 191, 255, 0.18);
+  --tl-blue-glow-strong: rgba(0, 191, 255, 0.45);
+  --tl-blue-subtle: rgba(0, 191, 255, 0.10);
+  --tl-blue-border: rgba(0, 191, 255, 0.20);
+  --tl-amber: #de8b38;
+  --tl-amber-rgb: 194, 101, 10;
+  --tl-amber-ink: #ffffff;
+}
+
+:root {
+  /* Core TODD surface/text tokens (light mode defaults) */
+  --todd-panel-bg: rgba(255, 255, 255, 0.94);
+  --todd-panel-border: rgba(0, 0, 0, .08);
+  --todd-panel-text: #222;
+  --todd-panel-subtext: #555;
+
+  --todd-bg: var(--todd-panel-bg);
+  --todd-text: var(--todd-panel-text);
+  --todd-subtext: var(--todd-panel-subtext);
+  --todd-border: var(--todd-panel-border);
+
+  --todd-surface-1: rgba(255, 255, 255, 0.92);
+  --todd-surface-2: rgba(248, 249, 250, 0.9);
+
+  --todd-input-bg: rgba(255, 255, 255, 0.92);
+  --todd-input-border: rgba(0, 0, 0, .18);
+  --todd-placeholder: #777;
+
+  --todd-navbar-bg: rgba(255, 255, 255, 0.92);
+  --todd-card-bg: rgba(255, 255, 255, 0.92);
+  --todd-modal-bg: rgba(255, 255, 255, 0.94);
+  --todd-modal-chrome-bg: rgba(248, 249, 250, 0.9);
+  --todd-btn-bg: #f2f2f2;
+  --todd-btn-text: #111;
+
+  --todd-link: #0095cc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --todd-panel-bg: #0d1117;
+    --todd-panel-border: rgba(0, 191, 255, 0.12);
+    --todd-panel-text: #f0f6ff;
+    --todd-panel-subtext: #8ba4bd;
+
+    --todd-bg: var(--todd-panel-bg);
+    --todd-text: var(--todd-panel-text);
+    --todd-subtext: var(--todd-panel-subtext);
+    --todd-border: var(--todd-panel-border);
+
+    --todd-surface-1: #131c27;
+    --todd-surface-2: #1a2535;
+
+    --todd-input-bg: #1a2535;
+    --todd-input-border: rgba(0, 191, 255, 0.28);
+    --todd-placeholder: #5e7a94;
+
+    --todd-navbar-bg: #131c27;
+    --todd-card-bg: #1a2535;
+    --todd-modal-bg: #131c27;
+    --todd-modal-chrome-bg: #1a2535;
+    --todd-btn-bg: #1f2d40;
+    --todd-btn-text: #e8f4ff;
+
+    --todd-link: #00bfff;
+
+    --tl-amber: #fcc168;
+    --tl-amber-rgb: 255, 181, 69;
+    --tl-amber-ink: #2b1400;
+  }
+}

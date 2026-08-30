@@ -1,0 +1,215 @@
+<div class="find-page" [class.find-page--has-pills]="showPillBar" findSwipe (swipeLeft)="onSwipeLeft()" (swipeRight)="onSwipeRight()" (swipeUp)="onSwipeUp()" (swipeDown)="onSwipeDown()">
+  <!-- ── SEARCH VIEW ──────────────────────────────────────────── -->
+  <div class="find-search-screen" *ngIf="activeView === 'search'">
+    <div class="find-brand">
+      <img src="assets/find-logo.png" alt="Find" style="max-width: 100%; height: auto; max-height: 100px;">
+    </div>
+    <form class="find-form" (ngSubmit)="onSubmit()">
+      <div class="find-form__row" [class.find-form__row--loading]="isLoading">
+        <input id="findQuery" name="findQuery" type="search" [(ngModel)]="query" placeholder="Search for anything…" autocomplete="off" enterkeyhint="search" [disabled]="isLoading" />
+      </div>
+      <button type="submit" class="find-submit find-submit--spaced" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Find</span>
+        <span class="find-spinner" *ngIf="isLoading" aria-label="Searching…"></span>
+      </button>
+    </form>
+    <p class="find-timer" *ngIf="isLoading">Searching for {{ liveElapsedSeconds }}s</p>
+    <p class="find-timer" *ngIf="!isLoading && lastResponseMs > 0">Last response: {{ responseSeconds }}s</p>
+    <p class="find-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  </div>
+  <!-- ── RESULT VIEW ──────────────────────────────────────────── -->
+  <div class="find-result-screen" *ngIf="activeView === 'result' || activeView === 'detail'">
+    <div class="find-result-loading" *ngIf="isLoading">
+      <span class="find-spinner find-spinner--lg" aria-hidden="true"></span>
+      <p>Finding the strongest result… {{ liveElapsedSeconds }}s</p>
+    </div>
+    <!-- Shown once result is available -->
+    <ng-container *ngIf="result && !isLoading">
+      <!-- Shelf bar: previous/home arrow | centered topic + dots | next arrow -->
+      <div class="find-shelf">
+        <button class="find-shelf__back" type="button" (click)="onPreviousResult()" [attr.aria-label]="isDetailView ? 'Back to grid' : (resultIndex === 0 ? 'Back to search' : 'Previous result')">←</button>
+        <div class="find-shelf__center">
+          <span class="find-shelf__topic">{{ shelfTitle }}</span>
+          <div class="find-shelf__dots" *ngIf="allCards.length > 1 && !isDetailView" aria-hidden="true">
+            <span *ngFor="let c of allCards; let i = index" class="find-shelf-dot" [class.find-shelf-dot--active]="i === resultIndex"></span>
+          </div>
+        </div>
+        <button class="find-shelf__next" type="button" (click)="onNextResult()" [disabled]="isDetailView || allCards.length === 0 || resultIndex === allCards.length - 1" aria-label="Next result">→</button>
+      </div>
+      <!-- Hero image — clickable link, covers top half of screen -->
+      <a class="find-card-img-wrap" [class.find-card-img-wrap--landscape]="heroImageOrientation === 'landscape'" [class.find-card-img-wrap--portrait]="heroImageOrientation === 'portrait'" [class.find-card-img-wrap--square]="heroImageOrientation === 'square'" [style.--find-image-ratio]="heroImageAspectRatio" [href]="currentCard?.url" target="_blank" rel="noopener" *ngIf="currentHasHeroImage">
+        <img [src]="currentHeroImage" [alt]="currentCard?.title" class="find-card-img" (load)="onHeroImageLoad($event)" (error)="onImageError(currentHeroImage)" />
+      </a>
+      <!-- Result body -->
+      <div class="find-card-body find-container">
+        <ng-container *ngIf="isWeatherMode; else nonWeatherView">
+          <div class="find-weather-card" *ngIf="result?.weather as weather">
+            <img class="find-weather-card__icon" *ngIf="weather.iconUrl" [src]="weather.iconUrl" [alt]="weather.description || weather.condition" />
+            <div class="find-weather-card__temp">{{ weather.tempF }}°<span class="find-weather-card__unit">F</span></div>
+            <h2 class="find-weather-card__location">{{ weather.location }}</h2>
+            <p class="find-weather-card__condition">{{ weather.description || weather.condition }}</p>
+            <div class="find-weather-card__stats">
+              <span>Feels like {{ weather.feelsLikeF }}°</span>
+              <span>Humidity {{ weather.humidity }}%</span>
+              <span>Wind {{ weather.windMph }} mph</span>
+            </div>
+          </div>
+        </ng-container>
+        <ng-template #nonWeatherView>
+          <ng-container *ngIf="!isQuestionMode; else questionAnswerView">
+            <a class="find-card-source" [href]="currentCard?.url" target="_blank" rel="noopener">
+              <span class="find-card-source__badge" *ngIf="currentCard?.isFirstParty">Official Taliferro result</span>
+              {{ currentCard?.displayUrl }}
+            </a>
+            <h2 class="find-card-title">{{ currentCard?.title }}</h2>
+            <div class="desc-pad">
+              <div class="find-card-summary find-rich-text" [innerHTML]="formatRichText(currentAnswerText)"></div>
+            </div>
+          </ng-container>
+          <ng-template #questionAnswerView>
+            <div class="find-question-card">
+              <span class="find-question-card__eyebrow">{{ currentQuestionEyebrow }}</span>
+              <a class="find-card-source" *ngIf="currentQuestionSourceUrl" [href]="currentCard?.url" target="_blank" rel="noopener">
+                <span class="find-card-source__badge" *ngIf="currentCard?.isFirstParty">Official Taliferro result</span>
+                {{ currentQuestionSourceUrl }}
+              </a>
+              <h2 class="find-card-title">{{ currentQuestionTitle }}</h2>
+              <div class="desc-pad">
+                <div class="find-card-summary find-card-summary--answer find-rich-text" [innerHTML]="formatRichText(currentQuestionText)"></div>
+              </div>
+            </div>
+
+            <div class="find-question-sources" *ngIf="isGroundedAnswerSlide && questionReferences.length > 0">
+              <div class="find-question-sources__header">
+                <h3>References</h3>
+                <span>{{ questionReferences.length }} sources</span>
+              </div>
+              <a class="find-question-source" *ngFor="let ref of questionReferences" [href]="ref.url" target="_blank" rel="noopener">
+                <span class="find-question-source__domain">{{ ref.displayUrl }}</span>
+                <strong>{{ ref.title }}</strong>
+              </a>
+            </div>
+          </ng-template>
+        </ng-template>
+        <p class="find-result-meta" *ngIf="result?.timings as timings">
+          {{ responseSeconds }}s total <span *ngIf="timings.candidateCount > 0"> · {{ timings.candidateCount }} candidates</span>
+          <span *ngIf="timings.enrichedCount > 0"> · {{ timings.enrichedCount }} pages checked</span>
+          <span *ngIf="currentCard?.isFirstParty"> · official Taliferro knowledge</span>
+          <span *ngIf="currentCard?.answer && !currentCard?.isFirstParty && !isQuestionMode"> · TODD summary</span>
+          <span *ngIf="isQuestionMode"> · {{ isGroundedAnswerSlide ? 'grounded answer' : 'supporting result' }}</span>
+        </p>
+      </div>
+      <div class="find-lead-vault-cta" *ngIf="isPersonSearch">
+        <p>Looking for contact details or prospects?</p>
+        <a [href]="leadVaultSearchUrl">Search “{{ result.query || query }}” in Lead Vault</a>
+      </div>
+    </ng-container>
+  </div>
+  <!-- ── GRID VIEW (all results as tiles) ──────────────────────── -->
+  <div class="find-grid-screen" *ngIf="activeView === 'booklet' && result">
+    <div class="find-screen-header">
+      <h2>All results</h2>
+      <span class="find-grid-count">{{ allCards.length }} found</span>
+    </div>
+    <div class="find-grid">
+      <button *ngFor="let card of allCards; let i = index" type="button" class="find-grid-tile" [class.find-grid-tile--current]="i === resultIndex" (click)="openCardDetail(i)">
+        <div class="find-grid-tile__media" *ngIf="card.imageUrl && !isImageBroken(card.imageUrl)">
+          <img [src]="card.imageUrl" [alt]="card.title" class="find-grid-tile__img" (error)="onImageError(card.imageUrl)" />
+        </div>
+        <div class="find-grid-tile__body" [class.find-grid-tile__body--full]="!card.imageUrl || isImageBroken(card.imageUrl)">
+          <span class="find-grid-tile__source">{{ card.displayUrl }}</span>
+          <h3 [innerHTML]="highlightTerms(card.title)"></h3>
+          <p *ngIf="card.summary" class="find-grid-tile__desc" [innerHTML]="highlightTerms(card.summary)"></p>
+        </div>
+      </button>
+    </div>
+  </div>
+  <!-- ── HISTORY VIEW ─────────────────────────────────────────── -->
+  <div class="find-history-screen" *ngIf="activeView === 'history'">
+    <div class="find-screen-header">
+      <h2>Recent searches</h2>
+      <button *ngIf="searchHistory.length > 0" class="find-clear-btn" type="button" (click)="clearHistory()">Clear</button>
+    </div>
+    <ul class="find-history-list" *ngIf="searchHistory.length > 0">
+      <li *ngFor="let q of searchHistory">
+        <button type="button" (click)="onHistoryClick(q)">
+          <span class="find-history-icon" aria-hidden="true">◷</span>
+          <span>{{ q }}</span>
+        </button>
+      </li>
+    </ul>
+    <p class="find-empty" *ngIf="searchHistory.length === 0">No searches yet.</p>
+  </div>
+  <!-- ── INFO VIEW ────────────────────────────────────────────── -->
+  <div class="find-info-screen" *ngIf="activeView === 'info'">
+    <div class="find-screen-header">
+      <h2>About Find</h2>
+    </div>
+    <div class="find-info-body">
+      <div class="find-info-card">
+        <span class="find-info-num">01</span>
+        <h3>One destination, not a list</h3>
+        <p>Find picks the single strongest result instead of showing you 10 blue links. Swipe to see alternatives.</p>
+      </div>
+      <div class="find-info-card">
+        <span class="find-info-num">02</span>
+        <h3>Context pills &amp; drill-down</h3>
+        <p>Tap a pill in the bottom bar to refine your search context. Find keeps your original query intact and swaps the active refinement instead of stacking duplicates.</p>
+      </div>
+      <div class="find-info-card">
+        <span class="find-info-num">03</span>
+        <h3>People → Lead Vault</h3>
+        <p>Find shows the best web results first. When a query looks like a person, buyer, or prospect, you can continue the search in Lead Vault when you’re ready.</p>
+      </div>
+      <div class="find-info-card">
+        <span class="find-info-num">04</span>
+        <h3>The philosophy</h3>
+        <p>Most search tools optimize for clicks. Find optimizes for answers. We believe the best search experience ends with you knowing something — not choosing between 10 links that might.</p>
+      </div>
+    </div>
+
+    <div class="find-info-built">
+      <p class="find-info-built__label">Built by</p>
+      <p class="find-info-built__company">Taliferro Tech</p>
+      <p class="find-info-built__tagline">Find is part of TODD — the Momentum System designed for teams that move fast and need information faster.</p>
+      <a class="find-info-built__contact" href="mailto:ty.showers&#64;taliferro.com">ty.showers&#64;taliferro.com</a>
+    </div>
+
+    <div class="find-gyro-section" *ngIf="gyroSupported">
+      <button class="find-gyro-btn" type="button" *ngIf="!gyroEnabled" (click)="enableGyroscope()">Enable tilt navigation</button>
+      <p class="find-gyro-on" *ngIf="gyroEnabled">Tilt navigation is active. Tilt left / right to move between results. Hold for 1.5 s to open automatically.</p>
+    </div>
+  </div>
+  <!-- ── BOTTOM BAR ───────────────────────────────────────────── -->
+  <div class="find-bottom-bar">
+    <!-- Context pill row — visible in result and grid views -->
+    <div class="find-pill-bar" *ngIf="showPillBar">
+      <div class="find-pill-grid">
+        <button class="find-pill" *ngFor="let pill of currentPills" [class.find-pill--lit]="pill === highlightedPill" type="button" (click)="onPillClick(pill)">{{ pill }}</button>
+      </div>
+    </div>
+    <!-- Tab bar -->
+    <div class="find-tab-bar" role="tablist">
+      <button type="button" class="find-tab" [class.find-tab--active]="activeView === 'search'" role="tab" aria-label="Home" (click)="resetToSearch()">
+        <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
+        <span class="find-tab__label">Home</span>
+      </button>
+      <button type="button" class="find-tab" [class.find-tab--active]="activeView === 'booklet'" [class.find-tab--muted]="!result || isWeatherMode" role="tab" aria-label="All results grid" (click)="setView('booklet')">
+        <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-table-cells-large"></i></span>
+        <span class="find-tab__label">Grid</span>
+      </button>
+      <button type="button" class="find-tab" [class.find-tab--active]="activeView === 'history'" role="tab" aria-label="Search history" (click)="setView('history')">
+        <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-clock-rotate-left"></i></span>
+        <span class="find-tab__label">History</span>
+      </button>
+      <button type="button" class="find-tab" [class.find-tab--active]="activeView === 'info'" role="tab" aria-label="About Find" (click)="setView('info')">
+        <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-circle-info"></i></span>
+        <span class="find-tab__label">Info</span>
+      </button>
+      <button type="button" class="find-tab" [class.find-tab--muted]="!result || isWeatherMode" role="tab" aria-label="Share result" (click)="shareResult()">
+        <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-share-nodes"></i></span>
+        <span class="find-tab__label">Share</span>
+      </button>
+    </div>
+  </div>
+</div>
