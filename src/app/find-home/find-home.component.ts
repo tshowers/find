@@ -37,6 +37,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   highlightedPill = '';
 
   searchHistory: string[] = [];
+  readonly year = new Date().getFullYear();
   private readonly brokenImageUrls = new Set<string>();
   heroImageOrientation: 'landscape' | 'portrait' | 'square' | null = null;
   heroImageAspectRatio = 16 / 9;
