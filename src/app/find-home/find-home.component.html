@@ -107,12 +107,12 @@
   </div>
   <!-- ── GRID VIEW (all results as tiles) ──────────────────────── -->
   <div class="find-grid-screen" *ngIf="activeView === 'booklet' && result">
-    <div class="find-screen-header">
-      <h2>All results</h2>
+    <div class="find-screen-header find-screen-header--grid">
+      <button type="button" class="find-grid-back" (click)="setView('booklet')" aria-label="Back to result">←</button>
       <span class="find-grid-count">{{ allCards.length }} found</span>
     </div>
     <div class="find-grid">
-      <button *ngFor="let card of allCards; let i = index" type="button" class="find-grid-tile" [class.find-grid-tile--current]="i === resultIndex" (click)="openCardDetail(i)">
+      <a *ngFor="let card of allCards; let i = index" [href]="card.url" target="_blank" rel="noopener noreferrer" class="find-grid-tile" [class.find-grid-tile--current]="i === resultIndex">
         <div class="find-grid-tile__media" *ngIf="card.imageUrl && !isImageBroken(card.imageUrl)">
           <img [src]="card.imageUrl" [alt]="card.title" class="find-grid-tile__img" (error)="onImageError(card.imageUrl)" />
         </div>
@@ -121,7 +121,7 @@
           <h3 [innerHTML]="highlightTerms(card.title)"></h3>
           <p *ngIf="card.summary" class="find-grid-tile__desc" [innerHTML]="highlightTerms(card.summary)"></p>
         </div>
-      </button>
+      </a>
     </div>
   </div>
   <!-- ── HISTORY VIEW ─────────────────────────────────────────── -->
@@ -169,7 +169,7 @@
     </div>
 
     <div class="find-info-products">
-      <p class="find-info-products__label">More from TODD</p>
+      <p class="find-info-products__label">More from Taliferro Tech</p>
       <div class="find-info-products__grid">
         <a class="find-info-product" href="https://signature.taliferro.tech" target="_blank" rel="noopener noreferrer">
           <img src="assets/find/entities/email-signature-builder/logo.png" alt="" aria-hidden="true">
@@ -182,7 +182,7 @@
           <span class="find-info-product__body">Social media built for organizations.</span>
         </a>
         <a class="find-info-product" href="https://todd.taliferro.tech/ask-todd" target="_blank" rel="noopener noreferrer">
-          <img src="assets/find/entities/todd/logo.png" alt="" aria-hidden="true">
+          <img src="assets/find/entities/todd/TODD-icon.png" alt="" aria-hidden="true">
           <span class="find-info-product__name">Ask TODD</span>
           <span class="find-info-product__body">Get unstuck with a clear next move.</span>
         </a>
@@ -192,7 +192,7 @@
           <span class="find-info-product__body">Search verified business contacts.</span>
         </a>
         <a class="find-info-product" href="https://todd.taliferro.tech/marketing-director" target="_blank" rel="noopener noreferrer">
-          <img src="assets/find/entities/maya/logo.png" alt="" aria-hidden="true">
+          <img class="find-info-product__logo--wide" src="assets/find/entities/maya/logo.png" alt="" aria-hidden="true">
           <span class="find-info-product__name">Maya</span>
           <span class="find-info-product__body">On-call marketing advice.</span>
         </a>
@@ -201,6 +201,12 @@
           <span class="find-info-product__name">Taliferro Music</span>
           <span class="find-info-product__body">Stream music without the noise.</span>
         </a>
+      </div>
+    </div>
+
+    <div class="find-info-products">
+      <p class="find-info-products__label">Momentum system</p>
+      <div class="find-info-products__grid">
         <a class="find-info-product" href="https://todd.taliferro.tech/pulse/app" target="_blank" rel="noopener noreferrer">
           <img src="assets/find/entities/pulse/pulse.png" alt="" aria-hidden="true">
           <span class="find-info-product__name">Pulse</span>
@@ -239,10 +245,12 @@
       <p class="find-info-built__company">Taliferro Tech</p>
       <p class="find-info-built__tagline">Find is part of TODD — the Momentum System designed for teams that move fast and need information faster.</p>
       <a class="find-info-built__contact" href="mailto:ty.showers&#64;taliferro.com">ty.showers&#64;taliferro.com</a>
+      <a class="find-info-built__website" href="https://taliferro.com" target="_blank" rel="noopener noreferrer">taliferro.com</a>
       <p class="find-info-copyright">
         &#169; {{ year }} TODD. Site design <a href="https://taliferro.com/website-development" target="_blank" rel="noopener noreferrer">Taliferro Group</a>. Taliferro Is Registered In The U.S. Patent And Trademark Office. All rights reserved.
         | <a href="https://taliferro.com/contact.html" target="_blank" rel="noopener noreferrer">Contact</a>
       </p>
+      <p class="find-info-version" *ngIf="appVersion">Version {{ appVersion }}</p>
     </div>
 
     <div class="find-gyro-section" *ngIf="gyroSupported">

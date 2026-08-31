@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { FindSwipeDirective } from '../directives/find-swipe.directive';
 import { FindExperienceService, FindRankedResult, FindSearchResponse } from '../services/find-experience.service';
 import { FindGyroscopeService, GyroTilt } from '../services/find-gyroscope.service';
+import { environment } from '../../environments/environment';
 
 type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info';
 
@@ -38,6 +39,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
 
   searchHistory: string[] = [];
   readonly year = new Date().getFullYear();
+  readonly appVersion = String( environment.VERSION || '' ).trim();
   private readonly brokenImageUrls = new Set<string>();
   heroImageOrientation: 'landscape' | 'portrait' | 'square' | null = null;
   heroImageAspectRatio = 16 / 9;
