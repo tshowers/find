@@ -14,7 +14,14 @@ export class FindGyroscopeService implements OnDestroy {
   constructor ( private readonly zone: NgZone ) { }
 
   get isSupported (): boolean {
-    return typeof window !== 'undefined' && 'DeviceOrientationEvent' in window;
+    // DeviceOrientationEvent alone isn't a reliable mobile check — desktop
+    // Chrome/Edge/Firefox all expose it on window even with no gyroscope
+    // (e.g. DevTools device emulation), which was showing the tilt-nav
+    // toggle on plain desktop browsers. A coarse (touch) primary pointer is
+    // a much better signal for "this is actually a mobile/tablet device".
+    return typeof window !== 'undefined' &&
+      'DeviceOrientationEvent' in window &&
+      window.matchMedia?.( '(pointer: coarse)' ).matches === true;
   }
 
   async enable (): Promise<boolean> {

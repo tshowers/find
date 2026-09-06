@@ -1,6 +1,6 @@
 {
   "name": "find",
-  "version": "2026.8.31-build.3",
+  "version": "2026.9.4-build.1",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

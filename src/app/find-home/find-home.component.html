@@ -19,6 +19,18 @@
   </div>
   <!-- ── RESULT VIEW ──────────────────────────────────────────── -->
   <div class="find-result-screen" *ngIf="activeView === 'result' || activeView === 'detail'">
+    <!-- Persistent search: stays above results so a new search never needs Home. -->
+    <div class="find-result-search">
+      <form class="find-form find-form--compact" (ngSubmit)="onSubmit()">
+        <div class="find-form__row" [class.find-form__row--loading]="isLoading">
+          <input id="findResultQuery" name="findResultQuery" type="search" [ngModel]="result ? '' : query" (ngModelChange)="onResultQueryChange($event)" placeholder="Search for anything…" autocomplete="off" enterkeyhint="search" [disabled]="isLoading" />
+        </div>
+        <button type="submit" class="find-submit find-submit--compact" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Find</span>
+          <span class="find-spinner" *ngIf="isLoading" aria-label="Searching…"></span>
+        </button>
+      </form>
+    </div>
     <div class="find-result-loading" *ngIf="isLoading">
       <span class="find-spinner find-spinner--lg" aria-hidden="true"></span>
       <p>Finding the strongest result… {{ liveElapsedSeconds }}s</p>
@@ -268,10 +280,6 @@
     </div>
     <!-- Tab bar -->
     <div class="find-tab-bar" role="tablist">
-      <button type="button" class="find-tab" [class.find-tab--active]="activeView === 'search'" role="tab" aria-label="Home" (click)="resetToSearch()">
-        <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
-        <span class="find-tab__label">Home</span>
-      </button>
       <button type="button" class="find-tab" [class.find-tab--active]="activeView === 'booklet'" [class.find-tab--muted]="!result || isWeatherMode" role="tab" aria-label="All results grid" (click)="setView('booklet')">
         <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-table-cells-large"></i></span>
         <span class="find-tab__label">Grid</span>

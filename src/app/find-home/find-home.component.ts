@@ -110,6 +110,28 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     this.navigate( q, null );
   }
 
+  onQueryInput (): void {
+    const typedQuery = String( this.query || '' ).trim();
+    const displayedQuery = String( this.result?.query || '' ).trim();
+    if ( typedQuery === displayedQuery ) return;
+
+    // Keep the compact search in place while the user starts a new search.
+    // Clearing the result here makes the old answer disappear immediately.
+    this.summarySub?.unsubscribe();
+    this.result = null;
+    this.updateCards();
+    this.errorMessage = '';
+    this.activeContext = '';
+    this.activeView = 'result';
+    this.resultIndex = 0;
+    this.selectedResultIndex = 0;
+  }
+
+  onResultQueryChange ( value: string ): void {
+    this.query = value;
+    this.onQueryInput();
+  }
+
   resetToSearch (): void {
     this.summarySub?.unsubscribe();
     this.result = null;
@@ -196,14 +218,14 @@ export class FindHomeComponent implements OnInit, OnDestroy {
 
   get currentHasHeroImage (): boolean {
     if ( this.isGroundedAnswerSlide ) {
-      return this.isUsableImage( this.result?.answer?.imageUrl || this.currentCard?.imageUrl || '' );
+      return this.isUsableImage( this.result?.answer?.imageUrl || '' );
     }
     return this.isUsableImage( this.currentCard?.imageUrl || '' );
   }
 
   get currentHeroImage (): string {
     if ( this.isGroundedAnswerSlide ) {
-      return String( this.result?.answer?.imageUrl || this.currentCard?.imageUrl || '' ).trim();
+      return String( this.result?.answer?.imageUrl || '' ).trim();
     }
     return String( this.currentCard?.imageUrl || '' ).trim();
   }

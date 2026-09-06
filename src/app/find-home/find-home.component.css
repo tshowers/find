@@ -223,6 +223,52 @@
   flex-direction: column;
 }
 
+.find-result-search {
+  width: 100%;
+  padding: 16px 16px 12px;
+  background: var(--todd-panel-bg);
+  border-bottom: 1px solid var(--todd-panel-border);
+  animation: find-search-slide-up 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.find-form--compact {
+  max-width: 720px;
+  margin: 0 auto;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.find-form--compact .find-form__row {
+  flex: 1;
+  min-width: 0;
+}
+
+.find-submit--compact {
+  width: auto;
+  min-width: 76px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+@keyframes find-search-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(1.01);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .find-result-search {
+    animation: none;
+  }
+}
+
 .find-result-loading {
   flex: 1;
   display: flex;
@@ -658,6 +704,7 @@
 /* ── GRID VIEW ───────────────────────────────────────────────── */
 .find-grid-screen {
   padding: 20px 16px;
+  box-sizing: border-box;
 }
 
 .find-grid-count {
@@ -666,13 +713,13 @@
   font-weight: 600;
 }
 
-/* 2px divider between tiles: gap shows the container background as the divider color */
+/* Pinterest-style masonry: each column keeps cards at their natural height. */
 .find-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2px;
-  background: var(--todd-panel-border);
-  margin-top: 0;
+  column-count: 2;
+  column-gap: 12px;
+  width: min(100%, 1200px);
+  margin: 0 auto;
+  background: transparent;
 }
 
 .find-grid-tile {
@@ -680,18 +727,22 @@
   flex-direction: column;
   text-decoration: none;
   background: var(--todd-panel-bg);
-  border: 0;
-  border-radius: 0;
+  border: 1px solid var(--todd-panel-border);
+  border-radius: 14px;
   overflow: hidden;
   padding: 0;
   text-align: left;
   appearance: none;
   cursor: pointer;
   transition: background 0.14s ease;
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  margin-bottom: 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
 }
 
 .find-grid-tile--current {
-  box-shadow: inset 0 0 0 2px var(--tl-blue);
+  box-shadow: inset 0 0 0 2px var(--tl-blue), 0 3px 12px rgba(0, 0, 0, 0.07);
 }
 
 .find-grid-tile:hover {
@@ -721,14 +772,11 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
-  flex: 1;
 }
 
-/* No-image tile: body fills full height with comfortable padding */
+/* No-image tile: compact text card rather than a stretched empty panel. */
 .find-grid-tile__body--full {
   padding: 14px 12px 14px;
-  min-height: 120px;
-  justify-content: center;
 }
 
 .find-grid-tile__source {
@@ -761,6 +809,17 @@
   line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  .find-grid-screen {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .find-grid {
+    column-count: 1;
+  }
 }
 
 /* Mobile first - no padding */
