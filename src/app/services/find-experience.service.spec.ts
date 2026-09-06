@@ -73,4 +73,28 @@ describe('FindExperienceService', () => {
     });
     request.flush({ success: true, query: 'places to eat near me', normalizedQuery: 'places to eat near me', queryType: 'entity', results: [], selectedIndex: 0 });
   });
+
+  it('falls back to a deterministic local conversion when the backend has not classified it', () => {
+    let response: any;
+    service.search({ query: '10 miles to kilometers' }).subscribe(value => response = value);
+
+    const request = http.expectOne( item => item.url.endsWith('/find/search') );
+    request.flush({ success: true, query: '10 miles to kilometers', normalizedQuery: '10 miles to kilometers', queryType: 'entity', results: [], selectedIndex: 0 });
+
+    expect(response.queryType).toBe('conversion');
+    expect(response.conversion.category).toBe('distance');
+    expect(response.conversion.outputAmount).toBeCloseTo(16.09344, 4);
+    expect(response.conversion.source).toBe('Find local conversion');
+  });
+
+  it('does not invent a currency rate when the backend has not supplied one', () => {
+    let response: any;
+    service.search({ query: '100 usd to yen' }).subscribe(value => response = value);
+
+    const request = http.expectOne( item => item.url.endsWith('/find/search') );
+    request.flush({ success: true, query: '100 usd to yen', normalizedQuery: '100 usd to yen', queryType: 'entity', results: [], selectedIndex: 0 });
+
+    expect(response.queryType).toBe('entity');
+    expect(response.conversion).toBeUndefined();
+  });
 });

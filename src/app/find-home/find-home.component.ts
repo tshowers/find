@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { FindSwipeDirective } from '../directives/find-swipe.directive';
-import { FindConversionCategory, FindConversionResult, FindExperienceService, FindRankedResult, FindSearchResponse } from '../services/find-experience.service';
+import { FindBusinessHours, FindBusinessHoursDay, FindConversionCategory, FindConversionResult, FindExperienceService, FindRankedResult, FindSearchResponse } from '../services/find-experience.service';
 import { FindGyroscopeService, GyroTilt } from '../services/find-gyroscope.service';
 import { environment } from '../../environments/environment';
 
@@ -263,6 +263,21 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     return String( this.currentCard?.answer || this.currentCard?.summary || '' ).trim();
   }
 
+  get currentBusinessHours (): FindBusinessHours | null {
+    const structured = this.currentCard?.hours;
+    if ( structured?.days?.length ) return structured;
+    return this.parseHoursFromText( this.currentAnswerText );
+  }
+
+  get currentHoursFromSummary (): boolean {
+    return !this.currentCard?.hours && !!this.currentBusinessHours;
+  }
+
+  isTodayHoursDay ( day: string ): boolean {
+    const today = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date().getDay()];
+    return String( day || '' ).toLowerCase() === today.toLowerCase() || String( day || '' ).toLowerCase() === today.slice( 0, 3 ).toLowerCase();
+  }
+
   get currentHasHeroImage (): boolean {
     if ( this.isGroundedAnswerSlide ) {
       return this.isUsableImage( this.result?.answer?.imageUrl || '' );
@@ -451,6 +466,39 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       .replace( /&/g, '&amp;' )
       .replace( /</g, '&lt;' )
       .replace( />/g, '&gt;' );
+  }
+
+  private parseHoursFromText ( text: string ): FindBusinessHours | null {
+    const source = String( text || '' ).replace( /\u2013|\u2014/g, '-' );
+    if ( !/\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)(?:day)?\b/i.test( source ) ) return null;
+
+    const dayPattern = '\\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Mon|Tue|Wed|Thu|Fri|Sat|Sun)\\b';
+    const matches = Array.from( source.matchAll( new RegExp( `${ dayPattern }\\s*[-:]`, 'gi' ) ) );
+    if ( !matches.length ) return null;
+
+    const days: FindBusinessHoursDay[] = matches.map( ( match, index ) => {
+      const start = ( match.index || 0 ) + match[0].length;
+      const end = index + 1 < matches.length ? ( matches[index + 1].index || source.length ) : source.length;
+      const segment = source.slice( start, end ).replace( /[.,…]+\s*$/, '' );
+      if ( /\bclosed\b/i.test( segment ) ) {
+        return { day: this.normalizeDayName( match[1] ), periods: [], isClosed: true };
+      }
+      if ( /24\s*hours|open\s*24/i.test( segment ) ) {
+        return { day: this.normalizeDayName( match[1] ), periods: [], isTwentyFourHours: true };
+      }
+      const periods = Array.from( segment.matchAll( /(\d{1,2}(?::\d{2})?\s*(?:AM|PM))\s*-\s*(\d{1,2}(?::\d{2})?\s*(?:AM|PM))/gi ) )
+        .map( period => ( { open: period[1].replace( /\s+/g, ' ' ), close: period[2].replace( /\s+/g, ' ' ) } ) );
+      return { day: this.normalizeDayName( match[1] ), periods };
+    } ).filter( day => day.isClosed || day.isTwentyFourHours || day.periods.length > 0 );
+
+    if ( !days.length ) return null;
+    return { days, isOpenNow: undefined };
+  }
+
+  private normalizeDayName ( value: string ): string {
+    const names: Record<string, string> = { mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday' };
+    const normalized = String( value || '' ).toLowerCase();
+    return names[normalized.slice( 0, 3 )] || value;
   }
 
   private loadSummary (): void {

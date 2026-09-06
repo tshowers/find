@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export type FindQueryType = 'entity' | 'question' | 'person' | 'weather' | 'conversion' | 'local';
@@ -152,7 +152,8 @@ export class FindExperienceService {
       maxResults: Math.max( 1, Math.min( 10, Number( payload?.maxResults ) || 10 ) )
     };
 
-    return this.postWithLocalFallback<FindSearchResponse>( '/find/search', body, { headers } );
+    return this.postWithLocalFallback<FindSearchResponse>( '/find/search', body, { headers } )
+      .pipe( map( response => this.applyLocalConversionFallback( response, body.query ) ) );
   }
 
   summarize ( payload: { query: string; url: string; title: string } ): Observable<{ answer: string }> {
@@ -183,5 +184,98 @@ export class FindExperienceService {
   private extractPostalCode ( value: string | null | undefined ): string | null {
     const match = String( value || '' ).match( /(?:^|\s)(\d{5})(?:-\d{4})?(?=\s|$)/ );
     return match?.[1] || null;
+  }
+
+  private applyLocalConversionFallback ( response: FindSearchResponse, query: string ): FindSearchResponse {
+    if ( response?.queryType === 'conversion' || response?.conversion ) return response;
+
+    const conversion = this.parseLocalConversion( query );
+    if ( !conversion ) return response;
+
+    return {
+      ...response,
+      query,
+      normalizedQuery: query,
+      queryType: 'conversion',
+      conversion,
+      results: [],
+      selectedIndex: 0
+    };
+  }
+
+  private parseLocalConversion ( query: string ): FindConversionResult | null {
+    const tokens = String( query || '' ).trim().toLowerCase().split( /\s+(?:to|in|into)\s+/ );
+    if ( tokens.length !== 2 ) return null;
+
+    const left = tokens[0].trim().match( /^(-?\d+(?:\.\d+)?)?\s*([a-z]+)$/i );
+    const right = tokens[1].trim().match( /^([a-z]+)$/i );
+    if ( !left || !right ) return null;
+
+    const input = this.localConversionUnit( left[2] );
+    const output = this.localConversionUnit( right[1] );
+    if ( !input || !output || input.category === 'currency' || input.category !== output.category ) return null;
+
+    const inputAmount = left[1] === undefined ? 1 : Number( left[1] );
+    if ( !Number.isFinite( inputAmount ) ) return null;
+
+    let outputAmount: number;
+    if ( input.category === 'temperature' ) {
+      outputAmount = input.unit === output.unit
+        ? inputAmount
+        : input.unit === 'fahrenheit'
+          ? ( inputAmount - 32 ) * 5 / 9
+          : inputAmount * 9 / 5 + 32;
+    } else {
+      outputAmount = inputAmount * ( input.factor || 1 ) / ( output.factor || 1 );
+    }
+
+    return {
+      category: input.category,
+      inputAmount,
+      inputUnit: input.unit,
+      inputUnitLabel: input.label,
+      outputAmount,
+      outputUnit: output.unit,
+      outputUnitLabel: output.label,
+      source: 'Find local conversion'
+    };
+  }
+
+  private localConversionUnit ( value: string ): { category: FindConversionCategory; unit: string; label: string; factor?: number } | null {
+    const units: Record<string, { category: FindConversionCategory; unit: string; label: string; factor?: number }> = {
+      f: { category: 'temperature', unit: 'fahrenheit', label: 'Fahrenheit' },
+      fahrenheit: { category: 'temperature', unit: 'fahrenheit', label: 'Fahrenheit' },
+      c: { category: 'temperature', unit: 'celsius', label: 'Celsius' },
+      celsius: { category: 'temperature', unit: 'celsius', label: 'Celsius' },
+      mi: { category: 'distance', unit: 'miles', label: 'Miles', factor: 1.609344 },
+      mile: { category: 'distance', unit: 'miles', label: 'Miles', factor: 1.609344 },
+      miles: { category: 'distance', unit: 'miles', label: 'Miles', factor: 1.609344 },
+      km: { category: 'distance', unit: 'kilometers', label: 'Kilometers', factor: 1 },
+      kilometer: { category: 'distance', unit: 'kilometers', label: 'Kilometers', factor: 1 },
+      kilometers: { category: 'distance', unit: 'kilometers', label: 'Kilometers', factor: 1 },
+      lb: { category: 'weight', unit: 'pounds', label: 'Pounds', factor: 0.45359237 },
+      lbs: { category: 'weight', unit: 'pounds', label: 'Pounds', factor: 0.45359237 },
+      pound: { category: 'weight', unit: 'pounds', label: 'Pounds', factor: 0.45359237 },
+      pounds: { category: 'weight', unit: 'pounds', label: 'Pounds', factor: 0.45359237 },
+      kg: { category: 'weight', unit: 'kilograms', label: 'Kilograms', factor: 1 },
+      kilogram: { category: 'weight', unit: 'kilograms', label: 'Kilograms', factor: 1 },
+      kilograms: { category: 'weight', unit: 'kilograms', label: 'Kilograms', factor: 1 },
+      in: { category: 'length', unit: 'inches', label: 'Inches', factor: 0.0254 },
+      inch: { category: 'length', unit: 'inches', label: 'Inches', factor: 0.0254 },
+      inches: { category: 'length', unit: 'inches', label: 'Inches', factor: 0.0254 },
+      ft: { category: 'length', unit: 'feet', label: 'Feet', factor: 0.3048 },
+      foot: { category: 'length', unit: 'feet', label: 'Feet', factor: 0.3048 },
+      feet: { category: 'length', unit: 'feet', label: 'Feet', factor: 0.3048 },
+      m: { category: 'length', unit: 'meters', label: 'Meters', factor: 1 },
+      meter: { category: 'length', unit: 'meters', label: 'Meters', factor: 1 },
+      meters: { category: 'length', unit: 'meters', label: 'Meters', factor: 1 },
+      l: { category: 'volume', unit: 'liters', label: 'Liters', factor: 1 },
+      liter: { category: 'volume', unit: 'liters', label: 'Liters', factor: 1 },
+      liters: { category: 'volume', unit: 'liters', label: 'Liters', factor: 1 },
+      gal: { category: 'volume', unit: 'gallons', label: 'Gallons', factor: 3.785411784 },
+      gallon: { category: 'volume', unit: 'gallons', label: 'Gallons', factor: 3.785411784 },
+      gallons: { category: 'volume', unit: 'gallons', label: 'Gallons', factor: 3.785411784 }
+    };
+    return units[value] || null;
   }
 }

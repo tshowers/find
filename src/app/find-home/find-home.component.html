@@ -121,10 +121,26 @@
                 <span class="find-card-source__badge" *ngIf="currentCard?.isFirstParty">Official Taliferro result</span>
                 {{ currentCard?.displayUrl }}
               </a>
-              <h2 class="find-card-title">{{ currentCard?.title }}</h2>
-              <div class="desc-pad">
-                <div class="find-card-summary find-rich-text" [innerHTML]="formatRichText(currentAnswerText)"></div>
+            <h2 class="find-card-title">{{ currentCard?.title }}</h2>
+            <div class="find-hours-card" *ngIf="currentBusinessHours as hours">
+              <div class="find-hours-card__header">
+                <h3>Hours</h3>
+                <span *ngIf="hours.isOpenNow !== undefined" [class.find-hours-card__status--open]="hours.isOpenNow" [class.find-hours-card__status--closed]="!hours.isOpenNow">
+                  {{ hours.statusText || (hours.isOpenNow ? 'Open now' : 'Closed now') }}
+                </span>
               </div>
+              <div class="find-hours-card__day" *ngFor="let day of hours.days" [class.find-hours-card__day--today]="isTodayHoursDay(day.day)">
+                <strong>{{ day.day }}</strong>
+                <span *ngIf="day.isClosed">Closed</span>
+                <span *ngIf="day.isTwentyFourHours">Open 24 hours</span>
+                <span *ngIf="!day.isClosed && !day.isTwentyFourHours && day.periods.length === 0">Hours unavailable</span>
+                <span *ngFor="let period of day.periods">{{ period.open }} – {{ period.close }}</span>
+              </div>
+              <p class="find-hours-card__note" *ngFor="let note of hours.holidayNotes">{{ note }}</p>
+            </div>
+            <div class="desc-pad">
+              <div class="find-card-summary find-rich-text" *ngIf="!currentHoursFromSummary" [innerHTML]="formatRichText(currentAnswerText)"></div>
+            </div>
               <div class="find-hours-card" *ngIf="isLocalMode && currentCard?.hours as hours">
                 <p class="find-hours-card__status" *ngIf="hours.statusText"
                    [class.find-hours-card__status--open]="hours.isOpenNow"
@@ -213,6 +229,7 @@
   <!-- ── HISTORY VIEW ─────────────────────────────────────────── -->
   <div class="find-history-screen" *ngIf="activeView === 'history'">
     <div class="find-screen-header">
+      <button class="find-screen-header__back" type="button" (click)="resetToSearch()" aria-label="Back to home">←</button>
       <h2>Recent searches</h2>
       <button *ngIf="searchHistory.length > 0" class="find-clear-btn" type="button" (click)="clearHistory()">Clear</button>
     </div>
@@ -229,7 +246,9 @@
   <!-- ── INFO VIEW ────────────────────────────────────────────── -->
   <div class="find-info-screen" *ngIf="activeView === 'info'">
     <div class="find-screen-header">
+      <button class="find-screen-header__back" type="button" (click)="resetToSearch()" aria-label="Back to home">←</button>
       <h2>About Find</h2>
+      <span class="find-screen-header__spacer" aria-hidden="true"></span>
     </div>
     <div class="find-info-body">
       <div class="find-info-card">
@@ -267,17 +286,17 @@
           <span class="find-info-product__name">SayIt</span>
           <span class="find-info-product__body">Social media built for organizations.</span>
         </a>
-        <a class="find-info-product" href="https://todd.taliferro.tech/ask-todd" target="_blank" rel="noopener noreferrer">
+        <a class="find-info-product" href="https://ask.taliferro.tech" target="_blank" rel="noopener noreferrer">
           <img src="assets/find/entities/todd/TODD-icon.png" alt="" aria-hidden="true">
           <span class="find-info-product__name">Ask TODD</span>
           <span class="find-info-product__body">Get unstuck with a clear next move.</span>
         </a>
-        <a class="find-info-product" href="https://todd.taliferro.tech/lead-vault" target="_blank" rel="noopener noreferrer">
+        <a class="find-info-product" href="https://lead-vault.taliferro.tech" target="_blank" rel="noopener noreferrer">
           <img src="assets/find/entities/lead-vault/logo.png" alt="" aria-hidden="true">
           <span class="find-info-product__name">Lead Vault</span>
           <span class="find-info-product__body">Search verified business contacts.</span>
         </a>
-        <a class="find-info-product" href="https://todd.taliferro.tech/marketing-director" target="_blank" rel="noopener noreferrer">
+        <a class="find-info-product" href="https://maya.taliferro.tech" target="_blank" rel="noopener noreferrer">
           <img class="find-info-product__logo--wide" src="assets/find/entities/maya/logo.png" alt="" aria-hidden="true">
           <span class="find-info-product__name">Maya</span>
           <span class="find-info-product__body">On-call marketing advice.</span>
@@ -293,12 +312,12 @@
     <div class="find-info-products">
       <p class="find-info-products__label">Momentum system</p>
       <div class="find-info-products__grid">
-        <a class="find-info-product" href="https://todd.taliferro.tech/pulse/app" target="_blank" rel="noopener noreferrer">
+        <a class="find-info-product" href="https://pulse.taliferro.tech" target="_blank" rel="noopener noreferrer">
           <img src="assets/find/entities/pulse/pulse.png" alt="" aria-hidden="true">
           <span class="find-info-product__name">Pulse</span>
           <span class="find-info-product__body">Capture live feedback &amp; sentiment.</span>
         </a>
-        <a class="find-info-product" href="https://todd.taliferro.tech/network/app" target="_blank" rel="noopener noreferrer">
+        <a class="find-info-product" href="https://network.taliferro.tech" target="_blank" rel="noopener noreferrer">
           <img src="assets/find/entities/network/logo.png" alt="" aria-hidden="true">
           <span class="find-info-product__name">Network</span>
           <span class="find-info-product__body">Relationship &amp; contact intelligence.</span>
