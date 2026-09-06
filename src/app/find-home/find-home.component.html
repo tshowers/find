@@ -58,49 +58,123 @@
           <div class="find-weather-card" *ngIf="result?.weather as weather">
             <img class="find-weather-card__icon" *ngIf="weather.iconUrl" [src]="weather.iconUrl" [alt]="weather.description || weather.condition" />
             <div class="find-weather-card__temp">{{ weather.tempF }}°<span class="find-weather-card__unit">F</span></div>
-            <h2 class="find-weather-card__location">{{ weather.location }}</h2>
+            <h2 class="find-weather-card__location">{{ weather.location }}<span *ngIf="weather.postalCode"> {{ weather.postalCode }}</span></h2>
             <p class="find-weather-card__condition">{{ weather.description || weather.condition }}</p>
             <div class="find-weather-card__stats">
               <span>Feels like {{ weather.feelsLikeF }}°</span>
               <span>Humidity {{ weather.humidity }}%</span>
               <span>Wind {{ weather.windMph }} mph</span>
             </div>
+            <div class="find-weather-card__range" *ngIf="weather.highF !== undefined || weather.lowF !== undefined">
+              <span *ngIf="weather.highF !== undefined">High {{ weather.highF }}°</span>
+              <span *ngIf="weather.lowF !== undefined">Low {{ weather.lowF }}°</span>
+            </div>
+            <div class="find-weather-card__forecast" *ngIf="weather.forecast?.length">
+              <div class="find-weather-card__forecast-heading">Forecast</div>
+              <div class="find-weather-card__forecast-row" *ngFor="let day of weather.forecast">
+                <span class="find-weather-card__forecast-day">{{ day.label || day.date }}</span>
+                <span class="find-weather-card__forecast-condition">
+                  <img *ngIf="day.iconUrl" [src]="day.iconUrl" [alt]="day.description || day.condition" />
+                  {{ day.description || day.condition }}
+                </span>
+                <span class="find-weather-card__forecast-temp">
+                  <span *ngIf="day.highF !== undefined">{{ day.highF }}°</span>
+                  <span *ngIf="day.lowF !== undefined" class="find-weather-card__forecast-low">{{ day.lowF }}°</span>
+                </span>
+              </div>
+            </div>
+            <p class="find-weather-card__updated" *ngIf="weather.updatedAt">Updated {{ weather.updatedAt | date:'short' }}</p>
           </div>
         </ng-container>
         <ng-template #nonWeatherView>
-          <ng-container *ngIf="!isQuestionMode; else questionAnswerView">
-            <a class="find-card-source" [href]="currentCard?.url" target="_blank" rel="noopener">
-              <span class="find-card-source__badge" *ngIf="currentCard?.isFirstParty">Official Taliferro result</span>
-              {{ currentCard?.displayUrl }}
-            </a>
-            <h2 class="find-card-title">{{ currentCard?.title }}</h2>
-            <div class="desc-pad">
-              <div class="find-card-summary find-rich-text" [innerHTML]="formatRichText(currentAnswerText)"></div>
+          <ng-container *ngIf="isConversionMode; else standardNonWeatherView">
+            <div class="find-conversion-card" *ngIf="conversion as conversion">
+              <div class="find-conversion-card__eyebrow">{{ conversion.category === 'currency' ? 'Currency conversion' : 'Unit conversion' }}</div>
+              <div class="find-conversion-card__fields">
+                <label class="find-conversion-field">
+                  <span>From</span>
+                  <input type="number" inputmode="decimal" min="-999999999999" step="any" [ngModel]="conversionAmount" (ngModelChange)="onConversionAmountChange($event)" aria-label="Amount to convert" />
+                  <select [(ngModel)]="conversionInputUnit" (ngModelChange)="onConversionUnitChange()" aria-label="Source unit">
+                    <option *ngFor="let option of conversionUnitOptions" [value]="option.value">{{ option.label }}</option>
+                  </select>
+                </label>
+                <button type="button" class="find-conversion-swap" (click)="swapConversion()" aria-label="Swap conversion units">↕</button>
+                <label class="find-conversion-field">
+                  <span>To</span>
+                  <output class="find-conversion-output" aria-live="polite">{{ conversionOutputAmount === null ? 'Unavailable' : (conversionOutputAmount | number:'1.0-4') }}</output>
+                  <select [(ngModel)]="conversionOutputUnit" (ngModelChange)="onConversionUnitChange()" aria-label="Destination unit">
+                    <option *ngFor="let option of conversionUnitOptions" [value]="option.value">{{ option.label }}</option>
+                  </select>
+                </label>
+              </div>
+              <div class="find-conversion-rate" *ngIf="conversion.category === 'currency' && conversionRate !== null">
+                1 {{ conversionInputUnit }} = {{ conversionRate | number:'1.0-6' }} {{ conversionOutputUnit }}
+                <span *ngIf="conversionRateUpdatedAt"> · Updated {{ conversionRateUpdatedAt | date:'short' }}</span>
+              </div>
+              <p class="find-conversion-note" *ngIf="conversion.category === 'currency' && conversionRate === null">A live exchange rate is not available right now.</p>
+              <p class="find-conversion-source" *ngIf="conversionSource">Source: {{ conversionSource }}</p>
             </div>
           </ng-container>
-          <ng-template #questionAnswerView>
-            <div class="find-question-card">
-              <span class="find-question-card__eyebrow">{{ currentQuestionEyebrow }}</span>
-              <a class="find-card-source" *ngIf="currentQuestionSourceUrl" [href]="currentCard?.url" target="_blank" rel="noopener">
+          <ng-template #standardNonWeatherView>
+            <ng-container *ngIf="!isQuestionMode; else questionAnswerView">
+              <a class="find-card-source" [href]="currentCard?.url" target="_blank" rel="noopener">
                 <span class="find-card-source__badge" *ngIf="currentCard?.isFirstParty">Official Taliferro result</span>
-                {{ currentQuestionSourceUrl }}
+                {{ currentCard?.displayUrl }}
               </a>
-              <h2 class="find-card-title">{{ currentQuestionTitle }}</h2>
+              <h2 class="find-card-title">{{ currentCard?.title }}</h2>
               <div class="desc-pad">
-                <div class="find-card-summary find-card-summary--answer find-rich-text" [innerHTML]="formatRichText(currentQuestionText)"></div>
+                <div class="find-card-summary find-rich-text" [innerHTML]="formatRichText(currentAnswerText)"></div>
               </div>
-            </div>
+              <div class="find-hours-card" *ngIf="isLocalMode && currentCard?.hours as hours">
+                <p class="find-hours-card__status" *ngIf="hours.statusText"
+                   [class.find-hours-card__status--open]="hours.isOpenNow"
+                   [class.find-hours-card__status--closed]="hours.isOpenNow === false">
+                  {{ hours.statusText }}
+                </p>
+                <div class="find-hours-card__days">
+                  <div class="find-hours-card__day" *ngFor="let day of hours.days">
+                    <span class="find-hours-card__day-name">{{ day.day }}</span>
+                    <span class="find-hours-card__day-periods" *ngIf="day.isTwentyFourHours; else dayPeriods">Open 24 hours</span>
+                    <ng-template #dayPeriods>
+                      <span class="find-hours-card__day-periods" *ngIf="day.isClosed; else periodList">Closed</span>
+                      <ng-template #periodList>
+                        <span class="find-hours-card__day-periods">
+                          <span *ngFor="let period of day.periods; let last = last">{{ period.open }}–{{ period.close }}<span *ngIf="!last">, </span></span>
+                        </span>
+                      </ng-template>
+                    </ng-template>
+                  </div>
+                </div>
+                <p class="find-hours-card__holiday" *ngFor="let note of hours.holidayNotes">{{ note }}</p>
+              </div>
+              <p class="find-osm-attribution" *ngIf="isLocalMode">
+                Business details from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a>
+              </p>
+            </ng-container>
+            <ng-template #questionAnswerView>
+              <div class="find-question-card">
+                <span class="find-question-card__eyebrow">{{ currentQuestionEyebrow }}</span>
+                <a class="find-card-source" *ngIf="currentQuestionSourceUrl" [href]="currentCard?.url" target="_blank" rel="noopener">
+                  <span class="find-card-source__badge" *ngIf="currentCard?.isFirstParty">Official Taliferro result</span>
+                  {{ currentQuestionSourceUrl }}
+                </a>
+                <h2 class="find-card-title">{{ currentQuestionTitle }}</h2>
+                <div class="desc-pad">
+                  <div class="find-card-summary find-card-summary--answer find-rich-text" [innerHTML]="formatRichText(currentQuestionText)"></div>
+                </div>
+              </div>
 
-            <div class="find-question-sources" *ngIf="isGroundedAnswerSlide && questionReferences.length > 0">
-              <div class="find-question-sources__header">
-                <h3>References</h3>
-                <span>{{ questionReferences.length }} sources</span>
+              <div class="find-question-sources" *ngIf="isGroundedAnswerSlide && questionReferences.length > 0">
+                <div class="find-question-sources__header">
+                  <h3>References</h3>
+                  <span>{{ questionReferences.length }} sources</span>
+                </div>
+                <a class="find-question-source" *ngFor="let ref of questionReferences" [href]="ref.url" target="_blank" rel="noopener">
+                  <span class="find-question-source__domain">{{ ref.displayUrl }}</span>
+                  <strong>{{ ref.title }}</strong>
+                </a>
               </div>
-              <a class="find-question-source" *ngFor="let ref of questionReferences" [href]="ref.url" target="_blank" rel="noopener">
-                <span class="find-question-source__domain">{{ ref.displayUrl }}</span>
-                <strong>{{ ref.title }}</strong>
-              </a>
-            </div>
+            </ng-template>
           </ng-template>
         </ng-template>
         <p class="find-result-meta" *ngIf="result?.timings as timings">

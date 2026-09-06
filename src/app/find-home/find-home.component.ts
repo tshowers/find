@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { FindSwipeDirective } from '../directives/find-swipe.directive';
-import { FindExperienceService, FindRankedResult, FindSearchResponse } from '../services/find-experience.service';
+import { FindConversionCategory, FindConversionResult, FindExperienceService, FindRankedResult, FindSearchResponse } from '../services/find-experience.service';
 import { FindGyroscopeService, GyroTilt } from '../services/find-gyroscope.service';
 import { environment } from '../../environments/environment';
 
@@ -32,6 +32,16 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   selectedResultIndex = 0;
   allCards: FindRankedResult[] = [];
   currentCard: FindRankedResult | null = null;
+  conversionAmount = 0;
+  conversionOutputAmount: number | null = null;
+  conversionInputUnit = '';
+  conversionOutputUnit = '';
+  conversionRate: number | null = null;
+  conversionRateUpdatedAt = '';
+  conversionSource = '';
+  private conversionBaseInputUnit = '';
+  private conversionBaseOutputUnit = '';
+  private conversionBaseRate: number | null = null;
 
   gyroEnabled = false;
   gyroSupported = false;
@@ -49,6 +59,9 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   private readonly tiltToPillIndex: Partial<Record<GyroTilt, number>> = {
     left: 0, right: 1, up: 2, down: 3
   };
+
+  private lastKnownPosition: { latitude: number; longitude: number } | null = null;
+  private readonly NEAR_ME_PATTERN = /\bnear me\b/i;
 
   private gyroHoldTimer: ReturnType<typeof setTimeout> | null = null;
   private loadingTimer: ReturnType<typeof setInterval> | null = null;
@@ -186,6 +199,40 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     return this.result?.queryType === 'weather';
   }
 
+  get isConversionMode (): boolean {
+    return this.result?.queryType === 'conversion' && !!this.result?.conversion;
+  }
+
+  get isLocalMode (): boolean {
+    return this.result?.queryType === 'local';
+  }
+
+  get conversion (): FindConversionResult | null {
+    return this.result?.conversion || null;
+  }
+
+  get conversionCategory (): FindConversionCategory | null {
+    return this.conversion?.category || null;
+  }
+
+  get conversionUnitOptions (): Array<{ value: string; label: string }> {
+    const options: Record<string, Array<{ value: string; label: string }>> = {
+      currency: [
+        { value: 'USD', label: 'US Dollar (USD)' }, { value: 'CAD', label: 'Canadian Dollar (CAD)' },
+        { value: 'EUR', label: 'Euro (EUR)' }, { value: 'GBP', label: 'British Pound (GBP)' },
+        { value: 'JPY', label: 'Japanese Yen (JPY)' }, { value: 'AUD', label: 'Australian Dollar (AUD)' },
+        { value: 'CNY', label: 'Chinese Yuan (CNY)' }, { value: 'CHF', label: 'Swiss Franc (CHF)' },
+        { value: 'MXN', label: 'Mexican Peso (MXN)' },
+      ],
+      temperature: [ { value: 'F', label: 'Fahrenheit (°F)' }, { value: 'C', label: 'Celsius (°C)' } ],
+      distance: [ { value: 'mi', label: 'Miles' }, { value: 'km', label: 'Kilometers' } ],
+      weight: [ { value: 'lb', label: 'Pounds' }, { value: 'kg', label: 'Kilograms' } ],
+      length: [ { value: 'in', label: 'Inches' }, { value: 'cm', label: 'Centimeters' }, { value: 'ft', label: 'Feet' }, { value: 'm', label: 'Meters' } ],
+      volume: [ { value: 'gal', label: 'US Gallons' }, { value: 'l', label: 'Liters' } ],
+    };
+    return options[String( this.conversionCategory || '' )] || [];
+  }
+
   get leadVaultSearchUrl (): string {
     const query = String( this.result?.query || this.query || '' ).trim();
     return `https://todd.taliferro.tech/lead-vault?query=${encodeURIComponent( query )}`;
@@ -287,6 +334,25 @@ export class FindHomeComponent implements OnInit, OnDestroy {
 
   get currentQuestionText (): string {
     return this.isGroundedAnswerSlide ? this.questionAnswerText : this.currentAnswerText;
+  }
+
+  onConversionAmountChange ( value: number | string ): void {
+    const next = Number( value );
+    this.conversionAmount = Number.isFinite( next ) ? next : 0;
+    this.calculateConversion();
+  }
+
+  onConversionUnitChange (): void {
+    this.refreshCurrencyRate();
+    this.calculateConversion();
+  }
+
+  swapConversion (): void {
+    const previousInput = this.conversionInputUnit;
+    this.conversionInputUnit = this.conversionOutputUnit;
+    this.conversionOutputUnit = previousInput;
+    this.refreshCurrencyRate();
+    this.calculateConversion();
   }
 
   get currentQuestionSourceUrl (): string {
@@ -614,34 +680,169 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       this.updateCards();
     }
 
-    this.findExperienceService.search( {
-      query,
-      context: normalizedContext || null,
-      maxResults: 10
-    } ).subscribe( {
-      next: ( response ) => {
-        this.isLoading = false;
-        this.stopLoadingTimer( response?.timings?.totalMs );
-        this.result = response || null;
-        this.selectedResultIndex = Math.max( 0, Math.min( response.selectedIndex || 0, ( response.results?.length || 1 ) - 1 ) );
-        this.resultIndex = this.selectedResultIndex;
-        this.updateCards();
-        this.highlightedPill = '';
-        this.activeView = 'result';
-        this.saveToHistory( query );
-        if ( response?.queryType !== 'question' && response?.queryType !== 'weather' ) {
-          this.loadSummary();
+    this.resolveCoordinatesForQuery( query ).then( ( coords ) => {
+      this.findExperienceService.search( {
+        query,
+        context: normalizedContext || null,
+        maxResults: 10,
+        latitude: coords?.latitude ?? null,
+        longitude: coords?.longitude ?? null
+      } ).subscribe( {
+        next: ( response ) => {
+          this.isLoading = false;
+          this.stopLoadingTimer( response?.timings?.totalMs );
+          this.result = response || null;
+          this.syncConversionState( response?.conversion || null );
+          this.selectedResultIndex = Math.max( 0, Math.min( response.selectedIndex || 0, ( response.results?.length || 1 ) - 1 ) );
+          this.resultIndex = this.selectedResultIndex;
+          this.updateCards();
+          this.highlightedPill = '';
+          this.activeView = 'result';
+          this.saveToHistory( query );
+          if ( response?.queryType !== 'question' && response?.queryType !== 'weather' && response?.queryType !== 'conversion' && response?.queryType !== 'local' ) {
+            this.loadSummary();
+          }
+        },
+        error: ( err ) => {
+          this.isLoading = false;
+          this.stopLoadingTimer();
+          this.result = null;
+          this.updateCards();
+          this.activeView = 'search';
+          this.selectedResultIndex = 0;
+          this.errorMessage = err?.error?.message || err?.message || 'Find could not produce a result right now.';
+          this.syncConversionState( null );
         }
-      },
-      error: ( err ) => {
-        this.isLoading = false;
-        this.stopLoadingTimer();
-        this.result = null;
-        this.updateCards();
-        this.activeView = 'search';
-        this.selectedResultIndex = 0;
-        this.errorMessage = err?.error?.message || err?.message || 'Find could not produce a result right now.';
-      }
+      } );
     } );
+  }
+
+  // Geolocation is only requested for "near me"-shaped queries, never on
+  // page load, and the granted position is cached for the rest of the
+  // session so the browser prompt doesn't reappear on every search. A
+  // denied/unsupported/timed-out request resolves to null rather than
+  // rejecting, so the query still runs (without coordinates) instead of
+  // blocking — the backend's "near me" fast path simply won't match and the
+  // search falls through to a normal result.
+  private resolveCoordinatesForQuery ( query: string ): Promise<{ latitude: number; longitude: number } | null> {
+    if ( !this.NEAR_ME_PATTERN.test( query ) ) return Promise.resolve( null );
+    if ( this.lastKnownPosition ) return Promise.resolve( this.lastKnownPosition );
+    if ( typeof navigator === 'undefined' || !navigator.geolocation ) return Promise.resolve( null );
+
+    return new Promise( ( resolve ) => {
+      const timeoutId = setTimeout( () => resolve( null ), 8000 );
+      navigator.geolocation.getCurrentPosition(
+        ( position ) => {
+          clearTimeout( timeoutId );
+          this.lastKnownPosition = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          };
+          resolve( this.lastKnownPosition );
+        },
+        () => {
+          clearTimeout( timeoutId );
+          resolve( null );
+        },
+        { timeout: 8000, maximumAge: 5 * 60 * 1000 }
+      );
+    } );
+  }
+
+  private syncConversionState ( conversion: FindConversionResult | null ): void {
+    if ( !conversion ) {
+      this.conversionAmount = 0;
+      this.conversionOutputAmount = null;
+      this.conversionInputUnit = '';
+      this.conversionOutputUnit = '';
+      this.conversionRate = null;
+      this.conversionRateUpdatedAt = '';
+      this.conversionSource = '';
+      this.conversionBaseInputUnit = '';
+      this.conversionBaseOutputUnit = '';
+      this.conversionBaseRate = null;
+      return;
+    }
+    this.conversionAmount = conversion.inputAmount;
+    this.conversionOutputAmount = conversion.outputAmount;
+    this.conversionInputUnit = this.normalizeConversionUnit( conversion.inputUnit );
+    this.conversionOutputUnit = this.normalizeConversionUnit( conversion.outputUnit );
+    this.conversionRate = conversion.rate ?? null;
+    this.conversionRateUpdatedAt = conversion.rateUpdatedAt || '';
+    this.conversionSource = conversion.source || '';
+    this.conversionBaseInputUnit = this.conversionInputUnit;
+    this.conversionBaseOutputUnit = this.conversionOutputUnit;
+    this.conversionBaseRate = this.conversionRate;
+  }
+
+  private calculateConversion (): void {
+    if ( !this.conversion ) return;
+    if ( this.conversionCategory === 'currency' ) {
+      this.conversionOutputAmount = this.conversionRate === null
+        ? null
+        : this.conversionAmount * this.conversionRate;
+      return;
+    }
+
+    const category = this.conversionCategory;
+    const input = this.unitFactor( category, this.conversionInputUnit );
+    const output = this.unitFactor( category, this.conversionOutputUnit );
+    if ( input === null || output === null ) {
+      this.conversionOutputAmount = null;
+      return;
+    }
+    if ( category === 'temperature' ) {
+      const celsius = this.conversionInputUnit === 'F'
+        ? ( this.conversionAmount - 32 ) * 5 / 9
+        : ( this.conversionAmount * 9 / 5 ) + 32;
+      this.conversionOutputAmount = this.conversionOutputUnit === 'F'
+        ? celsius * 9 / 5 + 32
+        : celsius;
+      return;
+    }
+    this.conversionOutputAmount = this.conversionAmount * input / output;
+  }
+
+  private refreshCurrencyRate (): void {
+    if ( this.conversionCategory !== 'currency' ) return;
+    if ( this.conversionInputUnit === this.conversionBaseInputUnit && this.conversionOutputUnit === this.conversionBaseOutputUnit ) {
+      this.conversionRate = this.conversionBaseRate;
+      return;
+    }
+    if ( this.conversionInputUnit === this.conversionBaseOutputUnit && this.conversionOutputUnit === this.conversionBaseInputUnit && this.conversionBaseRate ) {
+      this.conversionRate = 1 / this.conversionBaseRate;
+      return;
+    }
+    this.conversionRate = null;
+  }
+
+  private normalizeConversionUnit ( value: string ): string {
+    const normalized = String( value || '' ).trim().toLowerCase();
+    const aliases: Record<string, string> = {
+      dollar: 'USD', dollars: 'USD', usd: 'USD',
+      cad: 'CAD', eur: 'EUR', euro: 'EUR', euros: 'EUR',
+      gbp: 'GBP', pound: 'GBP', pounds: 'GBP',
+      jpy: 'JPY', yen: 'JPY', aud: 'AUD', cny: 'CNY', yuan: 'CNY',
+      chf: 'CHF', mxn: 'MXN',
+      fahrenheit: 'F', celsius: 'C',
+      mile: 'mi', miles: 'mi', kilometer: 'km', kilometers: 'km',
+      poundmass: 'lb', kilogram: 'kg', kilograms: 'kg',
+      inch: 'in', inches: 'in', centimeter: 'cm', centimeters: 'cm',
+      foot: 'ft', feet: 'ft', meter: 'm', meters: 'm',
+      gallon: 'gal', gallons: 'gal', liter: 'l', liters: 'l',
+    };
+    return aliases[normalized] || String( value || '' ).trim();
+  }
+
+  private unitFactor ( category: FindConversionCategory | null, unit: string ): number | null {
+    const factors: Record<string, Record<string, number>> = {
+      distance: { mi: 1609.344, km: 1000 },
+      weight: { lb: 0.45359237, kg: 1 },
+      length: { in: 0.0254, cm: 0.01, ft: 0.3048, m: 1 },
+      volume: { gal: 3.785411784, l: 1 },
+    };
+    return category && category !== 'temperature' && category !== 'currency'
+      ? factors[category]?.[unit] ?? null
+      : 1;
   }
 }

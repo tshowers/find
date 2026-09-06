@@ -12,6 +12,8 @@ Find is a free, no-account-required search experience: instead of a page of ten 
 - **Context pills & drill-down** — tap a pill in the bottom bar to refine your search context without losing your original query
 - **People → Lead Vault handoff** — when a query looks like a person, buyer, or prospect, continue the search in [Lead Vault](https://todd.taliferro.tech/lead-vault)
 - **Weather mode** — plain-language weather queries get a dedicated weather card instead of a web result
+- **ZIP weather forecasts** — queries such as `weather 98106` can return a location-aware forecast card
+- **Conversions** — currency and common unit conversions can render as interactive result cards
 - **Search history** and a **grid view** of all candidate results
 - **Tilt navigation** — on supported devices, tilt left/right to move between results
 - Links out to the rest of the TODD product family (Email Signature Builder, SayIt, Lead Vault, Maya, Taliferro Music, Pulse, Network, Outreach, Moves, Social, Docs) from the About screen

@@ -4,8 +4,29 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
-export type FindQueryType = 'entity' | 'question' | 'person' | 'weather';
-export type FindSourceType = 'official' | 'publisher' | 'government' | 'academic' | 'medical' | 'encyclopedia';
+export type FindQueryType = 'entity' | 'question' | 'person' | 'weather' | 'conversion' | 'local';
+export type FindSourceType = 'official' | 'publisher' | 'government' | 'academic' | 'medical' | 'encyclopedia' | 'crowdsourced';
+
+export interface FindBusinessHoursPeriod {
+  open: string;
+  close: string;
+}
+
+export interface FindBusinessHoursDay {
+  day: string;
+  periods: FindBusinessHoursPeriod[];
+  isClosed?: boolean;
+  isTwentyFourHours?: boolean;
+}
+
+export interface FindBusinessHours {
+  timezone?: string;
+  isOpenNow?: boolean;
+  statusText?: string;
+  days: FindBusinessHoursDay[];
+  holidayNotes?: string[];
+  sourceUrl?: string;
+}
 
 export interface FindAnswerReference {
   title: string;
@@ -35,10 +56,13 @@ export interface FindRankedResult {
   entityId?: string;
   entityName?: string;
   logoUrl?: string;
+  hours?: FindBusinessHours;
 }
 
 export interface FindWeatherResult {
   location: string;
+  postalCode?: string;
+  timezone?: string;
   tempF: number;
   feelsLikeF: number;
   condition: string;
@@ -46,6 +70,35 @@ export interface FindWeatherResult {
   iconUrl: string;
   humidity: number;
   windMph: number;
+  highF?: number;
+  lowF?: number;
+  updatedAt?: string;
+  forecast?: FindWeatherForecastDay[];
+}
+
+export interface FindWeatherForecastDay {
+  date: string;
+  label: string;
+  condition: string;
+  description?: string;
+  iconUrl?: string;
+  highF?: number;
+  lowF?: number;
+}
+
+export type FindConversionCategory = 'currency' | 'temperature' | 'distance' | 'weight' | 'length' | 'volume';
+
+export interface FindConversionResult {
+  category: FindConversionCategory;
+  inputAmount: number;
+  inputUnit: string;
+  inputUnitLabel?: string;
+  outputAmount: number;
+  outputUnit: string;
+  outputUnitLabel?: string;
+  rate?: number;
+  rateUpdatedAt?: string;
+  source?: string;
 }
 
 export interface FindSearchResponse {
@@ -59,6 +112,7 @@ export interface FindSearchResponse {
   } | null;
   answer?: FindAnswerBlock | null;
   weather?: FindWeatherResult | null;
+  conversion?: FindConversionResult | null;
   results: FindRankedResult[];
   selectedIndex: number;
   timings?: {
@@ -84,11 +138,17 @@ export class FindExperienceService {
     query: string;
     context?: string | null;
     maxResults?: number;
+    latitude?: number | null;
+    longitude?: number | null;
   } ): Observable<FindSearchResponse> {
     const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
+    const postalCode = this.extractPostalCode( payload?.query );
+    const hasCoordinates = Number.isFinite( payload?.latitude ) && Number.isFinite( payload?.longitude );
     const body = {
       query: String( payload?.query || '' ).trim(),
       context: String( payload?.context || '' ).trim() || null,
+      ...( postalCode ? { postalCode } : {} ),
+      ...( hasCoordinates ? { latitude: payload!.latitude, longitude: payload!.longitude } : {} ),
       maxResults: Math.max( 1, Math.min( 10, Number( payload?.maxResults ) || 10 ) )
     };
 
@@ -118,5 +178,10 @@ export class FindExperienceService {
 
     const projectId = String( environment.firebaseConfig?.projectId || 'taliferrotech' ).trim() || 'taliferrotech';
     return `http://127.0.0.1:5001/${projectId}/us-central1/api/api`;
+  }
+
+  private extractPostalCode ( value: string | null | undefined ): string | null {
+    const match = String( value || '' ).match( /(?:^|\s)(\d{5})(?:-\d{4})?(?=\s|$)/ );
+    return match?.[1] || null;
   }
 }
