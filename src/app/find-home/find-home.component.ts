@@ -33,6 +33,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   allCards: FindRankedResult[] = [];
   currentCard: FindRankedResult | null = null;
   conversionAmount = 0;
+  conversionAmountText = '0';
   conversionOutputAmount: number | null = null;
   conversionInputUnit = '';
   conversionOutputUnit = '';
@@ -42,6 +43,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   private conversionBaseInputUnit = '';
   private conversionBaseOutputUnit = '';
   private conversionBaseRate: number | null = null;
+  readonly conversionKeypadDigits = [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' ];
 
   gyroEnabled = false;
   gyroSupported = false;
@@ -263,6 +265,35 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     return String( this.currentCard?.answer || this.currentCard?.summary || '' ).trim();
   }
 
+  get currentBusinessName (): string {
+    return this.businessTitleParts.name || String( this.currentCard?.title || '' ).trim();
+  }
+
+  get currentBusinessAddress (): string {
+    return this.businessTitleParts.address;
+  }
+
+  get currentBusinessMeta (): string[] {
+    return this.businessTitleParts.meta;
+  }
+
+  private get businessTitleParts (): { name: string; address: string; meta: string[] } {
+    const title = String( this.currentCard?.title || '' ).trim();
+    const segments = title.split( /\s+-\s+/ ).map( segment => segment.trim() ).filter( Boolean );
+    if ( segments.length < 2 ) return { name: title, address: '', meta: [] };
+
+    const addressIndex = segments.findIndex( segment => /^\d{1,6}\s+[^-]+,/.test( segment ) );
+    if ( addressIndex < 1 ) return { name: title, address: '', meta: [] };
+
+    const metadata = segments.slice( 1, addressIndex ).join( ' - ' );
+    const meta = metadata.match( /Updated\s+[^&-]+|[\d,]+\s+Photos?|[\d,]+\s+Reviews?/gi ) || [];
+    return {
+      name: segments[0],
+      address: segments[addressIndex],
+      meta: meta.map( item => item.trim() )
+    };
+  }
+
   get currentBusinessHours (): FindBusinessHours | null {
     const structured = this.currentCard?.hours;
     if ( structured?.days?.length ) return structured;
@@ -279,6 +310,8 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   get currentHasHeroImage (): boolean {
+    const fallback = this.fallbackHeroImage;
+    if ( fallback ) return !this.isImageBroken( fallback );
     if ( this.isGroundedAnswerSlide ) {
       return this.isUsableImage( this.result?.answer?.imageUrl || '' );
     }
@@ -286,10 +319,30 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   get currentHeroImage (): string {
+    if ( this.fallbackHeroImage ) return this.fallbackHeroImage;
     if ( this.isGroundedAnswerSlide ) {
       return String( this.result?.answer?.imageUrl || '' ).trim();
     }
     return String( this.currentCard?.imageUrl || '' ).trim();
+  }
+
+  get isFallbackHeroImage (): boolean {
+    return !!this.fallbackHeroImage;
+  }
+
+  private get fallbackHeroImage (): string {
+    if ( this.isWeatherMode ) return '/fallback/find-weather.png';
+    if ( this.isConversionMode ) return '/fallback/find-conversion.png';
+
+    const searchText = [
+      this.result?.query,
+      this.result?.normalizedQuery,
+      this.result?.answer?.text,
+      this.currentCard?.title
+    ].join( ' ' ).toLowerCase();
+    return /\b(sports?|nfl|nba|wnba|mlb|nhl|soccer|football|basketball|baseball|hockey)\b/.test( searchText )
+      ? '/fallback/find-sports.png'
+      : '';
   }
 
   isImageBroken ( url: string | null | undefined ): boolean {
@@ -352,9 +405,31 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   onConversionAmountChange ( value: number | string ): void {
-    const next = Number( value );
+    this.conversionAmountText = String( value ?? '' ).replace( /[^\d.-]/g, '' );
+    const next = Number( this.conversionAmountText );
     this.conversionAmount = Number.isFinite( next ) ? next : 0;
     this.calculateConversion();
+  }
+
+  appendConversionDigit ( digit: string ): void {
+    const current = this.conversionAmountText === '0' ? '' : this.conversionAmountText;
+    this.onConversionAmountChange( `${current}${digit}` );
+  }
+
+  appendConversionDecimal (): void {
+    if ( this.conversionAmountText.includes( '.' ) ) return;
+    this.conversionAmountText = `${this.conversionAmountText || '0'}.`;
+    this.conversionAmount = Number( this.conversionAmountText ) || 0;
+    this.calculateConversion();
+  }
+
+  deleteConversionDigit (): void {
+    const next = this.conversionAmountText.slice( 0, -1 );
+    this.onConversionAmountChange( next || '0' );
+  }
+
+  clearConversionAmount (): void {
+    this.onConversionAmountChange( '0' );
   }
 
   onConversionUnitChange (): void {
@@ -800,6 +875,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   private syncConversionState ( conversion: FindConversionResult | null ): void {
     if ( !conversion ) {
       this.conversionAmount = 0;
+      this.conversionAmountText = '0';
       this.conversionOutputAmount = null;
       this.conversionInputUnit = '';
       this.conversionOutputUnit = '';
@@ -812,6 +888,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       return;
     }
     this.conversionAmount = conversion.inputAmount;
+    this.conversionAmountText = String( conversion.inputAmount );
     this.conversionOutputAmount = conversion.outputAmount;
     this.conversionInputUnit = this.normalizeConversionUnit( conversion.inputUnit );
     this.conversionOutputUnit = this.normalizeConversionUnit( conversion.outputUnit );
@@ -869,12 +946,12 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     const aliases: Record<string, string> = {
       dollar: 'USD', dollars: 'USD', usd: 'USD',
       cad: 'CAD', eur: 'EUR', euro: 'EUR', euros: 'EUR',
-      gbp: 'GBP', pound: 'GBP', pounds: 'GBP',
+      gbp: 'GBP',
       jpy: 'JPY', yen: 'JPY', aud: 'AUD', cny: 'CNY', yuan: 'CNY',
       chf: 'CHF', mxn: 'MXN',
       fahrenheit: 'F', celsius: 'C',
       mile: 'mi', miles: 'mi', kilometer: 'km', kilometers: 'km',
-      poundmass: 'lb', kilogram: 'kg', kilograms: 'kg',
+      pound: 'lb', pounds: 'lb', poundmass: 'lb', kilogram: 'kg', kilograms: 'kg',
       inch: 'in', inches: 'in', centimeter: 'cm', centimeters: 'cm',
       foot: 'ft', feet: 'ft', meter: 'm', meters: 'm',
       gallon: 'gal', gallons: 'gal', liter: 'l', liters: 'l',

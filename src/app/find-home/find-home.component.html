@@ -49,8 +49,8 @@
         <button class="find-shelf__next" type="button" (click)="onNextResult()" [disabled]="isDetailView || allCards.length === 0 || resultIndex === allCards.length - 1" aria-label="Next result">→</button>
       </div>
       <!-- Hero image — clickable link, covers top half of screen -->
-      <a class="find-card-img-wrap" [class.find-card-img-wrap--landscape]="heroImageOrientation === 'landscape'" [class.find-card-img-wrap--portrait]="heroImageOrientation === 'portrait'" [class.find-card-img-wrap--square]="heroImageOrientation === 'square'" [style.--find-image-ratio]="heroImageAspectRatio" [href]="currentCard?.url" target="_blank" rel="noopener" *ngIf="currentHasHeroImage">
-        <img [src]="currentHeroImage" [alt]="currentCard?.title" class="find-card-img" (load)="onHeroImageLoad($event)" (error)="onImageError(currentHeroImage)" />
+      <a class="find-card-img-wrap" [class.find-card-img-wrap--fallback]="isFallbackHeroImage" [class.find-card-img-wrap--landscape]="heroImageOrientation === 'landscape'" [class.find-card-img-wrap--portrait]="heroImageOrientation === 'portrait'" [class.find-card-img-wrap--square]="heroImageOrientation === 'square'" [style.--find-image-ratio]="heroImageAspectRatio" [attr.href]="currentCard?.url || null" target="_blank" rel="noopener" *ngIf="currentHasHeroImage">
+        <img [src]="currentHeroImage" [alt]="currentQuestionTitle" class="find-card-img" (load)="onHeroImageLoad($event)" (error)="onImageError(currentHeroImage)" />
       </a>
       <!-- Result body -->
       <div class="find-card-body find-container">
@@ -93,7 +93,7 @@
               <div class="find-conversion-card__fields">
                 <label class="find-conversion-field">
                   <span>From</span>
-                  <input type="number" inputmode="decimal" min="-999999999999" step="any" [ngModel]="conversionAmount" (ngModelChange)="onConversionAmountChange($event)" aria-label="Amount to convert" />
+                  <input type="number" inputmode="decimal" min="-999999999999" step="any" [ngModel]="conversionAmountText" (ngModelChange)="onConversionAmountChange($event)" aria-label="Amount to convert" />
                   <select [(ngModel)]="conversionInputUnit" (ngModelChange)="onConversionUnitChange()" aria-label="Source unit">
                     <option *ngFor="let option of conversionUnitOptions" [value]="option.value">{{ option.label }}</option>
                   </select>
@@ -106,6 +106,12 @@
                     <option *ngFor="let option of conversionUnitOptions" [value]="option.value">{{ option.label }}</option>
                   </select>
                 </label>
+              </div>
+              <div class="find-conversion-keypad" aria-label="Calculator keypad">
+                <button type="button" *ngFor="let digit of conversionKeypadDigits" (click)="appendConversionDigit(digit)">{{ digit }}</button>
+                <button type="button" (click)="appendConversionDecimal()">.</button>
+                <button type="button" (click)="deleteConversionDigit()" aria-label="Backspace">⌫</button>
+                <button type="button" class="find-conversion-keypad__clear" (click)="clearConversionAmount()">Clear</button>
               </div>
               <div class="find-conversion-rate" *ngIf="conversion.category === 'currency' && conversionRate !== null">
                 1 {{ conversionInputUnit }} = {{ conversionRate | number:'1.0-6' }} {{ conversionOutputUnit }}
@@ -121,7 +127,11 @@
                 <span class="find-card-source__badge" *ngIf="currentCard?.isFirstParty">Official Taliferro result</span>
                 {{ currentCard?.displayUrl }}
               </a>
-            <h2 class="find-card-title">{{ currentCard?.title }}</h2>
+              <h2 class="find-card-title">{{ currentBusinessName }}</h2>
+              <div class="find-business-address" *ngIf="currentBusinessAddress">{{ currentBusinessAddress }}</div>
+              <div class="find-business-meta" *ngIf="currentBusinessMeta.length">
+                <a *ngFor="let item of currentBusinessMeta" [href]="currentCard?.url" target="_blank" rel="noopener">{{ item }}</a>
+              </div>
             <div class="find-hours-card" *ngIf="currentBusinessHours as hours">
               <div class="find-hours-card__header">
                 <h3>Hours</h3>

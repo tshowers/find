@@ -393,6 +393,12 @@
   text-decoration: none;
 }
 
+.find-card-img-wrap--fallback {
+  height: min(42dvh, 306px);
+  max-height: 42dvh;
+  aspect-ratio: 16 / 9;
+}
+
 @media (max-width: 767px) {
   .find-card-img-wrap {
     height: auto;
@@ -411,6 +417,12 @@
 
   .find-card-img-wrap--square {
     aspect-ratio: 1;
+  }
+
+  .find-card-img-wrap.find-card-img-wrap--fallback {
+    height: min(42dvh, 252px);
+    max-height: 42dvh;
+    aspect-ratio: 16 / 9;
   }
 }
 
@@ -484,6 +496,31 @@
   font-size: clamp(1.3rem, 5vw, 2rem);
   line-height: 1.15;
   color: var(--todd-panel-text);
+}
+
+.find-business-address {
+  margin: -4px 0 10px;
+  color: var(--todd-panel-subtext);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.find-business-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: -2px 0 16px;
+  font-size: 0.76rem;
+}
+
+.find-business-meta a {
+  color: var(--tl-blue);
+  text-decoration: none;
+}
+
+.find-business-meta a:hover,
+.find-business-meta a:focus-visible {
+  text-decoration: underline;
 }
 
 .find-card-summary {
@@ -652,6 +689,36 @@
 
 .find-conversion-swap:hover {
   background: var(--tl-blue-glow);
+}
+
+.find-conversion-keypad {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.find-conversion-keypad button {
+  min-height: 38px;
+  border: 1px solid var(--todd-panel-border);
+  border-radius: 10px;
+  background: var(--todd-input-bg);
+  color: var(--todd-panel-text);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.find-conversion-keypad button:hover,
+.find-conversion-keypad button:focus-visible {
+  border-color: var(--tl-blue-border);
+  background: var(--tl-blue-subtle);
+  outline: 0;
+}
+
+.find-conversion-keypad__clear {
+  grid-column: span 2;
+  color: var(--tl-blue) !important;
 }
 
 .find-conversion-rate,

@@ -97,4 +97,30 @@ describe('FindExperienceService', () => {
     expect(response.queryType).toBe('entity');
     expect(response.conversion).toBeUndefined();
   });
+
+  it('turns a prose currency answer into a calculator when a numeric result is present', () => {
+    let response: any;
+    service.search({ query: '100 USD to JPY' }).subscribe(value => response = value);
+
+    const request = http.expectOne( item => item.url.endsWith('/find/search') );
+    request.flush({
+      success: true,
+      query: '100 USD to JPY',
+      normalizedQuery: '100 USD to JPY',
+      queryType: 'question',
+      answer: {
+        text: '100 US dollars is approximately 15,621.7 Japanese yen.',
+        references: []
+      },
+      results: [],
+      selectedIndex: 0
+    });
+
+    expect(response.queryType).toBe('conversion');
+    expect(response.conversion.category).toBe('currency');
+    expect(response.conversion.outputAmount).toBeCloseTo(15621.7, 1);
+    expect(response.conversion.rate).toBeCloseTo(156.217, 3);
+    expect(response.conversion.source).toBe('Find answer');
+  });
+
 });

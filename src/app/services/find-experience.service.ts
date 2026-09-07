@@ -189,7 +189,7 @@ export class FindExperienceService {
   private applyLocalConversionFallback ( response: FindSearchResponse, query: string ): FindSearchResponse {
     if ( response?.queryType === 'conversion' || response?.conversion ) return response;
 
-    const conversion = this.parseLocalConversion( query );
+    const conversion = this.parseLocalConversion( query, response?.answer?.text || '' );
     if ( !conversion ) return response;
 
     return {
@@ -203,7 +203,7 @@ export class FindExperienceService {
     };
   }
 
-  private parseLocalConversion ( query: string ): FindConversionResult | null {
+  private parseLocalConversion ( query: string, answerText = '' ): FindConversionResult | null {
     const tokens = String( query || '' ).trim().toLowerCase().split( /\s+(?:to|in|into)\s+/ );
     if ( tokens.length !== 2 ) return null;
 
@@ -213,18 +213,24 @@ export class FindExperienceService {
 
     const input = this.localConversionUnit( left[2] );
     const output = this.localConversionUnit( right[1] );
-    if ( !input || !output || input.category === 'currency' || input.category !== output.category ) return null;
+    if ( !input || !output || input.category !== output.category ) return null;
 
     const inputAmount = left[1] === undefined ? 1 : Number( left[1] );
     if ( !Number.isFinite( inputAmount ) ) return null;
 
     let outputAmount: number;
+    let rate: number | undefined;
     if ( input.category === 'temperature' ) {
       outputAmount = input.unit === output.unit
         ? inputAmount
         : input.unit === 'fahrenheit'
           ? ( inputAmount - 32 ) * 5 / 9
           : inputAmount * 9 / 5 + 32;
+    } else if ( input.category === 'currency' ) {
+      const answerAmount = this.extractCurrencyAnswerAmount( answerText, inputAmount, output.unit );
+      if ( answerAmount === null ) return null;
+      outputAmount = answerAmount;
+      rate = outputAmount / inputAmount;
     } else {
       outputAmount = inputAmount * ( input.factor || 1 ) / ( output.factor || 1 );
     }
@@ -237,8 +243,31 @@ export class FindExperienceService {
       outputAmount,
       outputUnit: output.unit,
       outputUnitLabel: output.label,
-      source: 'Find local conversion'
+      rate,
+      source: input.category === 'currency' ? 'Find answer' : 'Find local conversion'
     };
+  }
+
+  private extractCurrencyAnswerAmount ( answerText: string, inputAmount: number, outputUnit: string ): number | null {
+    const targetTerms: Record<string, string> = {
+      USD: '(?:us\\s*)?dollars?|usd', CAD: 'canadian\\s*dollars?|cad',
+      EUR: 'euros?|eur', GBP: 'pounds?|gbp', JPY: '(?:japanese\\s*)?yen|jpy',
+      AUD: 'australian\\s*dollars?|aud', CNY: '(?:chinese\\s*)?(?:yuan|renminbi)|cny',
+      CHF: 'swiss\\s*francs?|chf', MXN: 'mexican\\s*pesos?|mxn'
+    };
+    const target = targetTerms[outputUnit];
+    if ( target ) {
+      const match = String( answerText || '' ).match( new RegExp( `([-+]?\\d[\\d,]*(?:\\.\\d+)?)\\s*(?:${target})`, 'i' ) );
+      const targeted = match ? Number( match[1].replace( /,/g, '' ) ) : NaN;
+      if ( Number.isFinite( targeted ) && Math.abs( targeted - inputAmount ) > Number.EPSILON ) return targeted;
+    }
+
+    const matches = String( answerText || '' ).match( /[-+]?\d[\d,]*(?:\.\d+)?/g ) || [];
+    const values = matches
+      .map( value => Number( value.replace( /,/g, '' ) ) )
+      .filter( value => Number.isFinite( value ) );
+    const output = values.reverse().find( value => Math.abs( value - inputAmount ) > Number.EPSILON );
+    return output === undefined ? null : output;
   }
 
   private localConversionUnit ( value: string ): { category: FindConversionCategory; unit: string; label: string; factor?: number } | null {
@@ -247,6 +276,21 @@ export class FindExperienceService {
       fahrenheit: { category: 'temperature', unit: 'fahrenheit', label: 'Fahrenheit' },
       c: { category: 'temperature', unit: 'celsius', label: 'Celsius' },
       celsius: { category: 'temperature', unit: 'celsius', label: 'Celsius' },
+      usd: { category: 'currency', unit: 'USD', label: 'US Dollar (USD)' },
+      dollar: { category: 'currency', unit: 'USD', label: 'US Dollar (USD)' },
+      dollars: { category: 'currency', unit: 'USD', label: 'US Dollar (USD)' },
+      cad: { category: 'currency', unit: 'CAD', label: 'Canadian Dollar (CAD)' },
+      eur: { category: 'currency', unit: 'EUR', label: 'Euro (EUR)' },
+      euro: { category: 'currency', unit: 'EUR', label: 'Euro (EUR)' },
+      euros: { category: 'currency', unit: 'EUR', label: 'Euro (EUR)' },
+      gbp: { category: 'currency', unit: 'GBP', label: 'British Pound (GBP)' },
+      jpy: { category: 'currency', unit: 'JPY', label: 'Japanese Yen (JPY)' },
+      yen: { category: 'currency', unit: 'JPY', label: 'Japanese Yen (JPY)' },
+      aud: { category: 'currency', unit: 'AUD', label: 'Australian Dollar (AUD)' },
+      cny: { category: 'currency', unit: 'CNY', label: 'Chinese Yuan (CNY)' },
+      yuan: { category: 'currency', unit: 'CNY', label: 'Chinese Yuan (CNY)' },
+      chf: { category: 'currency', unit: 'CHF', label: 'Swiss Franc (CHF)' },
+      mxn: { category: 'currency', unit: 'MXN', label: 'Mexican Peso (MXN)' },
       mi: { category: 'distance', unit: 'miles', label: 'Miles', factor: 1.609344 },
       mile: { category: 'distance', unit: 'miles', label: 'Miles', factor: 1.609344 },
       miles: { category: 'distance', unit: 'miles', label: 'Miles', factor: 1.609344 },
