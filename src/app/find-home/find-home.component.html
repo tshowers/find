@@ -130,6 +130,7 @@
               </a>
               <h2 class="find-card-title">{{ currentBusinessName }}</h2>
               <div class="find-business-address" *ngIf="currentBusinessAddress">{{ currentBusinessAddress }}</div>
+              <a class="find-business-phone" *ngIf="currentBusinessPhone" [href]="currentBusinessPhoneHref">{{ currentBusinessPhone }}</a>
               <div class="find-business-meta" *ngIf="currentBusinessMeta.length">
                 <a *ngFor="let item of currentBusinessMeta" [href]="currentCard?.url" target="_blank" rel="noopener">{{ item }}</a>
               </div>
@@ -152,6 +153,9 @@
             <div class="desc-pad">
               <div class="find-card-summary find-rich-text" *ngIf="!currentHoursFromSummary" [innerHTML]="formatRichText(currentAnswerText)"></div>
             </div>
+              <p class="find-local-attribution" *ngIf="isLocalMode">
+                Business details powered by <a href="https://www.google.com/" target="_blank" rel="noopener">Google</a>
+              </p>
             </ng-container>
             <ng-template #questionAnswerView>
               <div class="find-question-card">
@@ -208,6 +212,8 @@
           <span class="find-grid-tile__source">{{ card.displayUrl }}</span>
           <h3 [innerHTML]="highlightTerms(card.title)"></h3>
           <p *ngIf="card.summary" class="find-grid-tile__desc" [innerHTML]="highlightTerms(card.summary)"></p>
+          <p *ngIf="card.address" class="find-grid-tile__address">{{ card.address }}</p>
+          <p *ngIf="card.phone" class="find-grid-tile__phone">{{ card.phone }}</p>
         </div>
       </a>
     </div>

@@ -62,6 +62,9 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     left: 0, right: 1, up: 2, down: 3
   };
 
+  private lastKnownPosition: { latitude: number; longitude: number } | null = null;
+  private readonly NEAR_ME_PATTERN = /\bnear me\b/i;
+
   private gyroHoldTimer: ReturnType<typeof setTimeout> | null = null;
   private loadingTimer: ReturnType<typeof setInterval> | null = null;
   private loadingStartedAtMs: number | null = null;
@@ -202,6 +205,10 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     return this.result?.queryType === 'conversion' && !!this.result?.conversion;
   }
 
+  get isLocalMode (): boolean {
+    return this.result?.queryType === 'local';
+  }
+
   get conversion (): FindConversionResult | null {
     return this.result?.conversion || null;
   }
@@ -263,7 +270,15 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   get currentBusinessAddress (): string {
-    return this.businessTitleParts.address;
+    return String( this.currentCard?.address || '' ).trim() || this.businessTitleParts.address;
+  }
+
+  get currentBusinessPhone (): string {
+    return String( this.currentCard?.phone || '' ).trim();
+  }
+
+  get currentBusinessPhoneHref (): string {
+    return `tel:${ this.currentBusinessPhone.replace( /[^\d+]/g, '' ) }`;
   }
 
   get currentBusinessMeta (): string[] {
@@ -796,36 +811,72 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       this.updateCards();
     }
 
-    this.findExperienceService.search( {
-      query,
-      context: normalizedContext || null,
-      maxResults: 10
-    } ).subscribe( {
-      next: ( response ) => {
-        this.isLoading = false;
-        this.stopLoadingTimer( response?.timings?.totalMs );
-        this.result = response || null;
-        this.syncConversionState( response?.conversion || null );
-        this.selectedResultIndex = Math.max( 0, Math.min( response.selectedIndex || 0, ( response.results?.length || 1 ) - 1 ) );
-        this.resultIndex = this.selectedResultIndex;
-        this.updateCards();
-        this.highlightedPill = '';
-        this.activeView = 'result';
-        this.saveToHistory( query );
-        if ( response?.queryType !== 'question' && response?.queryType !== 'weather' && response?.queryType !== 'conversion' ) {
-          this.loadSummary();
+    this.resolveCoordinatesForQuery( query ).then( ( coords ) => {
+      this.findExperienceService.search( {
+        query,
+        context: normalizedContext || null,
+        maxResults: 10,
+        latitude: coords?.latitude ?? null,
+        longitude: coords?.longitude ?? null
+      } ).subscribe( {
+        next: ( response ) => {
+          this.isLoading = false;
+          this.stopLoadingTimer( response?.timings?.totalMs );
+          this.result = response || null;
+          this.syncConversionState( response?.conversion || null );
+          this.selectedResultIndex = Math.max( 0, Math.min( response.selectedIndex || 0, ( response.results?.length || 1 ) - 1 ) );
+          this.resultIndex = this.selectedResultIndex;
+          this.updateCards();
+          this.highlightedPill = '';
+          this.activeView = 'result';
+          this.saveToHistory( query );
+          if ( response?.queryType !== 'question' && response?.queryType !== 'weather' && response?.queryType !== 'conversion' && response?.queryType !== 'local' ) {
+            this.loadSummary();
+          }
+        },
+        error: ( err ) => {
+          this.isLoading = false;
+          this.stopLoadingTimer();
+          this.result = null;
+          this.updateCards();
+          this.activeView = 'search';
+          this.selectedResultIndex = 0;
+          this.errorMessage = err?.error?.message || err?.message || 'Find could not produce a result right now.';
+          this.syncConversionState( null );
         }
-      },
-      error: ( err ) => {
-        this.isLoading = false;
-        this.stopLoadingTimer();
-        this.result = null;
-        this.updateCards();
-        this.activeView = 'search';
-        this.selectedResultIndex = 0;
-        this.errorMessage = err?.error?.message || err?.message || 'Find could not produce a result right now.';
-        this.syncConversionState( null );
-      }
+      } );
+    } );
+  }
+
+  // Geolocation is only requested for "near me"-shaped queries, never on
+  // page load, and the granted position is cached for the rest of the
+  // session so the browser prompt doesn't reappear on every search. A
+  // denied/unsupported/timed-out request resolves to null rather than
+  // rejecting, so the query still runs (without coordinates) instead of
+  // blocking — the backend's "near me" fast path simply won't match and the
+  // search falls through to a normal result.
+  private resolveCoordinatesForQuery ( query: string ): Promise<{ latitude: number; longitude: number } | null> {
+    if ( !this.NEAR_ME_PATTERN.test( query ) ) return Promise.resolve( null );
+    if ( this.lastKnownPosition ) return Promise.resolve( this.lastKnownPosition );
+    if ( typeof navigator === 'undefined' || !navigator.geolocation ) return Promise.resolve( null );
+
+    return new Promise( ( resolve ) => {
+      const timeoutId = setTimeout( () => resolve( null ), 8000 );
+      navigator.geolocation.getCurrentPosition(
+        ( position ) => {
+          clearTimeout( timeoutId );
+          this.lastKnownPosition = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          };
+          resolve( this.lastKnownPosition );
+        },
+        () => {
+          clearTimeout( timeoutId );
+          resolve( null );
+        },
+        { timeout: 8000, maximumAge: 5 * 60 * 1000 }
+      );
     } );
   }
 

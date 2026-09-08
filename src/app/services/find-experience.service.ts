@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
-export type FindQueryType = 'entity' | 'question' | 'person' | 'weather' | 'conversion';
+export type FindQueryType = 'entity' | 'question' | 'person' | 'weather' | 'conversion' | 'local';
 export type FindSourceType = 'official' | 'publisher' | 'government' | 'academic' | 'medical' | 'encyclopedia';
 
 export interface FindBusinessHoursPeriod {
@@ -57,6 +57,8 @@ export interface FindRankedResult {
   entityName?: string;
   logoUrl?: string;
   hours?: FindBusinessHours;
+  address?: string;
+  phone?: string;
 }
 
 export interface FindWeatherResult {
@@ -138,13 +140,17 @@ export class FindExperienceService {
     query: string;
     context?: string | null;
     maxResults?: number;
+    latitude?: number | null;
+    longitude?: number | null;
   } ): Observable<FindSearchResponse> {
     const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
     const postalCode = this.extractPostalCode( payload?.query );
+    const hasCoordinates = Number.isFinite( payload?.latitude ) && Number.isFinite( payload?.longitude );
     const body = {
       query: String( payload?.query || '' ).trim(),
       context: String( payload?.context || '' ).trim() || null,
       ...( postalCode ? { postalCode } : {} ),
+      ...( hasCoordinates ? { latitude: payload!.latitude, longitude: payload!.longitude } : {} ),
       maxResults: Math.max( 1, Math.min( 10, Number( payload?.maxResults ) || 10 ) )
     };
 

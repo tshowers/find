@@ -48,6 +48,32 @@ describe('FindExperienceService', () => {
     request.flush({ success: true, query: 'weather tomorrow', normalizedQuery: 'weather tomorrow', queryType: 'weather', results: [], selectedIndex: 0 });
   });
 
+  it('forwards coordinates for a "near me" search when a position is available', () => {
+    service.search({ query: 'places to eat near me', latitude: 47.5218, longitude: -122.3466 }).subscribe();
+
+    const request = http.expectOne( item => item.url.endsWith('/find/search') );
+    expect(request.request.body).toEqual({
+      query: 'places to eat near me',
+      context: null,
+      latitude: 47.5218,
+      longitude: -122.3466,
+      maxResults: 10,
+    });
+    request.flush({ success: true, query: 'places to eat near me', normalizedQuery: 'places to eat near me', queryType: 'local', results: [], selectedIndex: 0 });
+  });
+
+  it('omits coordinates when geolocation was denied or unavailable', () => {
+    service.search({ query: 'places to eat near me', latitude: null, longitude: null }).subscribe();
+
+    const request = http.expectOne( item => item.url.endsWith('/find/search') );
+    expect(request.request.body).toEqual({
+      query: 'places to eat near me',
+      context: null,
+      maxResults: 10,
+    });
+    request.flush({ success: true, query: 'places to eat near me', normalizedQuery: 'places to eat near me', queryType: 'entity', results: [], selectedIndex: 0 });
+  });
+
   it('falls back to a deterministic local conversion when the backend has not classified it', () => {
     let response: any;
     service.search({ query: '10 miles to kilometers' }).subscribe(value => response = value);
