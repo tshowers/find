@@ -584,6 +584,19 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     return names[normalized.slice( 0, 3 )] || value;
   }
 
+  // Places results fall back to a Google Maps link (googleMapsUri, or a
+  // constructed place-id URL) when a business has no real website — nothing
+  // useful to scrape/summarize there, unlike an actual business site.
+  private isGoogleMapsUrl ( url: string | null | undefined ): boolean {
+    try {
+      const parsed = new URL( String( url || '' ) );
+      const host = parsed.hostname.replace( /^www\./, '' );
+      return host === 'maps.google.com' || ( host === 'google.com' && parsed.pathname.startsWith( '/maps' ) );
+    } catch {
+      return false;
+    }
+  }
+
   private loadSummary (): void {
     this.summarySub?.unsubscribe();
     const card = this.allCards[0];
@@ -830,7 +843,9 @@ export class FindHomeComponent implements OnInit, OnDestroy {
           this.highlightedPill = '';
           this.activeView = 'result';
           this.saveToHistory( query );
-          if ( response?.queryType !== 'question' && response?.queryType !== 'weather' && response?.queryType !== 'conversion' && response?.queryType !== 'local' ) {
+          const isLocalResult = response?.queryType === 'local';
+          const localHasRealWebsite = isLocalResult && !this.isGoogleMapsUrl( response.results?.[0]?.url );
+          if ( response?.queryType !== 'question' && response?.queryType !== 'weather' && response?.queryType !== 'conversion' && ( !isLocalResult || localHasRealWebsite ) ) {
             this.loadSummary();
           }
         },
