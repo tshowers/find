@@ -522,20 +522,6 @@
   line-height: 1.45;
 }
 
-.find-business-phone {
-  display: inline-block;
-  margin: -6px 0 10px;
-  color: var(--tl-blue);
-  font-size: 0.92rem;
-  line-height: 1.45;
-  text-decoration: none;
-}
-
-.find-business-phone:hover,
-.find-business-phone:focus-visible {
-  text-decoration: underline;
-}
-
 .find-business-meta {
   display: flex;
   flex-wrap: wrap;
@@ -775,17 +761,6 @@
   gap: 12px;
   font-size: 0.82rem;
   color: var(--todd-panel-subtext);
-}
-
-.find-osm-attribution {
-  margin: 10px 0 0;
-  color: var(--todd-panel-subtext);
-  font-size: 0.72rem;
-}
-
-.find-osm-attribution a {
-  color: inherit;
-  text-decoration: underline;
 }
 
 .find-conversion-rate {
@@ -1202,17 +1177,6 @@
   line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.find-grid-tile__address,
-.find-grid-tile__phone {
-  margin: 0;
-  font-size: 0.86rem;
-  line-height: 1.4;
-  color: var(--todd-panel-subtext);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 @media (max-width: 600px) {
