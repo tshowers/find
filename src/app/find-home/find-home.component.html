@@ -45,6 +45,7 @@
           <div class="find-shelf__dots" *ngIf="allCards.length > 1 && !isDetailView" aria-hidden="true">
             <span *ngFor="let c of allCards; let i = index" class="find-shelf-dot" [class.find-shelf-dot--active]="i === resultIndex"></span>
           </div>
+          <button type="button" class="find-shelf__see-all" *ngIf="allCards.length > 1 && !isDetailView && !isWeatherMode" (click)="setView('booklet')">See all {{ allCards.length }} options</button>
         </div>
         <button class="find-shelf__next" type="button" (click)="onNextResult()" [disabled]="isDetailView || allCards.length === 0 || resultIndex === allCards.length - 1" aria-label="Next result">→</button>
       </div>
