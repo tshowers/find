@@ -57,6 +57,8 @@ export interface FindRankedResult {
   entityName?: string;
   logoUrl?: string;
   hours?: FindBusinessHours;
+  address?: string;
+  phone?: string;
 }
 
 export interface FindWeatherResult {

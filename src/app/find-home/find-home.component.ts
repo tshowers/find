@@ -270,7 +270,15 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   get currentBusinessAddress (): string {
-    return this.businessTitleParts.address;
+    return String( this.currentCard?.address || '' ).trim() || this.businessTitleParts.address;
+  }
+
+  get currentBusinessPhone (): string {
+    return String( this.currentCard?.phone || '' ).trim();
+  }
+
+  get currentBusinessPhoneHref (): string {
+    return `tel:${ this.currentBusinessPhone.replace( /[^\d+]/g, '' ) }`;
   }
 
   get currentBusinessMeta (): string[] {
