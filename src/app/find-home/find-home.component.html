@@ -152,28 +152,6 @@
             <div class="desc-pad">
               <div class="find-card-summary find-rich-text" *ngIf="!currentHoursFromSummary" [innerHTML]="formatRichText(currentAnswerText)"></div>
             </div>
-              <div class="find-hours-card" *ngIf="isLocalMode && currentCard?.hours as hours">
-                <p class="find-hours-card__status" *ngIf="hours.statusText"
-                   [class.find-hours-card__status--open]="hours.isOpenNow"
-                   [class.find-hours-card__status--closed]="hours.isOpenNow === false">
-                  {{ hours.statusText }}
-                </p>
-                <div class="find-hours-card__days">
-                  <div class="find-hours-card__day" *ngFor="let day of hours.days">
-                    <span class="find-hours-card__day-name">{{ day.day }}</span>
-                    <span class="find-hours-card__day-periods" *ngIf="day.isTwentyFourHours; else dayPeriods">Open 24 hours</span>
-                    <ng-template #dayPeriods>
-                      <span class="find-hours-card__day-periods" *ngIf="day.isClosed; else periodList">Closed</span>
-                      <ng-template #periodList>
-                        <span class="find-hours-card__day-periods">
-                          <span *ngFor="let period of day.periods; let last = last">{{ period.open }}–{{ period.close }}<span *ngIf="!last">, </span></span>
-                        </span>
-                      </ng-template>
-                    </ng-template>
-                  </div>
-                </div>
-                <p class="find-hours-card__holiday" *ngFor="let note of hours.holidayNotes">{{ note }}</p>
-              </div>
               <p class="find-osm-attribution" *ngIf="isLocalMode">
                 Business details from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a>
               </p>

@@ -755,44 +755,12 @@
   background: var(--todd-surface-1);
 }
 
-.find-hours-card__status {
-  margin: 0 0 12px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--todd-panel-text);
-}
-
-.find-hours-card__status--open {
-  color: #4ade80;
-}
-
-.find-hours-card__status--closed {
-  color: #ffbd69;
-}
-
-.find-hours-card__days {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 .find-hours-card__day {
   display: flex;
   justify-content: space-between;
   gap: 12px;
   font-size: 0.82rem;
   color: var(--todd-panel-subtext);
-}
-
-.find-hours-card__day-name {
-  color: var(--todd-panel-text);
-  font-weight: 600;
-}
-
-.find-hours-card__holiday {
-  margin: 12px 0 0;
-  color: var(--todd-panel-subtext);
-  font-size: 0.74rem;
 }
 
 .find-osm-attribution {
