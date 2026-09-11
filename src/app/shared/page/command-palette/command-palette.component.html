@@ -1,0 +1,38 @@
+<div class="cmdk-overlay" *ngIf="isOpen" (mousedown)="close()">
+  <div class="cmdk-panel" role="dialog" aria-modal="true" aria-label="Command palette" (mousedown)="$event.stopPropagation()">
+    <div class="cmdk-input-row">
+      <i class="fa-solid fa-magnifying-glass cmdk-search-icon" aria-hidden="true"></i>
+      <input
+        #paletteInput
+        type="text"
+        class="cmdk-input"
+        placeholder="Search apps and pages…"
+        [(ngModel)]="query"
+        (ngModelChange)="onQueryChange()"
+        autocomplete="off"
+        aria-label="Search apps and pages"
+      />
+      <kbd class="cmdk-esc">Esc</kbd>
+    </div>
+    <ul class="cmdk-results" role="listbox">
+      <li
+        *ngFor="let entry of results; let i = index"
+        role="option"
+        [attr.aria-selected]="i === activeIndex"
+        class="cmdk-result"
+        [class.cmdk-result--active]="i === activeIndex"
+        (mouseenter)="activeIndex = i"
+        (click)="select(entry)"
+      >
+        <img *ngIf="entry.icon" [src]="entry.icon" alt="" class="cmdk-result-icon" />
+        <span class="cmdk-result-label">{{ entry.label }}</span>
+        <span class="cmdk-result-group">{{ entry.group }}</span>
+      </li>
+      <li *ngIf="!results.length" class="cmdk-empty">No matches</li>
+    </ul>
+    <div class="cmdk-footer">
+      <span>↑↓ to navigate</span>
+      <span>Enter to select</span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<button
+  type="button"
+  class="platform-menu-trigger"
+  (click)="toggle()"
+  [attr.aria-expanded]="isOpen"
+  aria-controls="platform-menu-panel"
+  [attr.aria-label]="isOpen ? 'Close menu' : 'Open menu'"
+>
+  <span class="platform-menu-trigger__bars" aria-hidden="true"><i></i><i></i><i></i></span>
+  <span class="platform-menu-trigger__label">{{ isOpen ? 'Close' : 'Menu' }}</span>
+</button>
+
+<div class="platform-menu-overlay" *ngIf="isOpen" (click)="close()"></div>
+
+<div
+  id="platform-menu-panel"
+  class="platform-menu-panel"
+  [class.platform-menu-panel--open]="isOpen"
+  role="dialog"
+  aria-label="Taliferro apps"
+>
+  <div class="platform-menu-panel__inner">
+    <span class="platform-menu-eyebrow">Products</span>
+    <div class="platform-menu-launcher">
+      <a
+        *ngFor="let link of productLinks"
+        class="platform-menu-app"
+        [href]="link.url"
+        target="_blank"
+        rel="noopener noreferrer"
+        (click)="close()"
+      >
+        <span class="platform-menu-app__icon"><img [src]="link.icon" alt="" aria-hidden="true" /></span>
+        <span class="platform-menu-app__label">{{ link.label }}</span>
+      </a>
+    </div>
+  </div>
+</div>

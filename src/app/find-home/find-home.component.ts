@@ -89,6 +89,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       // shortcuts such as Firefox, which use the conventional `q` parameter.
       const next = String( params.get( 'query' ) || params.get( 'q' ) || '' ).trim();
       const nextContext = String( params.get( 'context' ) || '' ).trim();
+      const requestedView = params.get( 'view' );
       if ( next ) {
         this.query = next;
         this.activeContext = nextContext;
@@ -102,6 +103,9 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       this.query = '';
       this.activeContext = '';
       this.activeView = 'search';
+      if ( requestedView === 'history' || requestedView === 'info' ) {
+        this.activeView = requestedView;
+      }
       this.selectedResultIndex = 0;
     } );
   }

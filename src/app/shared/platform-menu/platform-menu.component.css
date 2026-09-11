@@ -1,0 +1,347 @@
+/**
+ * Self-contained on purpose: this used to borrow --todd-* variables from
+ * the host app's own stylesheet, which turned out not to be consistent
+ * across apps - Outreach defines none of them (it runs its own --site-*
+ * scheme), so the panel's background/text/border all resolved to nothing
+ * and the page underneath showed straight through. Defining every color
+ * locally guarantees this renders correctly regardless of what design
+ * system the app around it happens to use.
+ */
+:host {
+  display: block;
+  --pm-bg: #ffffff;
+  --pm-text: #1b2023;
+  --pm-subtext: #5b6469;
+  --pm-border: #d8dcd9;
+  --pm-accent: #2c6cb0;
+  --pm-icon-bg: rgba(27, 32, 35, 0.05);
+  --pm-overlay: rgba(10, 14, 22, 0.4);
+  --pm-shadow: 0 32px 70px rgba(15, 23, 42, 0.26);
+}
+
+/* System dark preference, when the app has no manual toggle of its own. */
+@media (prefers-color-scheme: dark) {
+  :host {
+    --pm-bg: #1c2226;
+    --pm-text: #e7ebec;
+    --pm-subtext: #97a3a7;
+    --pm-border: #333c40;
+    --pm-accent: #7fb3d8;
+    --pm-icon-bg: rgba(231, 235, 236, 0.08);
+    --pm-overlay: rgba(0, 0, 0, 0.55);
+    --pm-shadow: 0 32px 70px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Outreach's own manual toggle sets .dark on <html> - honor that over the
+   OS preference, the same way a manual toggle should always win. Also
+   covers apps that use [data-theme="dark"] instead, so this one file
+   works no matter which convention a given app happens to use. */
+:host-context(html.dark),
+:host-context([data-theme="dark"]) {
+  --pm-bg: #1c2226;
+  --pm-text: #e7ebec;
+  --pm-subtext: #97a3a7;
+  --pm-border: #333c40;
+  --pm-accent: #7fb3d8;
+  --pm-icon-bg: rgba(231, 235, 236, 0.08);
+  --pm-overlay: rgba(0, 0, 0, 0.55);
+  --pm-shadow: 0 32px 70px rgba(0, 0, 0, 0.5);
+}
+
+.platform-menu-trigger {
+  position: relative;
+  z-index: 10002;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 7px 14px 7px 11px;
+  border: 1px solid var(--pm-border);
+  border-radius: 999px;
+  background: var(--pm-bg);
+  color: var(--pm-text);
+  cursor: pointer;
+}
+
+.platform-menu-trigger__bars {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 20px;
+}
+
+.platform-menu-trigger__bars i {
+  display: block;
+  height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.platform-menu-trigger[aria-expanded="true"] .platform-menu-trigger__bars i:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.platform-menu-trigger[aria-expanded="true"] .platform-menu-trigger__bars i:nth-child(2) {
+  opacity: 0;
+}
+
+.platform-menu-trigger[aria-expanded="true"] .platform-menu-trigger__bars i:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+.platform-menu-trigger__label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.platform-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: var(--pm-overlay);
+}
+
+.platform-menu-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10001;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow-y: auto;
+  background: var(--pm-bg);
+  border-bottom: 1px solid var(--pm-border);
+  border-radius: 0;
+  box-shadow: var(--pm-shadow);
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-100%);
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.platform-menu-panel--open {
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.platform-menu-panel__inner {
+  min-height: 100%;
+  padding: 76px clamp(24px, 5vw, 64px) 48px;
+  max-width: 1160px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.platform-menu-panel__columns {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.platform-menu-eyebrow {
+  display: block;
+  margin-bottom: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pm-subtext);
+}
+
+.platform-menu-route-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 18px;
+  margin-bottom: 34px;
+}
+
+.platform-menu-route {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--pm-border);
+  color: var(--pm-text);
+  text-decoration: none;
+  font-size: clamp(1.15rem, 2vw, 1.55rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  transition: color 0.15s ease, padding-left 0.2s ease;
+}
+
+.platform-menu-route:first-child {
+  padding-top: 0;
+}
+
+.platform-menu-route b {
+  font-size: .58em;
+  font-weight: 700;
+}
+
+.platform-menu-route:hover {
+  color: var(--pm-accent);
+  padding-left: 10px;
+}
+
+.platform-menu-launcher {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 30px 20px;
+  max-width: 720px;
+}
+
+.platform-menu-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--pm-text);
+}
+
+.platform-menu-app__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 20px;
+  background: var(--pm-icon-bg);
+  border: 1px solid var(--pm-border);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.platform-menu-app__icon img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.platform-menu-app__label {
+  font-size: 0.8rem;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.platform-menu-app:hover .platform-menu-app__icon {
+  border-color: var(--pm-accent);
+  transform: translateY(-2px);
+}
+
+.platform-menu-app:hover .platform-menu-app__label {
+  color: var(--pm-accent);
+}
+
+.platform-menu-editorial {
+  display: flex;
+  flex-direction: column;
+}
+
+.platform-menu-editorial__link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--pm-border);
+  color: var(--pm-text);
+  text-decoration: none;
+  font-size: clamp(1.5rem, 2.6vw, 2.15rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  transition: color 0.15s ease, padding-left 0.2s ease;
+}
+
+.platform-menu-editorial__link:first-child {
+  padding-top: 0;
+}
+
+.platform-menu-editorial__link b {
+  font-size: 0.55em;
+  font-weight: 700;
+}
+
+.platform-menu-editorial__link:hover {
+  color: var(--pm-accent);
+  padding-left: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .platform-menu-app__icon img {
+    filter: invert(1) brightness(1.15);
+  }
+}
+
+:host-context(html.dark) .platform-menu-app__icon img,
+:host-context([data-theme="dark"]) .platform-menu-app__icon img {
+  filter: invert(1) brightness(1.15);
+}
+
+
+.platform-menu-contact {
+  margin-top: auto;
+  padding-top: 56px;
+  border-top: 1px solid var(--pm-border);
+}
+
+.platform-menu-contact .platform-menu-eyebrow {
+  margin-bottom: 14px;
+}
+
+.platform-menu-contact__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  color: var(--pm-subtext);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.platform-menu-contact__details b {
+  color: var(--pm-text);
+}
+
+@media (max-width: 760px) {
+  .platform-menu-panel__columns {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .platform-menu-route-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .platform-menu-trigger__label {
+    display: none;
+  }
+
+  .platform-menu-trigger {
+    padding-inline: 11px;
+  }
+
+  .platform-menu-panel__inner {
+    padding: 64px 20px 32px;
+  }
+
+  .platform-menu-editorial__link {
+    font-size: 1.5rem;
+  }
+
+  .platform-menu-launcher {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px 12px;
+  }
+
+  .platform-menu-app__icon { width: 68px; height: 68px; }
+  .platform-menu-app__icon img { width: 36px; height: 36px; }
+}

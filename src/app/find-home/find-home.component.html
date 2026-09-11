@@ -16,6 +16,10 @@
     <p class="find-timer" *ngIf="isLoading">Searching for {{ liveElapsedSeconds }}s</p>
     <p class="find-timer" *ngIf="!isLoading && lastResponseMs > 0">Last response: {{ responseSeconds }}s</p>
     <p class="find-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <a class="find-app-store-badge" href="https://apps.apple.com/us/app/taliferro-find/id6806954591" target="_blank" rel="noopener noreferrer" aria-label="Download Find on the App Store">
+      <i class="fa-brands fa-apple" aria-hidden="true"></i>
+      <span><small>Download on the</small><strong>App Store</strong></span>
+    </a>
   </div>
   <!-- ── RESULT VIEW ──────────────────────────────────────────── -->
   <div class="find-result-screen" *ngIf="activeView === 'result' || activeView === 'detail'">
@@ -49,12 +53,13 @@
         </div>
         <button class="find-shelf__next" type="button" (click)="onNextResult()" [disabled]="isDetailView || allCards.length === 0 || resultIndex === allCards.length - 1" aria-label="Next result">→</button>
       </div>
-      <!-- Hero image — clickable link, covers top half of screen -->
-      <a class="find-card-img-wrap" [class.find-card-img-wrap--fallback]="isFallbackHeroImage" [class.find-card-img-wrap--landscape]="heroImageOrientation === 'landscape'" [class.find-card-img-wrap--portrait]="heroImageOrientation === 'portrait'" [class.find-card-img-wrap--square]="heroImageOrientation === 'square'" [style.--find-image-ratio]="heroImageAspectRatio" [attr.href]="currentCard?.url || null" target="_blank" rel="noopener" *ngIf="currentHasHeroImage">
-        <img [src]="currentHeroImage" [alt]="currentQuestionTitle" class="find-card-img" (load)="onHeroImageLoad($event)" (error)="onImageError(currentHeroImage)" />
-      </a>
-      <!-- Result body -->
-      <div class="find-card-body find-container">
+      <div class="find-result-layout">
+        <!-- Hero image — clickable link, paired with the answer on desktop -->
+        <a class="find-card-img-wrap" [class.find-card-img-wrap--fallback]="isFallbackHeroImage" [class.find-card-img-wrap--landscape]="heroImageOrientation === 'landscape'" [class.find-card-img-wrap--portrait]="heroImageOrientation === 'portrait'" [class.find-card-img-wrap--square]="heroImageOrientation === 'square'" [style.--find-image-ratio]="heroImageAspectRatio" [attr.href]="currentCard?.url || null" target="_blank" rel="noopener" *ngIf="currentHasHeroImage">
+          <img [src]="currentHeroImage" [alt]="currentQuestionTitle" class="find-card-img" (load)="onHeroImageLoad($event)" (error)="onImageError(currentHeroImage)" />
+        </a>
+        <!-- Result body -->
+        <div class="find-card-body find-container">
         <ng-container *ngIf="isWeatherMode; else nonWeatherView">
           <div class="find-weather-card" *ngIf="result?.weather as weather">
             <img class="find-weather-card__icon" *ngIf="weather.iconUrl" [src]="weather.iconUrl" [alt]="weather.description || weather.condition" />
@@ -190,6 +195,7 @@
           <span *ngIf="currentCard?.answer && !currentCard?.isFirstParty && !isQuestionMode"> · TODD summary</span>
           <span *ngIf="isQuestionMode"> · {{ isGroundedAnswerSlide ? 'grounded answer' : 'supporting result' }}</span>
         </p>
+        </div>
       </div>
       <div class="find-lead-vault-cta" *ngIf="isPersonSearch">
         <p>Looking for contact details or prospects?</p>
@@ -243,6 +249,10 @@
       <span class="find-screen-header__spacer" aria-hidden="true"></span>
     </div>
     <div class="find-info-body">
+      <a class="find-info-app-link" href="https://apps.apple.com/us/app/taliferro-find/id6806954591" target="_blank" rel="noopener noreferrer">
+        <span class="find-info-app-link__eyebrow">Find for iPhone</span>
+        <strong>Download Find from the App Store <span aria-hidden="true">↗</span></strong>
+      </a>
       <div class="find-info-card">
         <span class="find-info-num">01</span>
         <h3>One destination, not a list</h3>
