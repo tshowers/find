@@ -151,16 +151,16 @@ export class FindExperienceService {
       context: String( payload?.context || '' ).trim() || null,
       ...( postalCode ? { postalCode } : {} ),
       ...( hasCoordinates ? { latitude: payload!.latitude, longitude: payload!.longitude } : {} ),
-      maxResults: Math.max( 1, Math.min( 10, Number( payload?.maxResults ) || 10 ) )
+      maxResults: Math.max( 1, Math.min( 20, Number( payload?.maxResults ) || 20 ) )
     };
 
     return this.postWithLocalFallback<FindSearchResponse>( '/find/search', body, { headers } )
       .pipe( map( response => this.applyLocalConversionFallback( response, body.query ) ) );
   }
 
-  summarize ( payload: { query: string; url: string; title: string } ): Observable<{ answer: string }> {
+  summarize ( payload: { query: string; url: string; title: string } ): Observable<{ answer: string; hours?: FindBusinessHours | null }> {
     const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
-    return this.postWithLocalFallback<{ answer: string }>( '/find/summarize', payload, { headers } );
+    return this.postWithLocalFallback<{ answer: string; hours?: FindBusinessHours | null }>( '/find/summarize', payload, { headers } );
   }
 
   private postWithLocalFallback<T> ( path: string, body: unknown, options: { headers: HttpHeaders; } ): Observable<T> {

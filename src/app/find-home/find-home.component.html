@@ -49,7 +49,7 @@
           <div class="find-shelf__dots" *ngIf="allCards.length > 1 && !isDetailView" aria-hidden="true">
             <span *ngFor="let c of allCards; let i = index" class="find-shelf-dot" [class.find-shelf-dot--active]="i === resultIndex"></span>
           </div>
-          <button type="button" class="find-shelf__see-all" *ngIf="allCards.length > 1 && !isDetailView && !isWeatherMode" (click)="setView('booklet')">See all {{ allCards.length }} options</button>
+          <button type="button" class="find-shelf__see-all" *ngIf="allCards.length > 1 && !isDetailView && !isWeatherMode" (click)="setView('booklet')">See all {{ totalResultCount }} options</button>
         </div>
         <button class="find-shelf__next" type="button" (click)="onNextResult()" [disabled]="isDetailView || allCards.length === 0 || resultIndex === allCards.length - 1" aria-label="Next result">→</button>
       </div>
@@ -207,10 +207,10 @@
   <div class="find-grid-screen" *ngIf="activeView === 'booklet' && result">
     <div class="find-screen-header find-screen-header--grid">
       <button type="button" class="find-grid-back" (click)="setView('booklet')" aria-label="Back to result">←</button>
-      <span class="find-grid-count">{{ allCards.length }} found</span>
+      <span class="find-grid-count">{{ totalResultCount }} found</span>
     </div>
     <div class="find-grid">
-      <a *ngFor="let card of allCards; let i = index" [href]="card.url" target="_blank" rel="noopener noreferrer" class="find-grid-tile" [class.find-grid-tile--current]="i === resultIndex">
+      <a *ngFor="let card of gridCards; let i = index" [href]="card.url" target="_blank" rel="noopener noreferrer" class="find-grid-tile" [class.find-grid-tile--current]="i === resultIndex">
         <div class="find-grid-tile__media" *ngIf="card.imageUrl && !isImageBroken(card.imageUrl)">
           <img [src]="card.imageUrl" [alt]="card.title" class="find-grid-tile__img" (error)="onImageError(card.imageUrl)" />
         </div>
@@ -223,6 +223,7 @@
         </div>
       </a>
     </div>
+    <button type="button" class="find-load-more" *ngIf="hasMoreGridResults" (click)="loadMoreGridResults()">Load more ({{ totalResultCount - gridVisibleCount }} remaining)</button>
   </div>
   <!-- ── HISTORY VIEW ─────────────────────────────────────────── -->
   <div class="find-history-screen" *ngIf="activeView === 'history'">
@@ -275,77 +276,6 @@
       </div>
     </div>
 
-    <div class="find-info-products">
-      <p class="find-info-products__label">More from Taliferro Tech</p>
-      <div class="find-info-products__grid">
-        <a class="find-info-product" href="https://signature.taliferro.tech" target="_blank" rel="noopener noreferrer">
-          <img src="assets/find/entities/email-signature-builder/logo.png" alt="" aria-hidden="true">
-          <span class="find-info-product__name">Email Signature Builder</span>
-          <span class="find-info-product__body">Branded email signatures in minutes.</span>
-        </a>
-        <a class="find-info-product" href="https://sayit.taliferro.tech" target="_blank" rel="noopener noreferrer">
-          <img src="assets/find/entities/sayit/logo.png" alt="" aria-hidden="true">
-          <span class="find-info-product__name">SayIt</span>
-          <span class="find-info-product__body">Social media built for organizations.</span>
-        </a>
-        <a class="find-info-product" href="https://ask.taliferro.tech" target="_blank" rel="noopener noreferrer">
-          <img src="assets/find/entities/todd/TODD-icon.png" alt="" aria-hidden="true">
-          <span class="find-info-product__name">Ask TODD</span>
-          <span class="find-info-product__body">Get unstuck with a clear next move.</span>
-        </a>
-        <a class="find-info-product" href="https://lead-vault.taliferro.tech" target="_blank" rel="noopener noreferrer">
-          <img src="assets/find/entities/lead-vault/logo.png" alt="" aria-hidden="true">
-          <span class="find-info-product__name">Lead Vault</span>
-          <span class="find-info-product__body">Search verified business contacts.</span>
-        </a>
-        <a class="find-info-product" href="https://maya.taliferro.tech" target="_blank" rel="noopener noreferrer">
-          <img class="find-info-product__logo--wide" src="assets/find/entities/maya/logo.png" alt="" aria-hidden="true">
-          <span class="find-info-product__name">Maya</span>
-          <span class="find-info-product__body">On-call marketing advice.</span>
-        </a>
-        <a class="find-info-product" href="https://music.taliferro.com" target="_blank" rel="noopener noreferrer">
-          <img src="assets/find/entities/music/logo.png" alt="" aria-hidden="true">
-          <span class="find-info-product__name">Taliferro Music</span>
-          <span class="find-info-product__body">Stream music without the noise.</span>
-        </a>
-      </div>
-    </div>
-
-    <div class="find-info-products">
-      <p class="find-info-products__label">Momentum system</p>
-      <div class="find-info-products__grid">
-        <a class="find-info-product" href="https://pulse.taliferro.tech" target="_blank" rel="noopener noreferrer">
-          <img src="assets/find/entities/pulse/pulse.png" alt="" aria-hidden="true">
-          <span class="find-info-product__name">Pulse</span>
-          <span class="find-info-product__body">Capture live feedback &amp; sentiment.</span>
-        </a>
-        <a class="find-info-product" href="https://network.taliferro.tech" target="_blank" rel="noopener noreferrer">
-          <img src="assets/find/entities/network/logo.png" alt="" aria-hidden="true">
-          <span class="find-info-product__name">Network</span>
-          <span class="find-info-product__body">Relationship &amp; contact intelligence.</span>
-        </a>
-        <a class="find-info-product" href="https://todd.taliferro.tech/outreach/app" target="_blank" rel="noopener noreferrer">
-          <img src="assets/find/entities/outreach/logo.png" alt="" aria-hidden="true">
-          <span class="find-info-product__name">Outreach</span>
-          <span class="find-info-product__body">Campaigns &amp; follow-up execution.</span>
-        </a>
-        <a class="find-info-product" href="https://todd.taliferro.tech/moves/app" target="_blank" rel="noopener noreferrer">
-          <img src="assets/find/entities/moves/logo.png" alt="" aria-hidden="true">
-          <span class="find-info-product__name">Moves</span>
-          <span class="find-info-product__body">Turn conversations into action.</span>
-        </a>
-        <a class="find-info-product" href="https://todd.taliferro.tech/outreach/social" target="_blank" rel="noopener noreferrer">
-          <img src="assets/find/entities/social/logo.png" alt="" aria-hidden="true">
-          <span class="find-info-product__name">Social</span>
-          <span class="find-info-product__body">Queued social work, one system.</span>
-        </a>
-        <a class="find-info-product" href="https://todd.taliferro.tech/docs/app" target="_blank" rel="noopener noreferrer">
-          <img src="assets/find/entities/docs/logo.png" alt="" aria-hidden="true">
-          <span class="find-info-product__name">Docs</span>
-          <span class="find-info-product__body">Reusable knowledge &amp; context.</span>
-        </a>
-      </div>
-    </div>
 
     <div class="find-info-built">
       <p class="find-info-built__label">Built by</p>

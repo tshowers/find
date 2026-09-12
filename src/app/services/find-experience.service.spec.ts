@@ -43,7 +43,7 @@ describe('FindExperienceService', () => {
     expect(request.request.body).toEqual({
       query: 'weather tomorrow',
       context: null,
-      maxResults: 10,
+      maxResults: 20,
     });
     request.flush({ success: true, query: 'weather tomorrow', normalizedQuery: 'weather tomorrow', queryType: 'weather', results: [], selectedIndex: 0 });
   });
@@ -57,7 +57,7 @@ describe('FindExperienceService', () => {
       context: null,
       latitude: 47.5218,
       longitude: -122.3466,
-      maxResults: 10,
+      maxResults: 20,
     });
     request.flush({ success: true, query: 'places to eat near me', normalizedQuery: 'places to eat near me', queryType: 'local', results: [], selectedIndex: 0 });
   });
@@ -69,7 +69,7 @@ describe('FindExperienceService', () => {
     expect(request.request.body).toEqual({
       query: 'places to eat near me',
       context: null,
-      maxResults: 10,
+      maxResults: 20,
     });
     request.flush({ success: true, query: 'places to eat near me', normalizedQuery: 'places to eat near me', queryType: 'entity', results: [], selectedIndex: 0 });
   });

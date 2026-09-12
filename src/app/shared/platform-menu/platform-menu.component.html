@@ -31,8 +31,32 @@
         (click)="close()"
       >
         <span class="platform-menu-app__icon"><img [src]="link.icon" alt="" aria-hidden="true" /></span>
-        <span class="platform-menu-app__label">{{ link.label }}</span>
+            <span class="platform-menu-app__label">{{ link.label }}</span>
+            <span class="platform-menu-app__description">{{ link.description }}</span>
       </a>
     </div>
+    <footer class="platform-menu-contact">
+      <span class="platform-menu-eyebrow">Taliferro Tech, LLC</span>
+      <div class="platform-menu-contact__details">
+        <span><b>Email:</b> support&#64;taliferro.tech</span>
+        <span><b>Phone:</b> 401.646.2662</span>
+        <span><b>Office:</b> 1424 11th Ave STE 400, Seattle, WA 98122</span>
+      </div>
+
+      <div class="platform-menu-legal" aria-label="Legal and company information">
+        <p>
+          © 2026 Taliferro. Site design
+          <a href="https://taliferro.com/website-development" target="_blank" rel="noopener noreferrer">Taliferro Group</a>.
+          Taliferro Is Registered In The U.S. Patent And Trademark Office. All rights reserved.
+        </p>
+        <nav class="platform-menu-legal__links" aria-label="Legal links">
+          <a href="https://todd.taliferro.tech/terms-and-conditions" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a>
+          <a href="https://todd.taliferro.tech/privacy-rights" target="_blank" rel="noopener noreferrer">Privacy Rights</a>
+          <a href="https://todd.taliferro.tech/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+          <a href="https://taliferro.com/careers/" target="_blank" rel="noopener noreferrer">Careers</a>
+          <span>Version: {{ appVersion }}</span>
+        </nav>
+      </div>
+    </footer>
   </div>
 </div>

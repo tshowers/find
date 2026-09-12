@@ -31,6 +31,12 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   resultIndex = 0;
   selectedResultIndex = 0;
   allCards: FindRankedResult[] = [];
+  // The full mapped/filtered result set (up to 20), independent of allCards
+  // (which stays capped at 10 for the swipeable single-card carousel — a
+  // one-at-a-time swipe is a poor fit for "load more"). Only the booklet
+  // grid view reveals past the first 10, via gridCards/gridVisibleCount.
+  allResults: FindRankedResult[] = [];
+  gridVisibleCount = 10;
   currentCard: FindRankedResult | null = null;
   conversionAmount = 0;
   conversionAmountText = '0';
@@ -477,18 +483,22 @@ export class FindHomeComponent implements OnInit, OnDestroy {
 
   private updateCards (): void {
     if ( !this.result || !Array.isArray( this.result.results ) ) {
+      this.allResults = [];
       this.allCards = [];
+      this.gridVisibleCount = 10;
       this.currentCard = null;
       return;
     }
-    this.allCards = this.result.results
-      .slice( 0, 10 )
+    this.allResults = this.result.results
+      .slice( 0, 20 )
       .map( ( item, index ) => ( {
         ...item,
         rank: index + 1,
         imageUrl: this.isRealImage( item.imageUrl ) ? item.imageUrl : ''
       } ) )
       .filter( card => !!card.imageUrl || !!String( card.summary || '' ).trim() );
+    this.allCards = this.allResults.slice( 0, 10 );
+    this.gridVisibleCount = Math.min( 10, this.allResults.length );
     if ( this.selectedResultIndex >= this.allCards.length ) {
       this.selectedResultIndex = 0;
     }
@@ -496,6 +506,22 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       this.resultIndex = 0;
     }
     this.currentCard = this.allCards[this.resultIndex] ?? null;
+  }
+
+  get gridCards (): FindRankedResult[] {
+    return this.allResults.slice( 0, this.gridVisibleCount );
+  }
+
+  get hasMoreGridResults (): boolean {
+    return this.gridVisibleCount < this.allResults.length;
+  }
+
+  get totalResultCount (): number {
+    return this.allResults.length;
+  }
+
+  loadMoreGridResults (): void {
+    this.gridVisibleCount = Math.min( this.allResults.length, this.gridVisibleCount + 10 );
   }
 
   private isRealImage ( url: string ): boolean {
@@ -611,9 +637,19 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       title: card.title,
     } ).subscribe( {
       next: ( res ) => {
-        if ( res?.answer && this.allCards[0]?.url === card.url ) {
-          this.allCards[0] = { ...this.allCards[0], answer: res.answer };
+        if ( ( res?.answer || res?.hours ) && this.allCards[0]?.url === card.url ) {
+          const patch = {
+            ...( res.answer ? { answer: res.answer } : {} ),
+            ...( res.hours ? { hours: res.hours } : {} )
+          };
+          this.allCards[0] = { ...this.allCards[0], ...patch };
           if ( this.resultIndex === 0 ) this.currentCard = this.allCards[0];
+          // allResults[0] only shares allCards[0]'s object reference until
+          // this reassignment — patch it too so the grid view's tile for
+          // this same result doesn't show stale answer/hours data.
+          if ( this.allResults[0]?.url === card.url ) {
+            this.allResults[0] = { ...this.allResults[0], ...patch };
+          }
         }
       },
       error: () => {},
@@ -832,7 +868,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       this.findExperienceService.search( {
         query,
         context: normalizedContext || null,
-        maxResults: 10,
+        maxResults: 20,
         latitude: coords?.latitude ?? null,
         longitude: coords?.longitude ?? null
       } ).subscribe( {
