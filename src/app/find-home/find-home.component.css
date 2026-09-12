@@ -113,6 +113,73 @@
   margin-top: 1.5rem;
 }
 
+.find-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: min(100%, 480px);
+  margin-top: 4px;
+}
+
+.find-quick-action {
+  min-height: 84px;
+  padding: 12px 8px;
+  border: 0;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: #fff;
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .16s ease, filter .16s ease, opacity .16s ease;
+}
+
+.find-quick-action:not(:disabled):hover,
+.find-quick-action:not(:disabled):focus-visible {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+}
+
+.find-quick-action:disabled {
+  cursor: not-allowed;
+  opacity: .52;
+}
+
+.find-quick-action i {
+  font-size: 1.35rem;
+}
+
+.find-quick-action small {
+  font-size: .55rem;
+  font-weight: 600;
+  line-height: 1;
+  opacity: .9;
+}
+
+.find-quick-action--news { background: #ef4444; }
+.find-quick-action--weather { background: #1683e8; }
+.find-quick-action--sports { background: #16a765; }
+.find-quick-action--conversion { background: #7c3aed; }
+.find-quick-action--restaurants { background: #e59b08; }
+.find-quick-action--events { background: #0891b2; }
+
+@media (max-width: 480px) {
+  .find-quick-actions {
+    gap: 8px;
+  }
+
+  .find-quick-action {
+    min-height: 76px;
+    border-radius: 12px;
+    font-size: .75rem;
+  }
+}
+
 .find-container {
   width: 100%;
   max-width: 720px;
@@ -545,6 +612,22 @@
   object-fit: contain;
   object-position: center;
   background: var(--todd-panel-bg);
+}
+
+/* Conversion artwork has a transparent canvas. Let it sit directly on the
+   page instead of wrapping it in the shared image-card treatment. */
+.find-card-img-wrap--conversion,
+.find-card-img-wrap--conversion .find-card-img,
+.find-card-img-wrap--fallback,
+.find-card-img-wrap--fallback .find-card-img {
+  background: transparent;
+}
+
+.find-card-img-wrap--conversion .find-card-img,
+.find-card-img-wrap--fallback .find-card-img {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 @media (max-width: 767px) {
@@ -1130,6 +1213,12 @@
   font-size: 0.72rem;
 }
 
+.find-weather-card__coordinates {
+  margin: 8px 0 0;
+  color: var(--todd-panel-subtext);
+  font-size: 0.72rem;
+}
+
 .find-question-source strong {
   display: block;
   color: var(--todd-panel-text);
@@ -1201,13 +1290,13 @@
   font-weight: 600;
 }
 
-/* Pinterest-style masonry: each column keeps cards at their natural height. */
+/* Two-column result grid keeps the mobile browsing density high. */
 .find-grid {
-  column-count: 2;
-  column-gap: 12px;
-  width: min(100%, 1200px);
-  margin: 0 auto;
-  background: transparent;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+  background: var(--todd-panel-border);
+  margin-top: 0;
 }
 
 .find-load-more {
@@ -1234,22 +1323,18 @@
   flex-direction: column;
   text-decoration: none;
   background: var(--todd-panel-bg);
-  border: 1px solid var(--todd-panel-border);
-  border-radius: 14px;
+  border: 0;
+  border-radius: 0;
   overflow: hidden;
   padding: 0;
   text-align: left;
   appearance: none;
   cursor: pointer;
   transition: background 0.14s ease;
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  margin-bottom: 12px;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
 }
 
 .find-grid-tile--current {
-  box-shadow: inset 0 0 0 2px var(--tl-blue), 0 3px 12px rgba(0, 0, 0, 0.07);
+  box-shadow: inset 0 0 0 2px var(--tl-blue);
 }
 
 .find-grid-tile:hover {
@@ -1279,11 +1364,14 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+  flex: 1;
 }
 
-/* No-image tile: compact text card rather than a stretched empty panel. */
+/* No-image tile: body fills full height with comfortable padding */
 .find-grid-tile__body--full {
   padding: 14px 12px 14px;
+  min-height: 120px;
+  justify-content: center;
 }
 
 .find-grid-tile__source {
@@ -1333,10 +1421,6 @@
   .find-grid-screen {
     padding-left: 10px;
     padding-right: 10px;
-  }
-
-  .find-grid {
-    column-count: 1;
   }
 }
 
@@ -1765,6 +1849,15 @@
   -webkit-backdrop-filter: blur(14px);
 }
 
+/* Keep tab labels above the mobile browser/home-indicator edge. Some
+   development and embedded mobile viewports report a zero safe-area inset
+   even though the final pixels are still clipped at the bottom. */
+@media (max-width: 600px) {
+  .find-bottom-bar {
+    padding-bottom: max(env(safe-area-inset-bottom), 8px);
+  }
+}
+
 /* Context pill row — evenly spread squares */
 .find-pill-bar {
   border-bottom: 1px solid var(--todd-panel-border);
@@ -1852,3 +1945,5 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
+
+.app-global-actions { position: fixed; top: 1rem; right: 1.25rem; z-index: 10002; display: inline-flex; align-items: center; gap: .5rem; }

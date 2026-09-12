@@ -3,11 +3,10 @@ import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { environment } from '../environments/environment';
 import { CommandPaletteComponent } from './shared/page/command-palette/command-palette.component';
-import { PlatformMenuComponent } from './shared/platform-menu/platform-menu.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommandPaletteComponent, PlatformMenuComponent, NgIf],
+  imports: [RouterOutlet, CommandPaletteComponent, NgIf],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

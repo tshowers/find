@@ -7,13 +7,22 @@ import { FindSwipeDirective } from '../directives/find-swipe.directive';
 import { FindBusinessHours, FindBusinessHoursDay, FindConversionCategory, FindConversionResult, FindExperienceService, FindRankedResult, FindSearchResponse } from '../services/find-experience.service';
 import { FindGyroscopeService, GyroTilt } from '../services/find-gyroscope.service';
 import { environment } from '../../environments/environment';
+import { PlatformMenuComponent } from '../shared/platform-menu/platform-menu.component';
 
 type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info';
+
+interface FindQuickAction {
+  label: string;
+  icon: string;
+  color: string;
+  query: string;
+  disabled?: boolean;
+}
 
 @Component( {
   selector: 'app-find-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, FindSwipeDirective],
+  imports: [CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent],
   templateUrl: './find-home.component.html',
   styleUrl: './find-home.component.css'
 } )
@@ -50,6 +59,14 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   private conversionBaseOutputUnit = '';
   private conversionBaseRate: number | null = null;
   readonly conversionKeypadDigits = [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' ];
+  readonly quickActions: FindQuickAction[] = [
+    { label: 'News', icon: 'fa-newspaper', color: 'news', query: "Today's News" },
+    { label: 'Weather', icon: 'fa-sun', color: 'weather', query: 'weather' },
+    { label: 'Sports', icon: 'fa-futbol', color: 'sports', query: 'sports news' },
+    { label: 'Conversion', icon: 'fa-arrow-right-arrow-left', color: 'conversion', query: '100 USD to EUR' },
+    { label: 'Restaurants', icon: 'fa-utensils', color: 'restaurants', query: 'restaurants near me' },
+    { label: 'Events', icon: 'fa-calendar-days', color: 'events', query: 'events near me', disabled: true },
+  ];
 
   gyroEnabled = false;
   gyroSupported = false;
@@ -70,6 +87,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
 
   private lastKnownPosition: { latitude: number; longitude: number } | null = null;
   private readonly NEAR_ME_PATTERN = /\bnear me\b/i;
+  private readonly LOCATIONLESS_WEATHER_PATTERN = /^(?:(?:what'?s|what is|how'?s|how is|the)\s+)?(?:weather|forecast|temperature)(?:\s+(?:like|today|tomorrow|tonight|right now|currently|this week|this weekend|now))?[?.!]*$/i;
 
   private gyroHoldTimer: ReturnType<typeof setTimeout> | null = null;
   private loadingTimer: ReturnType<typeof setInterval> | null = null;
@@ -133,6 +151,16 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     this.resultIndex = 0;
     this.selectedResultIndex = 0;
     this.navigate( q, null );
+  }
+
+  onQuickActionClick ( action: FindQuickAction ): void {
+    if ( action.disabled ) return;
+    this.query = action.query;
+    this.activeContext = '';
+    this.syncBreadcrumb();
+    this.resultIndex = 0;
+    this.selectedResultIndex = 0;
+    this.navigate( action.query, null );
   }
 
   onQueryInput (): void {
@@ -404,7 +432,14 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   get isGroundedAnswerSlide (): boolean {
-    return this.isQuestionMode && this.resultIndex === this.selectedResultIndex && !!this.questionAnswerText;
+    // Prefer the ranked source card whenever one is available. The backend's
+    // generated answer is a useful fallback for questions without a usable
+    // source result, but it should not replace the first result users can see
+    // in the grid.
+    return this.isQuestionMode
+      && this.allCards.length === 0
+      && this.resultIndex === this.selectedResultIndex
+      && !!this.questionAnswerText;
   }
 
   get currentQuestionEyebrow (): string {
@@ -903,15 +938,15 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     } );
   }
 
-  // Geolocation is only requested for "near me"-shaped queries, never on
-  // page load, and the granted position is cached for the rest of the
+  // Geolocation is requested only for location-shaped queries (including the
+  // Weather shortcut), never on page load, and the granted position is cached for the rest of the
   // session so the browser prompt doesn't reappear on every search. A
   // denied/unsupported/timed-out request resolves to null rather than
   // rejecting, so the query still runs (without coordinates) instead of
-  // blocking — the backend's "near me" fast path simply won't match and the
+  // blocking — the backend falls back to normal search if location is absent and the
   // search falls through to a normal result.
   private resolveCoordinatesForQuery ( query: string ): Promise<{ latitude: number; longitude: number } | null> {
-    if ( !this.NEAR_ME_PATTERN.test( query ) ) return Promise.resolve( null );
+    if ( !this.NEAR_ME_PATTERN.test( query ) && !this.LOCATIONLESS_WEATHER_PATTERN.test( query ) ) return Promise.resolve( null );
     if ( this.lastKnownPosition ) return Promise.resolve( this.lastKnownPosition );
     if ( typeof navigator === 'undefined' || !navigator.geolocation ) return Promise.resolve( null );
 

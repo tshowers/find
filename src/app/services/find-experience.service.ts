@@ -63,6 +63,8 @@ export interface FindRankedResult {
 
 export interface FindWeatherResult {
   location: string;
+  latitude?: number;
+  longitude?: number;
   postalCode?: string;
   timezone?: string;
   tempF: number;

@@ -1,4 +1,5 @@
 <div class="find-page" [class.find-page--has-pills]="showPillBar" findSwipe (swipeLeft)="onSwipeLeft()" (swipeRight)="onSwipeRight()" (swipeUp)="onSwipeUp()" (swipeDown)="onSwipeDown()">
+  <div class="app-global-actions" *ngIf="activeView === 'search'"><app-platform-menu /></div>
   <!-- ── SEARCH VIEW ──────────────────────────────────────────── -->
   <div class="find-search-screen" *ngIf="activeView === 'search'">
     <div class="find-brand">
@@ -13,6 +14,21 @@
         <span class="find-spinner" *ngIf="isLoading" aria-label="Searching…"></span>
       </button>
     </form>
+    <div class="find-quick-actions" aria-label="Quick searches">
+      <button
+        *ngFor="let action of quickActions"
+        type="button"
+        class="find-quick-action"
+        [class]="'find-quick-action find-quick-action--' + action.color"
+        [disabled]="action.disabled || isLoading"
+        [attr.aria-label]="action.disabled ? action.label + ' coming soon' : 'Search ' + action.label"
+        (click)="onQuickActionClick(action)"
+      >
+        <i class="fa-solid" [class]="'fa-solid ' + action.icon" aria-hidden="true"></i>
+        <span>{{ action.label }}</span>
+        <small *ngIf="action.disabled">Coming soon</small>
+      </button>
+    </div>
     <p class="find-timer" *ngIf="isLoading">Searching for {{ liveElapsedSeconds }}s</p>
     <p class="find-timer" *ngIf="!isLoading && lastResponseMs > 0">Last response: {{ responseSeconds }}s</p>
     <p class="find-error" *ngIf="errorMessage">{{ errorMessage }}</p>
@@ -55,7 +71,7 @@
       </div>
       <div class="find-result-layout">
         <!-- Hero image — clickable link, paired with the answer on desktop -->
-        <a class="find-card-img-wrap" [class.find-card-img-wrap--fallback]="isFallbackHeroImage" [class.find-card-img-wrap--landscape]="heroImageOrientation === 'landscape'" [class.find-card-img-wrap--portrait]="heroImageOrientation === 'portrait'" [class.find-card-img-wrap--square]="heroImageOrientation === 'square'" [style.--find-image-ratio]="heroImageAspectRatio" [attr.href]="currentCard?.url || null" target="_blank" rel="noopener" *ngIf="currentHasHeroImage">
+        <a class="find-card-img-wrap" [class.find-card-img-wrap--fallback]="isFallbackHeroImage" [class.find-card-img-wrap--conversion]="isConversionMode" [class.find-card-img-wrap--landscape]="heroImageOrientation === 'landscape'" [class.find-card-img-wrap--portrait]="heroImageOrientation === 'portrait'" [class.find-card-img-wrap--square]="heroImageOrientation === 'square'" [style.--find-image-ratio]="heroImageAspectRatio" [attr.href]="currentCard?.url || null" target="_blank" rel="noopener" *ngIf="currentHasHeroImage">
           <img [src]="currentHeroImage" [alt]="currentQuestionTitle" class="find-card-img" (load)="onHeroImageLoad($event)" (error)="onImageError(currentHeroImage)" />
         </a>
         <!-- Result body -->
@@ -75,6 +91,9 @@
               <span *ngIf="weather.highF !== undefined">High {{ weather.highF }}°</span>
               <span *ngIf="weather.lowF !== undefined">Low {{ weather.lowF }}°</span>
             </div>
+            <p class="find-weather-card__coordinates" *ngIf="weather.latitude !== undefined && weather.longitude !== undefined">
+              Coordinates: {{ weather.latitude | number:'1.4-4' }}, {{ weather.longitude | number:'1.4-4' }}
+            </p>
             <div class="find-weather-card__forecast" *ngIf="weather.forecast?.length">
               <div class="find-weather-card__forecast-heading">Forecast</div>
               <div class="find-weather-card__forecast-row" *ngFor="let day of weather.forecast">
