@@ -63,7 +63,7 @@
         <div class="find-shelf__center">
           <span class="find-shelf__topic">{{ shelfTitle }}</span>
           <div class="find-shelf__dots" *ngIf="allCards.length > 1 && !isDetailView" aria-hidden="true">
-            <span *ngFor="let c of allCards; let i = index" class="find-shelf-dot" [class.find-shelf-dot--active]="i === resultIndex"></span>
+            <span *ngFor="let c of allCards; let i = index" class="find-shelf-dot" [class.find-shelf-dot--active]="i === resultIndex && !viewingGroundedAnswer"></span>
           </div>
           <button type="button" class="find-shelf__see-all" *ngIf="allCards.length > 1 && !isDetailView && !isWeatherMode" (click)="setView('booklet')">See all {{ totalResultCount }} options</button>
         </div>
@@ -314,6 +314,42 @@
       <p class="find-gyro-on" *ngIf="gyroEnabled">Tilt navigation is active. Tilt left / right to move between results. Hold for 1.5 s to open automatically.</p>
     </div>
   </div>
+  <!-- ── AWARDS VIEW ──────────────────────────────────────────── -->
+  <div class="find-awards-screen" *ngIf="activeView === 'awards'">
+    <div class="find-screen-header">
+      <button class="find-screen-header__back" type="button" (click)="resetToSearch()" aria-label="Back to home">←</button>
+      <h2>Awards</h2>
+      <span class="find-screen-header__spacer" aria-hidden="true"></span>
+    </div>
+
+    <div class="find-awards-progress">
+      <div class="find-awards-progress__track">
+        <div class="find-awards-progress__fill" [style.width.%]="awardsProgress.percent"></div>
+      </div>
+      <span class="find-awards-progress__label">{{ awardsProgress.unlockedCount }} of {{ awardsProgress.totalCount }} unlocked</span>
+    </div>
+
+    <div class="find-awards-grid">
+      <div class="find-awards-grid__item" *ngFor="let award of awards">
+        <app-award-badge [icon]="award.icon" [state]="award.state"></app-award-badge>
+        <span class="find-awards-grid__title"
+              [class.find-awards-grid__title--dim]="award.state === 'locked'"
+              [class.find-awards-grid__title--mystery]="award.state === 'mystery'">
+          {{ award.state === 'mystery' ? '— — —' : award.title }}
+        </span>
+      </div>
+    </div>
+  </div>
+  <!-- ── AWARD UNLOCK OVERLAY ─────────────────────────────────── -->
+  <div class="find-award-unlock" *ngIf="pendingAwardUnlock as unlock">
+    <div class="find-award-unlock__glow" aria-hidden="true"></div>
+    <span class="find-award-unlock__eyebrow">Award Unlocked</span>
+    <app-award-badge class="find-award-unlock__badge" [icon]="unlock.icon" state="unlocked" [size]="176"></app-award-badge>
+    <h2 class="find-award-unlock__title">{{ unlock.title }}</h2>
+    <p class="find-award-unlock__desc">&ldquo;{{ unlock.copy }}&rdquo;</p>
+    <span class="find-award-unlock__hint">{{ awardsProgress.unlockedCount }} of {{ awardsProgress.totalCount }} unlocked</span>
+    <button type="button" class="find-award-unlock__continue" (click)="dismissAwardUnlock()">Continue</button>
+  </div>
   <!-- ── BOTTOM BAR ───────────────────────────────────────────── -->
   <div class="find-bottom-bar">
     <!-- Context pill row — visible in result and grid views -->
@@ -335,6 +371,10 @@
       <button type="button" class="find-tab" [class.find-tab--active]="activeView === 'info'" role="tab" aria-label="About Find" (click)="setView('info')">
         <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-circle-info"></i></span>
         <span class="find-tab__label">Info</span>
+      </button>
+      <button type="button" class="find-tab" [class.find-tab--active]="activeView === 'awards'" role="tab" aria-label="Awards" (click)="setView('awards')">
+        <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-award"></i></span>
+        <span class="find-tab__label">Awards</span>
       </button>
       <button type="button" class="find-tab" [class.find-tab--muted]="!result || isWeatherMode" role="tab" aria-label="Share result" (click)="shareResult()">
         <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-share-nodes"></i></span>

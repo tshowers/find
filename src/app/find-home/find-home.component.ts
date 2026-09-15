@@ -4,12 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { FindSwipeDirective } from '../directives/find-swipe.directive';
+import { FindAward, FindAwardView, FindAwardsProgress, FindAwardsService } from '../services/find-awards.service';
 import { FindBusinessHours, FindBusinessHoursDay, FindConversionCategory, FindConversionResult, FindExperienceService, FindRankedResult, FindSearchResponse } from '../services/find-experience.service';
 import { FindGyroscopeService, GyroTilt } from '../services/find-gyroscope.service';
 import { environment } from '../../environments/environment';
+import { AwardBadgeComponent } from '../shared/award-badge/award-badge.component';
 import { PlatformMenuComponent } from '../shared/platform-menu/platform-menu.component';
 
-type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info';
+type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info' | 'awards';
 
 interface FindQuickAction {
   label: string;
@@ -22,7 +24,7 @@ interface FindQuickAction {
 @Component( {
   selector: 'app-find-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent],
+  imports: [CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
   templateUrl: './find-home.component.html',
   styleUrl: './find-home.component.css'
 } )
@@ -39,6 +41,10 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   activeView: FindView = 'search';
   resultIndex = 0;
   selectedResultIndex = 0;
+  // True while the swipe carousel is showing the backend's own generated
+  // answer.text as a slide *before* resultIndex 0, rather than treating it
+  // as a replacement for the top-ranked source card.
+  viewingGroundedAnswer = false;
   allCards: FindRankedResult[] = [];
   // The full mapped/filtered result set (up to 20), independent of allCards
   // (which stays capped at 10 for the swipeable single-card carousel — a
@@ -73,6 +79,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   highlightedPill = '';
 
   searchHistory: string[] = [];
+  pendingAwardUnlock: FindAward | null = null;
   readonly year = new Date().getFullYear();
   readonly appVersion = String( environment.VERSION || '' ).trim();
   private readonly brokenImageUrls = new Set<string>();
@@ -101,7 +108,8 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     private readonly findExperienceService: FindExperienceService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly gyroscope: FindGyroscopeService
+    private readonly gyroscope: FindGyroscopeService,
+    private readonly awardsService: FindAwardsService
   ) { }
 
   ngOnInit (): void {
@@ -273,6 +281,18 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     return options[String( this.conversionCategory || '' )] || [];
   }
 
+  get awards (): FindAwardView[] {
+    return this.awardsService.awards;
+  }
+
+  get awardsProgress (): FindAwardsProgress {
+    return this.awardsService.progress;
+  }
+
+  dismissAwardUnlock (): void {
+    this.pendingAwardUnlock = null;
+  }
+
   get leadVaultSearchUrl (): string {
     const query = String( this.result?.query || this.query || '' ).trim();
     return `https://todd.taliferro.tech/lead-vault?query=${encodeURIComponent( query )}`;
@@ -432,14 +452,10 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   get isGroundedAnswerSlide (): boolean {
-    // Prefer the ranked source card whenever one is available. The backend's
-    // generated answer is a useful fallback for questions without a usable
-    // source result, but it should not replace the first result users can see
-    // in the grid.
-    return this.isQuestionMode
-      && this.allCards.length === 0
-      && this.resultIndex === this.selectedResultIndex
-      && !!this.questionAnswerText;
+    // The generated answer leads as its own slide (see viewingGroundedAnswer)
+    // rather than replacing the top-ranked source card — swiping forward
+    // reaches every ranked result exactly as before.
+    return this.isQuestionMode && this.viewingGroundedAnswer && !!this.questionAnswerText;
   }
 
   get currentQuestionEyebrow (): string {
@@ -517,6 +533,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   private updateCards (): void {
+    this.viewingGroundedAnswer = this.result?.queryType === 'question' && !!this.result?.answer?.text;
     if ( !this.result || !Array.isArray( this.result.results ) ) {
       this.allResults = [];
       this.allCards = [];
@@ -733,6 +750,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   openCardDetail ( index: number ): void {
     if ( index < 0 || index >= this.allCards.length ) return;
     this.resultIndex = index;
+    this.viewingGroundedAnswer = false;
     this.currentCard = this.allCards[index] ?? null;
     this.activeView = 'detail';
   }
@@ -752,7 +770,16 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if ( this.viewingGroundedAnswer ) {
+      this.resetToSearch();
+      return;
+    }
+
     if ( this.resultIndex === 0 ) {
+      if ( this.isQuestionMode && this.questionAnswerText ) {
+        this.viewingGroundedAnswer = true;
+        return;
+      }
       this.resetToSearch();
       return;
     }
@@ -764,6 +791,12 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   /** Move to the next result when one is available. */
   onNextResult (): void {
     if ( this.activeView === 'detail' ) return;
+
+    if ( this.viewingGroundedAnswer ) {
+      this.viewingGroundedAnswer = false;
+      return;
+    }
+
     const max = this.allCards.length - 1;
     if ( this.resultIndex >= max ) return;
 
@@ -918,6 +951,8 @@ export class FindHomeComponent implements OnInit, OnDestroy {
           this.highlightedPill = '';
           this.activeView = 'result';
           this.saveToHistory( query );
+          const newlyUnlocked = this.awardsService.recordSearch();
+          if ( newlyUnlocked ) this.pendingAwardUnlock = newlyUnlocked;
           const isLocalResult = response?.queryType === 'local';
           const localHasRealWebsite = isLocalResult && !this.isGoogleMapsUrl( response.results?.[0]?.url );
           if ( response?.queryType !== 'question' && response?.queryType !== 'weather' && response?.queryType !== 'conversion' && ( !isLocalResult || localHasRealWebsite ) ) {
