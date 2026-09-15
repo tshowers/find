@@ -1,16 +1,20 @@
 import { NgIf } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { environment } from '../environments/environment';
 import { CommandPaletteComponent } from './shared/page/command-palette/command-palette.component';
+import { UpdateBannerComponent } from './shared/update-banner/update-banner.component';
+import { VersionUpdateService } from './shared/version-update/version-update.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommandPaletteComponent, NgIf],
+  imports: [RouterOutlet, CommandPaletteComponent, UpdateBannerComponent, NgIf],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
+  private readonly versionUpdateService = inject( VersionUpdateService );
+
   title = 'find';
   showInstallBanner = false;
   readonly appStoreUrl = 'https://apps.apple.com/us/app/taliferro-find/id6806954591';
@@ -18,7 +22,7 @@ export class AppComponent implements OnInit {
   ngOnInit (): void {
     this.showInstallBanner = this.shouldShowInstallBanner();
     if ( environment.production ) {
-      this.checkDeployedVersion();
+      this.versionUpdateService.start();
     }
   }
 
@@ -34,34 +38,5 @@ export class AppComponent implements OnInit {
     const isStandalone = window.matchMedia?.( '(display-mode: standalone)' ).matches || ( navigator as Navigator & { standalone?: boolean } ).standalone === true;
     if ( !isIos || isStandalone ) return false;
     try { return window.localStorage.getItem( 'find-install-banner-dismissed' ) !== '1'; } catch { return true; }
-  }
-
-  // Same mechanism as the main TODD app: package.json's version is baked
-  // into environment.VERSION at build time (see prebuild script), while
-  // public/assets/version.json always reflects whatever's actually live on
-  // the server (fetched no-store, cache-busted). If they differ, a newer
-  // build has been deployed since this tab loaded, so force a reload to
-  // pick it up rather than leaving the user on stale code indefinitely.
-  private async checkDeployedVersion (): Promise<void> {
-    try {
-      if ( typeof window === 'undefined' || typeof fetch === 'undefined' ) return;
-
-      const currentVersion = String( environment.VERSION || '' ).trim();
-      if ( !currentVersion ) return;
-
-      const response = await fetch( `assets/version.json?t=${Date.now()}`, {
-        cache: 'no-store'
-      } );
-
-      if ( !response.ok ) return;
-
-      const deployed = await response.json();
-      const deployedVersion = String( deployed?.version || '' ).trim();
-      if ( !deployedVersion || deployedVersion === currentVersion ) return;
-
-      window.location.reload();
-    } catch {
-      // Network hiccup or version.json unavailable - not worth surfacing to the user.
-    }
   }
 }

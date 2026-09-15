@@ -1,0 +1,8 @@
+<div class="update-banner" *ngIf="showBanner()" role="region" aria-label="Update available">
+  <div class="update-banner__copy">
+    <strong>A new version of Find is available</strong>
+    <span>Refresh to get the latest updates.</span>
+  </div>
+  <button type="button" class="update-banner__refresh" (click)="refresh()">Refresh</button>
+  <button type="button" class="update-banner__close" (click)="dismiss()" aria-label="Dismiss update notice">×</button>
+</div>
