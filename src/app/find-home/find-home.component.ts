@@ -93,7 +93,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   };
 
   private lastKnownPosition: { latitude: number; longitude: number } | null = null;
-  private readonly NEAR_ME_PATTERN = /\bnear me\b/i;
+  private readonly NEAR_ME_PATTERN = /\b(?:near me|nearby|near here|close(?:st)? to me|close by|around here|by me|in my area|in my neighborhood|in my zip\s*code|in my zipcode|in my zip)\b/i;
   private readonly LOCATIONLESS_WEATHER_PATTERN = /^(?:(?:what'?s|what is|how'?s|how is|the)\s+)?(?:weather|forecast|temperature)(?:\s+(?:like|today|tomorrow|tonight|right now|currently|this week|this weekend|now))?[?.!]*$/i;
 
   private gyroHoldTimer: ReturnType<typeof setTimeout> | null = null;
