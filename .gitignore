@@ -43,3 +43,8 @@ Thumbs.db
 
 # Firebase
 /.firebase
+
+# Cypress
+/cypress/videos
+/cypress/screenshots
+/cypress/downloads

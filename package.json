@@ -9,7 +9,11 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadless",
-    "version:build": "node scripts/update-build-version.mjs"
+    "version:build": "node scripts/update-build-version.mjs",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "typecheck:cypress": "tsc -p tsconfig.cypress.json --noEmit --pretty false",
+    "e2e": "start-server-and-test start http://localhost:4200 cy:run"
   },
   "private": true,
   "dependencies": {
@@ -32,12 +36,23 @@
     "@angular/cli": "^19.0.4",
     "@angular/compiler-cli": "^19.0.0",
     "@types/jasmine": "~5.1.0",
+    "cypress": "^13.17.0",
     "jasmine-core": "~5.4.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "start-server-and-test": "^2.1.5",
     "typescript": "~5.6.2"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true,
+    "esbuild@0.28.0": true,
+    "@parcel/watcher@2.6.0": true,
+    "cypress@13.17.0": true,
+    "fsevents@2.3.3": true,
+    "lmdb@3.2.6": true,
+    "msgpackr-extract@3.0.4": true
   }
 }

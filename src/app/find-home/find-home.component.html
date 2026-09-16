@@ -1,7 +1,7 @@
 <div class="find-page" [class.find-page--has-pills]="showPillBar" findSwipe (swipeLeft)="onSwipeLeft()" (swipeRight)="onSwipeRight()" (swipeUp)="onSwipeUp()" (swipeDown)="onSwipeDown()">
   <div class="app-global-actions" *ngIf="activeView === 'search'"><app-platform-menu /></div>
   <!-- ── SEARCH VIEW ──────────────────────────────────────────── -->
-  <div class="find-search-screen" *ngIf="activeView === 'search'">
+  <div class="find-search-screen" data-cy="find-search-shell" *ngIf="activeView === 'search'">
     <div class="find-brand">
       <img src="assets/find-logo.png" alt="Find" style="max-width: 100%; height: auto; max-height: 100px;">
     </div>
@@ -38,7 +38,7 @@
     </a>
   </div>
   <!-- ── RESULT VIEW ──────────────────────────────────────────── -->
-  <div class="find-result-screen" *ngIf="activeView === 'result' || activeView === 'detail'">
+  <div class="find-result-screen" data-cy="find-result-shell" *ngIf="activeView === 'result' || activeView === 'detail'">
     <!-- Persistent search: stays above results so a new search never needs Home. -->
     <div class="find-result-search">
       <form class="find-form find-form--compact" (ngSubmit)="onSubmit()">
@@ -223,7 +223,7 @@
     </ng-container>
   </div>
   <!-- ── GRID VIEW (all results as tiles) ──────────────────────── -->
-  <div class="find-grid-screen" *ngIf="activeView === 'booklet' && result">
+  <div class="find-grid-screen" data-cy="find-grid-shell" *ngIf="activeView === 'booklet' && result">
     <div class="find-screen-header find-screen-header--grid">
       <button type="button" class="find-grid-back" (click)="setView('booklet')" aria-label="Back to result">←</button>
       <span class="find-grid-count">{{ totalResultCount }} found</span>
@@ -245,7 +245,7 @@
     <button type="button" class="find-load-more" *ngIf="hasMoreGridResults" (click)="loadMoreGridResults()">Load more ({{ totalResultCount - gridVisibleCount }} remaining)</button>
   </div>
   <!-- ── HISTORY VIEW ─────────────────────────────────────────── -->
-  <div class="find-history-screen" *ngIf="activeView === 'history'">
+  <div class="find-history-screen" data-cy="find-history-shell" *ngIf="activeView === 'history'">
     <div class="find-screen-header">
       <button class="find-screen-header__back" type="button" (click)="resetToSearch()" aria-label="Back to home">←</button>
       <h2>Recent searches</h2>
@@ -262,7 +262,7 @@
     <p class="find-empty" *ngIf="searchHistory.length === 0">No searches yet.</p>
   </div>
   <!-- ── INFO VIEW ────────────────────────────────────────────── -->
-  <div class="find-info-screen" *ngIf="activeView === 'info'">
+  <div class="find-info-screen" data-cy="find-info-shell" *ngIf="activeView === 'info'">
     <div class="find-screen-header">
       <button class="find-screen-header__back" type="button" (click)="resetToSearch()" aria-label="Back to home">←</button>
       <h2>About Find</h2>
@@ -315,7 +315,7 @@
     </div>
   </div>
   <!-- ── AWARDS VIEW ──────────────────────────────────────────── -->
-  <div class="find-awards-screen" *ngIf="activeView === 'awards'">
+  <div class="find-awards-screen" data-cy="find-awards-shell" *ngIf="activeView === 'awards'">
     <div class="find-screen-header">
       <button class="find-screen-header__back" type="button" (click)="resetToSearch()" aria-label="Back to home">←</button>
       <h2>Awards</h2>
