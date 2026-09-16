@@ -103,6 +103,20 @@ function conversionResponse ( query: string ) {
   };
 }
 
+/**
+ * Cypress resets localStorage before every test, so each test's first real
+ * search always crosses the 1-search "Rebel" award threshold, popping a
+ * full-screen unlock overlay that covers the bottom tab bar. Dismiss it if
+ * present so later clicks in the same test aren't blocked by it.
+ */
+function dismissAwardOverlayIfPresent (): void {
+  cy.get( 'body' ).then( ( $body ) => {
+    if ( $body.find( '.find-award-unlock__continue' ).length ) {
+      cy.get( '.find-award-unlock__continue' ).click();
+    }
+  } );
+}
+
 /** Types a query into the home search box, submits it, and waits for the stubbed response. */
 function runSearch ( query: string, response: Record<string, unknown> ): void {
   stubSearch( response );
@@ -110,6 +124,7 @@ function runSearch ( query: string, response: Record<string, unknown> ): void {
   cy.get( '#findQuery' ).type( query );
   cy.get( '.find-search-screen .find-submit' ).click();
   cy.wait( '@search' );
+  dismissAwardOverlayIfPresent();
 }
 
 describe( 'Find home - buttons and navigation', () => {
