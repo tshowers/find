@@ -13,6 +13,9 @@ firebase use taliferrotech
 echo "Running unit tests..."
 npm run test:ci
 
+echo "Running end-to-end tests (Cypress against a local dev server)..."
+npm run e2e
+
 echo "Building the production Find bundle..."
 npm run build
 
