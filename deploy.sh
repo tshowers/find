@@ -16,6 +16,15 @@ npm run test:ci
 echo "Building the production Find bundle..."
 npm run build
 
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Committing pending changes (tests and build passed)..."
+  git status --short
+  git add -A
+  git commit -m "chore: commit pending changes before production deploy"
+else
+  echo "Working tree is clean, nothing to commit."
+fi
+
 echo "Deploying Find to Firebase Hosting site todd-find..."
 firebase deploy --project taliferrotech --only hosting:todd-find
 
