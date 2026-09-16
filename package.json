@@ -1,6 +1,6 @@
 {
   "name": "find",
-  "version": "2026.9.15-build.1",
+  "version": "2026.9.15-build.8",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -8,6 +8,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:ci": "ng test --watch=false --browsers=ChromeHeadless",
     "version:build": "node scripts/update-build-version.mjs"
   },
   "private": true,
