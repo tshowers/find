@@ -112,7 +112,7 @@
           </div>
         </ng-container>
         <ng-template #nonWeatherView>
-          <ng-container *ngIf="isConversionMode; else standardNonWeatherView">
+          <ng-container *ngIf="isConversionMode; else nonConversionView">
             <div class="find-conversion-card" *ngIf="conversion as conversion">
               <div class="find-conversion-card__eyebrow">{{ conversion.category === 'currency' ? 'Currency conversion' : 'Unit conversion' }}</div>
               <div class="find-conversion-card__fields">
@@ -146,6 +146,39 @@
               <p class="find-conversion-source" *ngIf="conversionSource">Source: {{ conversionSource }}</p>
             </div>
           </ng-container>
+          <ng-template #nonConversionView>
+            <ng-container *ngIf="isMovieMode; else standardNonWeatherView">
+              <div class="find-movie-card" *ngIf="movieRatings as movie">
+                <div class="find-movie-card__eyebrow">
+                  {{ movie.year }}<span *ngIf="movie.rated"> · {{ movie.rated }}</span><span *ngIf="movie.runtime"> · {{ movie.runtime }}</span>
+                </div>
+                <h2 class="find-card-title">{{ movie.title }}</h2>
+                <div class="find-movie-card__ratings">
+                  <span class="find-movie-card__rating" *ngIf="movie.imdbRating">
+                    <img class="find-movie-card__rating-icon" src="/assets/find/ratings/imdb.svg" alt="IMDb" />
+                    <strong>{{ movie.imdbRating }}</strong><small>/10</small>
+                  </span>
+                  <span class="find-movie-card__rating" *ngIf="movie.rottenTomatoesScore">
+                    <img class="find-movie-card__rating-icon" src="/assets/find/ratings/rotten-tomatoes.svg" alt="Rotten Tomatoes" />
+                    <strong>{{ movie.rottenTomatoesScore }}</strong>
+                  </span>
+                  <span class="find-movie-card__rating" *ngIf="movie.metascore">
+                    <img class="find-movie-card__rating-icon" src="/assets/find/ratings/metacritic.svg" alt="Metacritic" />
+                    <strong>{{ movie.metascore }}</strong><small>/100</small>
+                  </span>
+                </div>
+                <div class="desc-pad">
+                  <p class="find-movie-card__plot" *ngIf="movie.plot">{{ movie.plot }}</p>
+                </div>
+                <div class="find-movie-card__meta">
+                  <span *ngIf="movie.genre">{{ movie.genre }}</span>
+                  <span *ngIf="movie.director">Directed by {{ movie.director }}</span>
+                  <span *ngIf="movie.actors">Starring {{ movie.actors }}</span>
+                </div>
+                <p class="find-movie-card__source">Ratings via OMDb (IMDb, Rotten Tomatoes, Metacritic)</p>
+              </div>
+            </ng-container>
+          </ng-template>
           <ng-template #standardNonWeatherView>
             <ng-container *ngIf="!isQuestionMode; else questionAnswerView">
               <a class="find-card-source" [href]="currentCard?.url" target="_blank" rel="noopener">
@@ -361,7 +394,7 @@
     </div>
     <!-- Tab bar -->
     <div class="find-tab-bar" role="tablist">
-      <button type="button" class="find-tab" [class.find-tab--active]="activeView === 'booklet'" [class.find-tab--muted]="!result || isWeatherMode" role="tab" aria-label="All results grid" (click)="setView('booklet')">
+      <button type="button" class="find-tab" [class.find-tab--active]="activeView === 'booklet'" [class.find-tab--muted]="!result || isWeatherMode || isMovieMode" role="tab" aria-label="All results grid" (click)="setView('booklet')">
         <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-table-cells-large"></i></span>
         <span class="find-tab__label">Grid</span>
       </button>

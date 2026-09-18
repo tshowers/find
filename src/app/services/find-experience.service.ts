@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
-export type FindQueryType = 'entity' | 'question' | 'person' | 'weather' | 'conversion' | 'local';
+export type FindQueryType = 'entity' | 'question' | 'person' | 'weather' | 'conversion' | 'local' | 'movie';
 export type FindSourceType = 'official' | 'publisher' | 'government' | 'academic' | 'medical' | 'encyclopedia';
 export type FindFeedbackRating = 'excellent' | 'good' | 'fair' | 'poor';
 
@@ -113,6 +113,23 @@ export interface FindConversionResult {
   source?: string;
 }
 
+export interface FindMovieRatings {
+  title: string;
+  year: string;
+  rated?: string | null;
+  runtime?: string | null;
+  genre?: string | null;
+  director?: string | null;
+  actors?: string | null;
+  plot?: string | null;
+  posterUrl?: string | null;
+  imdbRating?: string | null;
+  imdbVotes?: string | null;
+  imdbId?: string | null;
+  metascore?: string | null;
+  rottenTomatoesScore?: string | null;
+}
+
 export interface FindSearchResponse {
   success: boolean;
   query: string;
@@ -125,6 +142,7 @@ export interface FindSearchResponse {
   answer?: FindAnswerBlock | null;
   weather?: FindWeatherResult | null;
   conversion?: FindConversionResult | null;
+  movieRatings?: FindMovieRatings | null;
   results: FindRankedResult[];
   selectedIndex: number;
   timings?: {

@@ -1219,6 +1219,72 @@
   font-size: 0.72rem;
 }
 
+.find-movie-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.find-movie-card__eyebrow {
+  color: var(--todd-panel-subtext);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.find-movie-card__ratings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 14px 0 4px;
+}
+
+.find-movie-card__rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--todd-surface-1);
+  border: 1px solid var(--todd-panel-border);
+}
+
+.find-movie-card__rating-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
+.find-movie-card__rating strong {
+  font-size: 1.15rem;
+  color: var(--todd-panel-text);
+}
+
+.find-movie-card__rating small {
+  font-size: 0.75rem;
+  margin-left: 1px;
+  color: var(--todd-panel-subtext);
+}
+
+.find-movie-card__plot {
+  color: var(--todd-panel-text);
+  line-height: 1.55;
+}
+
+.find-movie-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 0.88rem;
+  color: var(--todd-panel-subtext);
+}
+
+.find-movie-card__source {
+  margin: 14px 0 0;
+  font-size: 0.72rem;
+  color: var(--todd-panel-subtext);
+}
+
 .find-question-source strong {
   display: block;
   color: var(--todd-panel-text);

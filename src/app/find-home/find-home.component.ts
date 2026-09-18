@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { FindSwipeDirective } from '../directives/find-swipe.directive';
 import { FindAward, FindAwardView, FindAwardsProgress, FindAwardsService } from '../services/find-awards.service';
-import { FindBusinessHours, FindBusinessHoursDay, FindConversionCategory, FindConversionResult, FindExperienceService, FindRankedResult, FindSearchResponse } from '../services/find-experience.service';
+import { FindBusinessHours, FindBusinessHoursDay, FindConversionCategory, FindConversionResult, FindExperienceService, FindMovieRatings, FindRankedResult, FindSearchResponse } from '../services/find-experience.service';
 import { FindGyroscopeService, GyroTilt } from '../services/find-gyroscope.service';
 import { environment } from '../../environments/environment';
 import { AwardBadgeComponent } from '../shared/award-badge/award-badge.component';
@@ -224,7 +224,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   setView ( view: FindView ): void {
-    if ( view === 'booklet' && ( !this.result || this.isWeatherMode ) ) return;
+    if ( view === 'booklet' && ( !this.result || this.isWeatherMode || this.isMovieMode ) ) return;
     if ( view === 'booklet' && this.activeView === 'booklet' ) {
       this.activeView = 'result';
       return;
@@ -254,6 +254,14 @@ export class FindHomeComponent implements OnInit, OnDestroy {
 
   get isLocalMode (): boolean {
     return this.result?.queryType === 'local';
+  }
+
+  get isMovieMode (): boolean {
+    return this.result?.queryType === 'movie' && !!this.result?.movieRatings;
+  }
+
+  get movieRatings (): FindMovieRatings | null {
+    return this.result?.movieRatings || null;
   }
 
   get conversion (): FindConversionResult | null {
@@ -379,6 +387,9 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   get currentHasHeroImage (): boolean {
     const fallback = this.fallbackHeroImage;
     if ( fallback ) return !this.isImageBroken( fallback );
+    if ( this.isMovieMode ) {
+      return this.isUsableImage( this.movieRatings?.posterUrl || '' );
+    }
     if ( this.isGroundedAnswerSlide ) {
       return this.isUsableImage( this.result?.answer?.imageUrl || '' );
     }
@@ -387,6 +398,9 @@ export class FindHomeComponent implements OnInit, OnDestroy {
 
   get currentHeroImage (): string {
     if ( this.fallbackHeroImage ) return this.fallbackHeroImage;
+    if ( this.isMovieMode ) {
+      return String( this.movieRatings?.posterUrl || '' ).trim();
+    }
     if ( this.isGroundedAnswerSlide ) {
       return String( this.result?.answer?.imageUrl || '' ).trim();
     }
@@ -683,7 +697,10 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   private loadSummary (): void {
     this.summarySub?.unsubscribe();
     const card = this.allCards[0];
-    if ( !card ) return;
+    // First-party cards already carry curated, approved copy (see
+    // findFirstPartyCatalog.js) — an LLM rewrite of it risks mangling
+    // brand names and drifting from approved wording.
+    if ( !card || card.isFirstParty ) return;
     this.summarySub = this.findExperienceService.summarize( {
       query: this.query,
       url: card.url,
@@ -956,7 +973,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
           if ( newlyUnlocked ) this.pendingAwardUnlock = newlyUnlocked;
           const isLocalResult = response?.queryType === 'local';
           const localHasRealWebsite = isLocalResult && !this.isGoogleMapsUrl( response.results?.[0]?.url );
-          if ( response?.queryType !== 'question' && response?.queryType !== 'weather' && response?.queryType !== 'conversion' && ( !isLocalResult || localHasRealWebsite ) ) {
+          if ( response?.queryType !== 'question' && response?.queryType !== 'weather' && response?.queryType !== 'conversion' && response?.queryType !== 'movie' && ( !isLocalResult || localHasRealWebsite ) ) {
             this.loadSummary();
           }
         },
