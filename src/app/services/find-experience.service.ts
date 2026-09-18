@@ -6,6 +6,14 @@ import { environment } from '../../environments/environment';
 
 export type FindQueryType = 'entity' | 'question' | 'person' | 'weather' | 'conversion' | 'local';
 export type FindSourceType = 'official' | 'publisher' | 'government' | 'academic' | 'medical' | 'encyclopedia';
+export type FindFeedbackRating = 'excellent' | 'good' | 'fair' | 'poor';
+
+export interface FindFeedbackPayload {
+  rating: FindFeedbackRating;
+  comment?: string | null;
+  query?: string | null;
+  queryType?: string | null;
+}
 
 export interface FindBusinessHoursPeriod {
   open: string;
@@ -163,6 +171,11 @@ export class FindExperienceService {
   summarize ( payload: { query: string; url: string; title: string } ): Observable<{ answer: string; hours?: FindBusinessHours | null }> {
     const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
     return this.postWithLocalFallback<{ answer: string; hours?: FindBusinessHours | null }>( '/find/summarize', payload, { headers } );
+  }
+
+  submitFeedback ( payload: FindFeedbackPayload ): Observable<{ success: boolean }> {
+    const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
+    return this.postWithLocalFallback<{ success: boolean }>( '/find/feedback', payload, { headers } );
   }
 
   private postWithLocalFallback<T> ( path: string, body: unknown, options: { headers: HttpHeaders; } ): Observable<T> {

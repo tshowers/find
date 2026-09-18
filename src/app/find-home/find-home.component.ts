@@ -10,6 +10,7 @@ import { FindGyroscopeService, GyroTilt } from '../services/find-gyroscope.servi
 import { environment } from '../../environments/environment';
 import { AwardBadgeComponent } from '../shared/award-badge/award-badge.component';
 import { PlatformMenuComponent } from '../shared/platform-menu/platform-menu.component';
+import { FindFeedbackComponent } from '../shared/find-feedback/find-feedback.component';
 
 type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info' | 'awards';
 
@@ -24,7 +25,7 @@ interface FindQuickAction {
 @Component( {
   selector: 'app-find-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
+  imports: [CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent, FindFeedbackComponent],
   templateUrl: './find-home.component.html',
   styleUrl: './find-home.component.css'
 } )

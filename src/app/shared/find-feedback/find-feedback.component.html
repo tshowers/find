@@ -1,0 +1,45 @@
+<div class="find-feedback" *ngIf="!dismissed">
+  <ng-container [ngSwitch]="stage">
+
+    <div class="find-feedback__row" *ngSwitchCase="'prompt'">
+      <p class="find-feedback__prompt">How was your experience with Find?</p>
+      <div class="find-feedback__options">
+        <button
+          type="button"
+          class="find-feedback__option"
+          *ngFor="let option of ratings"
+          [class]="'find-feedback__option find-feedback__option--' + option.value"
+          (click)="selectRating(option.value)"
+        >
+          <i class="fa-solid" [class]="'fa-solid ' + option.icon" aria-hidden="true"></i>
+          <span>{{ option.label }}</span>
+        </button>
+      </div>
+      <button type="button" class="find-feedback__close" (click)="dismiss()" aria-label="Dismiss feedback prompt">✕</button>
+    </div>
+
+    <div class="find-feedback__row find-feedback__row--detail" *ngSwitchCase="'detail'">
+      <p class="find-feedback__prompt">Thanks! Is there something missing you’d like to see, or why didn’t Find meet your expectations? <span>(optional)</span></p>
+      <textarea
+        class="find-feedback__textarea"
+        rows="2"
+        [(ngModel)]="comment"
+        name="findFeedbackComment"
+        placeholder="Tell us more…"
+      ></textarea>
+      <div class="find-feedback__actions">
+        <button type="button" class="find-feedback__skip" (click)="skipComment()">Skip</button>
+        <button type="button" class="find-feedback__submit" (click)="submit()">Send</button>
+      </div>
+    </div>
+
+    <div class="find-feedback__row find-feedback__row--submitting" *ngSwitchCase="'submitting'">
+      <span class="find-spinner" aria-label="Sending feedback…"></span>
+    </div>
+
+    <div class="find-feedback__row find-feedback__row--done" *ngSwitchCase="'done'">
+      <p class="find-feedback__prompt">Thanks for your feedback!</p>
+    </div>
+
+  </ng-container>
+</div>

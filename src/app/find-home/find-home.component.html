@@ -220,6 +220,7 @@
         <p>Looking for contact details or prospects?</p>
         <a [href]="leadVaultSearchUrl">Search “{{ result.query || query }}” in Lead Vault</a>
       </div>
+      <app-find-feedback *ngIf="!isDetailView" [query]="result.query || query" [queryType]="result.queryType"></app-find-feedback>
     </ng-container>
   </div>
   <!-- ── GRID VIEW (all results as tiles) ──────────────────────── -->
