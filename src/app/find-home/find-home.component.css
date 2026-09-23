@@ -402,6 +402,10 @@
   font-weight: 700;
 }
 
+.find-card-source__badge--verified {
+  color: #1a9d5c;
+}
+
 .find-shelf {
   display: flex;
   align-items: center;

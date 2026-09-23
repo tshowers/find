@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { FindSwipeDirective } from '../directives/find-swipe.directive';
 import { FindAward, FindAwardView, FindAwardsProgress, FindAwardsService } from '../services/find-awards.service';
-import { FindBusinessHours, FindBusinessHoursDay, FindConversionCategory, FindConversionResult, FindExperienceService, FindMovieRatings, FindRankedResult, FindSearchResponse } from '../services/find-experience.service';
+import { FindBusinessHours, FindBusinessHoursDay, FindConversionCategory, FindConversionResult, FindExperienceService, FindMovieRatings, FindRankedResult, FindSearchResponse, FindSourceType } from '../services/find-experience.service';
 import { FindGyroscopeService, GyroTilt } from '../services/find-gyroscope.service';
 import { environment } from '../../environments/environment';
 import { AwardBadgeComponent } from '../shared/award-badge/award-badge.component';
@@ -532,6 +532,22 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   get currentQuestionSourceUrl (): string {
     if ( this.isGroundedAnswerSlide ) return '';
     return String( this.currentCard?.displayUrl || '' ).trim();
+  }
+
+  // Surfaces the backend's sourceType classification as a trust badge so a
+  // verified .gov/.edu/medical result doesn't look indistinguishable from an
+  // ordinary publisher link — users otherwise have no way to tell a
+  // legitimate government site apart from a lookalike before clicking.
+  private readonly sourceTrustLabels: Partial<Record<FindSourceType, string>> = {
+    government: 'Verified government site',
+    official: 'Verified official site',
+    medical: 'Verified medical source',
+    academic: 'Verified academic source',
+    encyclopedia: 'Encyclopedia',
+  };
+
+  sourceTrustLabel ( sourceType: FindSourceType | undefined | null ): string {
+    return sourceType ? ( this.sourceTrustLabels[sourceType] || '' ) : '';
   }
 
   formatRichText ( text: string ): string {

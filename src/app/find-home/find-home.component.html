@@ -183,6 +183,7 @@
             <ng-container *ngIf="!isQuestionMode; else questionAnswerView">
               <a class="find-card-source" [href]="currentCard?.url" target="_blank" rel="noopener">
                 <span class="find-card-source__badge" *ngIf="currentCard?.isFirstParty">Official Taliferro result</span>
+                <span class="find-card-source__badge find-card-source__badge--verified" *ngIf="!currentCard?.isFirstParty && sourceTrustLabel(currentCard?.sourceType)">✓ {{ sourceTrustLabel(currentCard?.sourceType) }}</span>
                 {{ currentCard?.displayUrl }}
               </a>
               <h2 class="find-card-title">{{ currentBusinessName }}</h2>
@@ -219,6 +220,7 @@
                 <span class="find-question-card__eyebrow">{{ currentQuestionEyebrow }}</span>
                 <a class="find-card-source" *ngIf="currentQuestionSourceUrl" [href]="currentCard?.url" target="_blank" rel="noopener">
                   <span class="find-card-source__badge" *ngIf="currentCard?.isFirstParty">Official Taliferro result</span>
+                  <span class="find-card-source__badge find-card-source__badge--verified" *ngIf="!currentCard?.isFirstParty && sourceTrustLabel(currentCard?.sourceType)">✓ {{ sourceTrustLabel(currentCard?.sourceType) }}</span>
                   {{ currentQuestionSourceUrl }}
                 </a>
                 <h2 class="find-card-title">{{ currentQuestionTitle }}</h2>
