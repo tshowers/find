@@ -17,6 +17,8 @@ export interface CommandPaletteEntry {
 export const COMMAND_PALETTE_ENTRIES: CommandPaletteEntry[] = [
   // --- Find (this app) -----------------------------------------------------
   { id: 'find-home', label: 'Find', group: 'Find', path: '/', keywords: ['find', 'home', 'ask a question'] },
+  { id: 'find-help', label: 'Help', group: 'Find', path: '/help', keywords: ['help', 'guide', 'how to', 'search help'] },
+  { id: 'find-about', label: 'About Find', group: 'Find', path: '/about', keywords: ['about', 'company', 'product', 'taliferro tech'] },
 
   // --- Other Apps -----------------------------------------------------------
   { id: 'app-maya', label: 'Maya', group: 'Other Apps', path: 'https://maya.taliferro.tech', icon: 'assets/find/entities/maya/logo-bw.png', external: true, keywords: ['maya', 'marketing director'] },

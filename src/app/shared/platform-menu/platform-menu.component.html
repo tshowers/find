@@ -20,6 +20,19 @@
   aria-label="Taliferro apps"
 >
   <div class="platform-menu-panel__inner">
+    <span class="platform-menu-eyebrow">Find</span>
+    <nav class="platform-menu-route-list" aria-label="Find pages">
+      <a class="platform-menu-route" routerLink="/" (click)="close()">
+        <span>Search</span><b aria-hidden="true">↗</b>
+      </a>
+      <a class="platform-menu-route" routerLink="/help" (click)="close()">
+        <span>Help</span><b aria-hidden="true">↗</b>
+      </a>
+      <a class="platform-menu-route" routerLink="/about" (click)="close()">
+        <span>About Find</span><b aria-hidden="true">↗</b>
+      </a>
+    </nav>
+
     <span class="platform-menu-eyebrow">Products</span>
     <div class="platform-menu-launcher">
       <a

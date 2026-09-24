@@ -1678,6 +1678,11 @@
 .find-info-app-link__eyebrow { color: var(--todd-panel-subtext); font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .find-info-app-link strong { color: var(--tl-blue); font-size: .92rem; text-align: right; }
 
+.find-info-card p a {
+  color: var(--tl-blue);
+  font-weight: 600;
+}
+
 .find-info-card {
   padding: 20px;
   border-radius: var(--border-radius);

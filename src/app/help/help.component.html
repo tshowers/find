@@ -1,0 +1,49 @@
+<main class="find-help-page">
+  <div class="app-global-actions"><app-platform-menu /></div>
+  <header class="help-hero">
+    <div class="help-hero__eyebrow">Find Help</div>
+    <div class="help-hero__content">
+      <div>
+        <p class="help-hero__context">Search · Answers · Context · Discovery</p>
+        <h1>Search that ends with an answer.</h1>
+        <p class="help-hero__lead">Find is a visual search experience that puts the strongest answer first, then gives you the context, alternatives, and source material to keep exploring.</p>
+      </div>
+      <img src="assets/seo/find-icon.png" alt="Find" class="help-hero__logo" />
+    </div>
+    <nav class="help-quick-links" aria-label="Find help pages">
+      <a routerLink="/">Search</a>
+      <a routerLink="/about">About Find</a>
+    </nav>
+  </header>
+
+  <section class="help-section" aria-labelledby="help-start-title">
+    <div class="help-section__heading">
+      <p class="help-section-kicker">A practical walkthrough</p>
+      <h2 id="help-start-title">From a question to a useful answer</h2>
+      <p>Find is deliberately simple: ask, read the strongest result, refine when useful, and keep the answer that helped.</p>
+    </div>
+    <div class="help-steps">
+      <article class="help-step" *ngFor="let step of steps">
+        <div class="help-step__number">{{ step.number }}</div>
+        <div class="help-step__body">
+          <h3>{{ step.title }}</h3>
+          <p class="help-step__copy">{{ step.copy }}</p>
+          <ul><li *ngFor="let detail of step.details">{{ detail }}</li></ul>
+          <a class="help-try-link" routerLink="/" [queryParams]="step.actionQueryParams || {}">{{ step.action }} <span aria-hidden="true">→</span></a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="help-tips" aria-labelledby="help-tips-title">
+    <p class="help-section-kicker">A useful mental model</p>
+    <h2 id="help-tips-title">Find is built to reduce the distance between curiosity and clarity.</h2>
+    <div class="help-tips__grid">
+      <article><strong>Ask naturally</strong><p>Use the words you would actually use. Find is built for questions, not query syntax.</p></article>
+      <article><strong>Read before clicking</strong><p>The first answer is meant to give you useful orientation before you open the source.</p></article>
+      <article><strong>Refine, don’t restart</strong><p>Use context pills, alternatives, and the result grid when the first result is close but not quite enough.</p></article>
+    </div>
+  </section>
+
+  <footer class="help-footer"><a routerLink="/">← Back to Find</a><a routerLink="/about">About Find →</a></footer>
+</main>

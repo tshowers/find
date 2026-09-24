@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import packageJson from '../../../../package.json';
+import { RouterModule } from '@angular/router';
 
 interface ProductLink {
   label: string;
@@ -16,7 +17,7 @@ interface ProductLink {
 @Component( {
   selector: 'app-platform-menu',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './platform-menu.component.html',
   styleUrl: './platform-menu.component.css',
 } )
