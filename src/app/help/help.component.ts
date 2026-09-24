@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Title, Meta } from '@angular/platform-browser';
 import { PlatformMenuComponent } from '../shared/platform-menu/platform-menu.component';
+import { SeoService } from '../shared/seo.service';
 
 interface HelpStep {
   number: string;
@@ -23,7 +25,26 @@ interface HelpStep {
   templateUrl: './help.component.html',
   styleUrl: './help.component.css',
 })
-export class HelpComponent {
+export class HelpComponent implements OnInit {
+  constructor(
+    private readonly title: Title,
+    private readonly meta: Meta,
+    private readonly seo: SeoService,
+  ) {}
+
+  ngOnInit(): void {
+    const pageTitle = 'Find Help — How to search with Find | Taliferro Tech';
+    const description = 'A walkthrough of how to use Find: ask a question, read the strongest answer first, explore alternatives, refine with context pills, and use quick actions.';
+    this.title.setTitle(pageTitle);
+    this.meta.updateTag({ name: 'description', content: description });
+    this.meta.updateTag({ property: 'og:title', content: pageTitle });
+    this.meta.updateTag({ property: 'og:description', content: description });
+    this.meta.updateTag({ property: 'og:url', content: 'https://find.taliferro.tech/help' });
+    this.meta.updateTag({ name: 'twitter:title', content: pageTitle });
+    this.meta.updateTag({ name: 'twitter:description', content: description });
+    this.seo.setCanonical('https://find.taliferro.tech/help');
+  }
+
   readonly steps: HelpStep[] = [
     {
       number: '01',

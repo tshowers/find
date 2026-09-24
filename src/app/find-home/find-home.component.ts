@@ -11,6 +11,8 @@ import { environment } from '../../environments/environment';
 import { AwardBadgeComponent } from '../shared/award-badge/award-badge.component';
 import { PlatformMenuComponent } from '../shared/platform-menu/platform-menu.component';
 import { FindFeedbackComponent } from '../shared/find-feedback/find-feedback.component';
+import { SeoService } from '../shared/seo.service';
+import { Title, Meta } from '@angular/platform-browser';
 
 type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info' | 'awards';
 
@@ -110,10 +112,27 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly gyroscope: FindGyroscopeService,
-    private readonly awardsService: FindAwardsService
+    private readonly awardsService: FindAwardsService,
+    private readonly title: Title,
+    private readonly meta: Meta,
+    private readonly seo: SeoService
   ) { }
 
   ngOnInit (): void {
+    // index.html ships the homepage's title/meta/canonical as static
+    // defaults, but the Help and About pages overwrite them via Title/Meta/
+    // SeoService when visited — restore the defaults here so a client-side
+    // navigation back to Home (no full page reload) doesn't leave those
+    // pages' metadata stuck in place.
+    this.title.setTitle( 'Find — Search that ends with an answer | Taliferro Tech' );
+    this.meta.updateTag( { name: 'description', content: 'Find is TODD\'s visual search experience: the best-weighted answer first, not ten blue links, backed by authoritative answers, curated Taliferro knowledge, and the web. Free, no account required.' } );
+    this.meta.updateTag( { property: 'og:title', content: 'Find — Search that ends with an answer' } );
+    this.meta.updateTag( { property: 'og:description', content: 'The best-weighted answer first, not ten blue links. Find combines authoritative answers, curated Taliferro knowledge, and web results — free, no account required.' } );
+    this.meta.updateTag( { property: 'og:url', content: 'https://find.taliferro.tech/' } );
+    this.meta.updateTag( { name: 'twitter:title', content: 'Find — Search that ends with an answer' } );
+    this.meta.updateTag( { name: 'twitter:description', content: 'The best-weighted answer first, not ten blue links. Find combines authoritative answers, curated Taliferro knowledge, and web results — free, no account required.' } );
+    this.seo.setCanonical( 'https://find.taliferro.tech/' );
+
     this.gyroSupported = this.gyroscope.isSupported;
     this.loadHistory();
 

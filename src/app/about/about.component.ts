@@ -3,6 +3,7 @@ import { Component, Inject, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { PlatformMenuComponent } from '../shared/platform-menu/platform-menu.component';
+import { SeoService } from '../shared/seo.service';
 
 @Component({
   selector: 'app-find-about',
@@ -19,11 +20,20 @@ export class AboutComponent implements OnInit, OnDestroy {
     private readonly renderer: Renderer2,
     private readonly title: Title,
     private readonly meta: Meta,
+    private readonly seo: SeoService,
   ) { }
 
   ngOnInit (): void {
-    this.title.setTitle( 'About Find | Taliferro Tech' );
-    this.meta.updateTag( { name: 'description', content: 'Find is Taliferro Tech\'s search and answer application: the strongest result first, with context when you need it.' } );
+    const pageTitle = 'About Find | Taliferro Tech';
+    const description = 'Find is Taliferro Tech\'s search and answer application: the strongest result first, with context when you need it.';
+    this.title.setTitle( pageTitle );
+    this.meta.updateTag( { name: 'description', content: description } );
+    this.meta.updateTag( { property: 'og:title', content: pageTitle } );
+    this.meta.updateTag( { property: 'og:description', content: description } );
+    this.meta.updateTag( { property: 'og:url', content: 'https://find.taliferro.tech/about' } );
+    this.meta.updateTag( { name: 'twitter:title', content: pageTitle } );
+    this.meta.updateTag( { name: 'twitter:description', content: description } );
+    this.seo.setCanonical( 'https://find.taliferro.tech/about' );
     this.addStructuredData();
   }
 
