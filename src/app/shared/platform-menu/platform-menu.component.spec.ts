@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { PlatformMenuComponent } from './platform-menu.component';
 
 describe('PlatformMenuComponent', () => {
@@ -16,6 +17,11 @@ describe('PlatformMenuComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [PlatformMenuComponent],
+      // The component now uses RouterModule for the Search/Help/About
+      // links (routerLink), which needs a Router/ActivatedRoute available
+      // in the injector — an empty route config is enough for these tests,
+      // which never actually navigate.
+      providers: [provideRouter([])],
     });
     fixture = TestBed.createComponent(PlatformMenuComponent);
     component = fixture.componentInstance;
