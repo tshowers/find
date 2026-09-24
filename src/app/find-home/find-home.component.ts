@@ -407,8 +407,20 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     return String( this.currentCard?.imageUrl || '' ).trim();
   }
 
+  // Our own /fallback/ artwork has a transparent canvas, whether the frontend
+  // picked it or the backend returned it as the answer image, so it skips the
+  // photo frame (border, radius, shadow).
   get isFallbackHeroImage (): boolean {
-    return !!this.fallbackHeroImage;
+    if ( this.fallbackHeroImage ) return true;
+    const image = this.currentHeroImage;
+    if ( !image ) return false;
+    try {
+      const url = new URL( image, window.location.origin );
+      return url.pathname.startsWith( '/fallback/' ) &&
+        ( url.origin === window.location.origin || url.hostname === 'find.taliferro.tech' );
+    } catch {
+      return false;
+    }
   }
 
   private get fallbackHeroImage (): string {
