@@ -42,6 +42,10 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   lastResponseMs = 0;
 
   activeView: FindView = 'search';
+  // A `q` parameter is the public handoff format used by TODD and other
+  // launchers. Those links should open directly into the answer experience,
+  // rather than briefly/rendering the full Find landing screen alongside it.
+  isForwardedQuery = false;
   resultIndex = 0;
   selectedResultIndex = 0;
   // True while the swipe carousel is showing the backend's own generated
@@ -142,9 +146,13 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       const next = String( params.get( 'query' ) || params.get( 'q' ) || '' ).trim();
       const nextContext = String( params.get( 'context' ) || '' ).trim();
       const requestedView = params.get( 'view' );
+      this.isForwardedQuery = params.has( 'q' ) && !params.has( 'query' );
       if ( next ) {
         this.query = next;
         this.activeContext = nextContext;
+        // Set the view before starting the async search so a forwarded link
+        // never presents the landing shell as part of the result page.
+        this.activeView = 'result';
         this.syncBreadcrumb();
         this.runSearch( next, false, nextContext );
         return;

@@ -1,7 +1,7 @@
 <div class="find-page" [class.find-page--has-pills]="showPillBar" findSwipe (swipeLeft)="onSwipeLeft()" (swipeRight)="onSwipeRight()" (swipeUp)="onSwipeUp()" (swipeDown)="onSwipeDown()">
   <div class="app-global-actions" *ngIf="activeView === 'search'"><app-platform-menu /></div>
   <!-- ── SEARCH VIEW ──────────────────────────────────────────── -->
-  <div class="find-search-screen" data-cy="find-search-shell" *ngIf="activeView === 'search'">
+  <div class="find-search-screen" data-cy="find-search-shell" *ngIf="activeView === 'search' && !isForwardedQuery">
     <div class="find-brand">
       <img src="assets/find-logo.png" alt="Find" style="max-width: 100%; height: auto; max-height: 100px;">
     </div>

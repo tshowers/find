@@ -165,6 +165,24 @@ describe('FindHomeComponent', () => {
     expect(JSON.parse(localStorage.getItem('find-history') || '[]')).toContain('sushi in seattle');
   }));
 
+  it('opens a forwarded q query directly in the result view', fakeAsync(async () => {
+    await harness.navigateByUrl('/?q=weather', FindHomeComponent);
+    harness.detectChanges();
+
+    expect(component.isForwardedQuery).toBeTrue();
+    expect(component.activeView).toBe('result');
+    expect(root().querySelector('[data-cy="find-search-shell"]')).toBeNull();
+    expect(root().querySelector('[data-cy="find-result-shell"]')).toBeTruthy();
+
+    const req = http.expectOne(r => r.url.endsWith('/find/search'));
+    req.flush(makeWeatherResponse('weather'));
+    tick();
+    harness.detectChanges();
+
+    expect(root().querySelector('[data-cy="find-search-shell"]')).toBeNull();
+    expect(root().querySelector('.find-weather-card')).toBeTruthy();
+  }));
+
   // --- 2-6. The five quick-action chips ---
 
   it('runs a News search from the News quick action', fakeAsync(() => {
