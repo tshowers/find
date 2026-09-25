@@ -697,6 +697,16 @@
   color: var(--todd-panel-text);
 }
 
+.find-card-title__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.find-card-title__link:hover,
+.find-card-title__link:focus-visible {
+  text-decoration: underline;
+}
+
 .find-business-address {
   margin: -4px 0 10px;
   color: var(--todd-panel-subtext);

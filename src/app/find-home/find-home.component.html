@@ -186,7 +186,10 @@
                 <span class="find-card-source__badge find-card-source__badge--verified" *ngIf="!currentCard?.isFirstParty && sourceTrustLabel(currentCard?.sourceType)">✓ {{ sourceTrustLabel(currentCard?.sourceType) }}</span>
                 {{ currentCard?.displayUrl }}
               </a>
-              <h2 class="find-card-title">{{ currentBusinessName }}</h2>
+              <h2 class="find-card-title">
+                <a class="find-card-title__link" *ngIf="currentCard?.url; else plainBusinessTitle" [href]="currentCard?.url" target="_blank" rel="noopener">{{ currentBusinessName }}</a>
+                <ng-template #plainBusinessTitle>{{ currentBusinessName }}</ng-template>
+              </h2>
               <div class="find-business-address" *ngIf="currentBusinessAddress">{{ currentBusinessAddress }}</div>
               <a class="find-business-phone" *ngIf="currentBusinessPhone" [href]="currentBusinessPhoneHref">{{ currentBusinessPhone }}</a>
               <div class="find-business-meta" *ngIf="currentBusinessMeta.length">
@@ -223,7 +226,10 @@
                   <span class="find-card-source__badge find-card-source__badge--verified" *ngIf="!currentCard?.isFirstParty && sourceTrustLabel(currentCard?.sourceType)">✓ {{ sourceTrustLabel(currentCard?.sourceType) }}</span>
                   {{ currentQuestionSourceUrl }}
                 </a>
-                <h2 class="find-card-title">{{ currentQuestionTitle }}</h2>
+                <h2 class="find-card-title">
+                  <a class="find-card-title__link" *ngIf="currentQuestionSourceUrl; else plainQuestionTitle" [href]="currentCard?.url" target="_blank" rel="noopener">{{ currentQuestionTitle }}</a>
+                  <ng-template #plainQuestionTitle>{{ currentQuestionTitle }}</ng-template>
+                </h2>
                 <div class="desc-pad">
                   <div class="find-card-summary find-card-summary--answer find-rich-text" [innerHTML]="formatRichText(currentQuestionText)"></div>
                 </div>

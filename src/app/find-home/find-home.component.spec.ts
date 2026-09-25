@@ -165,6 +165,16 @@ describe('FindHomeComponent', () => {
     expect(JSON.parse(localStorage.getItem('find-history') || '[]')).toContain('sushi in seattle');
   }));
 
+  it('links the main result title and source to the result url', fakeAsync(() => {
+    runSearch('new era detroit', makeEntityResponse('new era detroit'));
+
+    const title = root().querySelector<HTMLAnchorElement>('.find-card-title a');
+    const source = root().querySelector<HTMLAnchorElement>('a.find-card-source');
+    expect(title?.getAttribute('href')).toBe('https://example.com/result');
+    expect(title?.textContent?.trim()).toBe('Example Result');
+    expect(source?.getAttribute('href')).toBe('https://example.com/result');
+  }));
+
   it('opens a forwarded q query directly in the result view', fakeAsync(async () => {
     await harness.navigateByUrl('/?q=weather', FindHomeComponent);
     harness.detectChanges();
