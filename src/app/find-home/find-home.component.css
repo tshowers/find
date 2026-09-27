@@ -3,6 +3,10 @@
 }
 
 .find-page {
+  /* Original first-release look: serif reading type, red query terms, hairlines. */
+  --find-serif: Georgia, 'Times New Roman', Times, serif;
+  --find-highlight-red: #d0021b;
+  --find-hairline: var(--todd-panel-border);
   min-height: 100dvh;
   background: var(--todd-panel-bg);
   color: var(--todd-panel-text);
@@ -276,6 +280,12 @@
   }
 }
 
+@media (prefers-color-scheme: dark) {
+  .find-page {
+    --find-highlight-red: #ff5a5f;
+  }
+}
+
 /* Darker bars in light mode */
 @media not (prefers-color-scheme: dark) {
 
@@ -398,12 +408,8 @@
 .find-card-source__badge {
   display: inline-block;
   margin-right: 8px;
-  color: var(--tl-blue);
-  font-weight: 700;
-}
-
-.find-card-source__badge--verified {
-  color: #1a9d5c;
+  color: var(--todd-panel-subtext);
+  font-weight: 600;
 }
 
 .find-shelf {
@@ -418,35 +424,40 @@
   z-index: 20;
 }
 
-.find-shelf__back {
+/* "‹ Back" / "Next ›": a word beside each chevron so the controls read as
+   navigation. Shared by the result shelf and the grid header. */
+.find-shelf__back,
+.find-shelf__next,
+.find-grid-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   border: 0;
   background: transparent;
-  color: var(--todd-panel-text);
-  font-size: 1.3rem;
-  font-weight: 400;
+  color: var(--todd-panel-subtext);
+  font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
-  padding: 0;
+  padding: 6px 0;
   line-height: 1;
   flex-shrink: 0;
-  width: 32px;
+  min-width: 64px;
 }
 
 .find-shelf__next {
-  border: 0;
-  background: transparent;
-  color: var(--todd-panel-text);
-  font-size: 1.3rem;
-  font-weight: 400;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  flex-shrink: 0;
-  width: 32px;
+  justify-content: flex-end;
+}
+
+.find-nav-chevron {
+  font-size: 1.7rem;
+  font-weight: 200;
+  line-height: 0.8;
+  margin-top: -3px;
 }
 
 .find-shelf__back:hover,
 .find-shelf__next:hover:not(:disabled) {
-  color: var(--tl-blue);
+  color: var(--todd-panel-text);
 }
 
 .find-shelf__next:disabled {
@@ -465,8 +476,8 @@
 }
 
 .find-shelf__topic {
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 500;
   color: var(--todd-panel-text);
   text-align: center;
   white-space: nowrap;
@@ -483,161 +494,76 @@
 }
 
 .find-shelf-dot {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background: #aaa;
+  background: var(--todd-panel-border);
   transition: background 0.2s, transform 0.2s;
 }
 
 .find-shelf-dot--active {
-  background: #555;
+  background: var(--todd-panel-text);
   transform: scale(1.3);
 }
 
-.find-shelf__see-all {
-  border: 0;
-  background: transparent;
-  color: var(--tl-blue);
-  font-size: 0.72rem;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0;
-  margin-top: 2px;
-  white-space: nowrap;
-}
-
-.find-shelf__see-all:hover,
-.find-shelf__see-all:focus-visible {
-  text-decoration: underline;
-}
-
 /* ── RESULT CARD IMAGE ───────────────────────────────────────── */
+/* Original layout: one reading column. The image spans the full top of the
+   page on phones and tablets; on laptops the whole column is capped and
+   centered so the image does not stretch across a wide screen. */
+.find-result-layout {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+@media (min-width: 1024px) {
+  .find-result-layout {
+    padding-top: 24px;
+  }
+}
+
+/* Short enough that the headline and the start of the summary are visible
+   without scrolling. */
 .find-card-img-wrap {
   display: block;
   width: 100%;
-  height: 45dvh;
+  height: 30dvh;
+  min-height: 190px;
+  max-height: 420px;
   overflow: hidden;
   background: var(--todd-surface-2);
   text-decoration: none;
 }
 
-/* Desktop result composition: keep the image and the answer in view
-   together. Mobile remains the original single-column reading flow. */
-.find-result-layout {
-  display: block;
-}
-
 @media (min-width: 768px) {
-  .find-result-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: clamp(24px, 4vw, 56px);
-    align-items: start;
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 32px clamp(24px, 5vw, 64px) 8px;
-  }
-
-  .find-result-layout .find-card-img-wrap {
-    width: 100%;
-    height: min(62dvh, 620px);
-    min-height: 360px;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-  }
-
-  .find-result-layout .find-card-img {
-    width: auto;
-    max-width: 100%;
-    height: auto;
-    max-height: 100%;
-    border-radius: 28px;
-    border: 1px solid var(--tl-blue-border);
-    box-shadow: 0 18px 42px rgba(0, 0, 0, .16);
-    background: transparent;
-  }
-
-  .find-result-layout .find-card-body {
-    width: 100%;
-    max-width: none;
-    box-sizing: border-box;
-    padding: 24px 0 16px;
-  }
-
-  /* The old single-column layout used wide text insets at large sizes.
-     Remove those insets now that the answer has its own column. */
-  .find-result-layout .desc-pad {
-    padding-left: 0;
-    padding-right: 0;
-  }
-}
-
-.find-card-img-wrap--fallback {
-  height: min(42dvh, 306px);
-  max-height: 42dvh;
-  aspect-ratio: 16 / 9;
-}
-
-@media (max-width: 767px) {
   .find-card-img-wrap {
-    height: auto;
-    min-height: 0;
-    aspect-ratio: 16 / 9;
-  }
-
-  .find-card-img-wrap--landscape {
-    aspect-ratio: var(--find-image-ratio, 16 / 9);
-    max-height: 34dvh;
-  }
-
-  .find-card-img-wrap--portrait {
-    aspect-ratio: 4 / 3;
-  }
-
-  .find-card-img-wrap--square {
-    aspect-ratio: 1;
-  }
-
-  .find-card-img-wrap.find-card-img-wrap--fallback {
-    height: min(42dvh, 252px);
-    max-height: 42dvh;
-    aspect-ratio: 16 / 9;
+    height: 38dvh;
   }
 }
 
+/* Cropped, never stretched. Centered left-to-right, but the crop sits 25%
+   down instead of 50% so more of the top survives - that's where faces and
+   the subject usually are. */
 .find-card-img {
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: contain;
-  object-position: center;
-  background: var(--todd-panel-bg);
+  object-fit: cover;
+  object-position: 50% 25%;
 }
 
-/* Conversion artwork has a transparent canvas. Let it sit directly on the
-   page instead of wrapping it in the shared image-card treatment. */
+/* Fallback and conversion artwork are illustrations on a transparent canvas:
+   show them whole rather than cropping. */
 .find-card-img-wrap--conversion,
-.find-card-img-wrap--conversion .find-card-img,
-.find-card-img-wrap--fallback,
-.find-card-img-wrap--fallback .find-card-img {
+.find-card-img-wrap--fallback {
+  height: min(42dvh, 306px);
+  min-height: 0;
   background: transparent;
 }
 
 .find-card-img-wrap--conversion .find-card-img,
 .find-card-img-wrap--fallback .find-card-img {
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-}
-
-@media (max-width: 767px) {
-  .find-card-img-wrap--portrait .find-card-img {
-    object-fit: cover;
-  }
+  object-fit: contain;
+  background: transparent;
 }
 
 .find-card-noimg {
@@ -671,29 +597,31 @@
 
 /* ── RESULT CARD BODY ────────────────────────────────────────── */
 .find-card-body {
-  padding: 20px 20px 12px;
+  padding: 18px 20px 12px;
   text-align: left;
 }
 
 @media (min-width: 768px) {
   .find-card-body {
-    padding: 24px 80px 16px;
+    padding: 28px 24px 16px;
   }
 }
 
 .find-card-source {
+  display: block;
   margin: 0 0 6px;
   font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--tl-blue);
-  letter-spacing: 0.02em;
+  font-weight: 400;
+  color: var(--todd-panel-subtext);
   text-decoration: none;
 }
 
 .find-card-title {
-  margin: 0 0 12px;
-  font-size: clamp(1.3rem, 5vw, 2rem);
-  line-height: 1.15;
+  margin: 0 0 14px;
+  font-family: var(--find-serif);
+  font-size: clamp(1.625rem, 6.5vw, 2.125rem);
+  font-weight: 700;
+  line-height: 1.18;
   color: var(--todd-panel-text);
 }
 
@@ -748,8 +676,9 @@
 
 .find-card-summary {
   margin: 0;
-  font-size: 0.97rem;
-  line-height: 1.72;
+  font-family: var(--find-serif);
+  font-size: 1.0625rem;
+  line-height: 1.6;
   color: var(--todd-panel-subtext);
   text-align: left;
 }
@@ -1371,12 +1300,22 @@
 }
 
 /* Two-column result grid keeps the mobile browsing density high. */
+/* Original grid: equal boxes separated by hairlines, 2 up on phones and
+   3 up on tablets/laptops inside a centered container. */
 .find-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2px;
-  background: var(--todd-panel-border);
-  margin-top: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  max-width: 960px;
+  margin: 0 auto;
+  background: var(--find-hairline);
+  border: 1px solid var(--find-hairline);
+}
+
+@media (min-width: 768px) {
+  .find-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .find-load-more {
@@ -1401,100 +1340,125 @@
 .find-grid-tile {
   display: flex;
   flex-direction: column;
+  aspect-ratio: 1 / 1.15;
+  min-width: 0;
   text-decoration: none;
   background: var(--todd-panel-bg);
-  border: 0;
-  border-radius: 0;
   overflow: hidden;
   padding: 0;
   text-align: left;
-  appearance: none;
   cursor: pointer;
   transition: background 0.14s ease;
 }
 
 .find-grid-tile--current {
-  box-shadow: inset 0 0 0 2px var(--tl-blue);
+  box-shadow: inset 0 0 0 2px var(--todd-panel-text);
 }
 
 .find-grid-tile:hover {
   background: var(--todd-surface-1);
 }
 
-/* Media area: 16:9 image, no distortion */
+/* Image fills the top of the box */
 .find-grid-tile__media {
-  position: relative;
-  aspect-ratio: 16 / 9;
+  flex: 0 0 55%;
   overflow: hidden;
   background: var(--todd-surface-1);
-  flex-shrink: 0;
 }
 
 .find-grid-tile__img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
   display: block;
 }
 
-/* Text below the image, or full tile when no image */
+/* Text below the image, or the whole box (from the top) when there is none */
 .find-grid-tile__body {
-  padding: 8px 10px 10px;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  flex: 1;
+  gap: 4px;
+  padding: 8px 10px 10px;
+  overflow: hidden;
 }
 
-/* No-image tile: body fills full height with comfortable padding */
 .find-grid-tile__body--full {
-  padding: 14px 12px 14px;
-  min-height: 120px;
-  justify-content: center;
-}
-
-.find-grid-tile__source {
-  font-size: 0.62rem;
-  font-weight: 700;
-  color: var(--tl-blue);
-  letter-spacing: 0.04em;
+  padding: 12px 12px 10px;
+  justify-content: flex-start;
 }
 
 .find-grid-tile h3 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  line-height: 1.28;
+  line-height: 1.25;
   color: var(--todd-panel-text);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
+/* The summary takes whatever room the box has left after the headline and
+   fades out at the bottom, so it never runs into the domain line no matter
+   how long the headline is. */
 .find-grid-tile__desc {
+  flex: 1 1 0;
+  min-height: 0;
   margin: 0;
-  font-size: 1.0rem;
-  line-height: 1.5;
+  font-size: 0.82rem;
+  line-height: 1.4;
   color: var(--todd-panel-subtext);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
   overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.4em), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1.4em), transparent);
+}
+
+.find-grid-tile__source {
+  flex-shrink: 0;
+  margin-top: auto;
+  font-size: 0.68rem;
+  color: var(--todd-panel-subtext);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .find-grid-tile__address,
 .find-grid-tile__phone {
+  flex-shrink: 0;
   margin: 0;
-  font-size: 0.86rem;
+  font-size: 0.78rem;
   line-height: 1.4;
   color: var(--todd-panel-subtext);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .find-grid-tile h3 {
+    font-size: 1.05rem;
+  }
+
+  .find-grid-tile__desc {
+    font-size: 0.88rem;
+  }
+
+}
+
+/* Phones: grid runs edge to edge like the original */
+@media (max-width: 600px) {
+  .find-grid {
+    margin: 0 -10px;
+    border-left: 0;
+    border-right: 0;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1504,32 +1468,11 @@
   }
 }
 
-/* Mobile first - no padding */
-.desc-pad {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-/* Tablets / iPad */
-@media (min-width: 768px) {
-  .desc-pad {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-}
-
-/* Large screens */
-@media (min-width: 1200px) {
-  .desc-pad {
-    padding-left: 7rem;
-    padding-right: 7rem;
-  }
-}
-
-/* Query term highlight — dash of color on matched words */
-.find-highlight {
-  color: var(--tl-blue);
-  font-weight: 700;
+/* Query terms in red, as in the original release. The spans are injected via
+   [innerHTML], so they need ::ng-deep to receive this component's styles. */
+:host ::ng-deep .find-highlight {
+  color: var(--find-highlight-red);
+  font-weight: inherit;
 }
 
 /* ── HISTORY VIEW ───────────────────────────────────────────── */
@@ -1558,19 +1501,19 @@
   border-bottom: 1px solid var(--todd-panel-border);
 }
 
-.find-grid-back {
-  border: 0;
-  background: transparent;
-  color: var(--todd-panel-text);
-  font-size: 1.3rem;
-  font-weight: 400;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
+/* Match the narrower phone padding (.find-grid-screen) so the pinned header
+   doesn't overflow the viewport sideways. */
+@media (max-width: 600px) {
+  .find-screen-header--grid {
+    margin-left: -10px;
+    margin-right: -10px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
 }
 
 .find-grid-back:hover {
-  color: var(--tl-blue);
+  color: var(--todd-panel-text);
 }
 
 .find-screen-header h2 {
@@ -1589,9 +1532,8 @@
   background: transparent;
   color: var(--todd-panel-text);
   cursor: pointer;
-  font-size: 1.25rem;
-  font-weight: 400;
-  line-height: 30px;
+  font-size: 0.95rem;
+  line-height: 1;
 }
 
 .find-screen-header__back:hover {
@@ -2138,14 +2080,15 @@
 
 .find-pill {
   flex: 1;
+  min-width: 0;
   padding: 10px 4px;
   border-radius: 0;
   border: 0;
-  border-right: 1px solid var(--todd-panel-border);
-  background: var(--todd-surface-1);
-  color: var(--todd-panel-text);
+  border-right: 1px solid var(--find-hairline);
+  background: transparent;
+  color: var(--todd-panel-subtext);
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   text-align: center;
   transition: background 0.16s ease, color 0.16s ease;
@@ -2158,10 +2101,25 @@
   border-right: 0;
 }
 
-.find-pill:hover,
+.find-pill:hover {
+  color: var(--todd-panel-text);
+}
+
+/* Active context: a solid black pill inside its cell */
 .find-pill--lit {
-  background: var(--tl-blue-subtle);
-  color: var(--tl-blue);
+  margin: 5px 4px;
+  padding: 5px 4px;
+  border-right: 0;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .find-pill--lit {
+    background: #f2f2f2;
+    color: #111;
+  }
 }
 
 /* Tab bar */
@@ -2175,22 +2133,18 @@
 .find-tab {
   flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
   border: 0;
-  border-top: 2px solid transparent;
   background: transparent;
   color: var(--todd-panel-subtext);
   cursor: pointer;
   padding: 8px 4px;
-  transition: color 0.16s ease, border-color 0.16s ease;
+  transition: color 0.16s ease;
 }
 
 .find-tab--active {
-  color: var(--tl-blue);
-  border-top-color: var(--tl-blue);
+  color: var(--todd-panel-text);
 }
 
 .find-tab--muted {
@@ -2199,19 +2153,22 @@
 }
 
 .find-tab:hover:not(.find-tab--muted):not(.find-tab--active) {
-  color: var(--color-primary-hover);
+  color: var(--todd-panel-text);
 }
 
 .find-tab__icon {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   line-height: 1;
 }
 
+/* Icon-only toolbar, as in the original; labels stay for screen readers. */
 .find-tab__label {
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .app-global-actions { position: fixed; top: 1rem; right: 1.25rem; z-index: 10002; display: inline-flex; align-items: center; gap: .5rem; }

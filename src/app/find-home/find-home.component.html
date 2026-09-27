@@ -59,20 +59,19 @@
     <ng-container *ngIf="result && !isLoading">
       <!-- Shelf bar: previous/home arrow | centered topic + dots | next arrow -->
       <div class="find-shelf">
-        <button class="find-shelf__back" type="button" (click)="onPreviousResult()" [attr.aria-label]="isDetailView ? 'Back to grid' : (resultIndex === 0 ? 'Back to search' : 'Previous result')">←</button>
+        <button class="find-shelf__back" type="button" (click)="onPreviousResult()" [attr.aria-label]="isDetailView ? 'Back to grid' : (resultIndex === 0 ? 'Back to search' : 'Previous result')"><span class="find-nav-chevron" aria-hidden="true">‹</span> Back</button>
         <div class="find-shelf__center">
           <span class="find-shelf__topic">{{ shelfTitle }}</span>
           <div class="find-shelf__dots" *ngIf="allCards.length > 1 && !isDetailView" aria-hidden="true">
             <span *ngFor="let c of allCards; let i = index" class="find-shelf-dot" [class.find-shelf-dot--active]="i === resultIndex && !viewingGroundedAnswer"></span>
           </div>
-          <button type="button" class="find-shelf__see-all" *ngIf="allCards.length > 1 && !isDetailView && !isWeatherMode" (click)="setView('booklet')">See all {{ totalResultCount }} options</button>
         </div>
-        <button class="find-shelf__next" type="button" (click)="onNextResult()" [disabled]="isDetailView || allCards.length === 0 || resultIndex === allCards.length - 1" aria-label="Next result">→</button>
+        <button class="find-shelf__next" type="button" (click)="onNextResult()" [disabled]="isDetailView || allCards.length === 0 || resultIndex === allCards.length - 1" aria-label="Next result">Next <span class="find-nav-chevron" aria-hidden="true">›</span></button>
       </div>
       <div class="find-result-layout">
         <!-- Hero image — clickable link, paired with the answer on desktop -->
-        <a class="find-card-img-wrap" [class.find-card-img-wrap--fallback]="isFallbackHeroImage" [class.find-card-img-wrap--conversion]="isConversionMode" [class.find-card-img-wrap--landscape]="heroImageOrientation === 'landscape'" [class.find-card-img-wrap--portrait]="heroImageOrientation === 'portrait'" [class.find-card-img-wrap--square]="heroImageOrientation === 'square'" [style.--find-image-ratio]="heroImageAspectRatio" [attr.href]="currentCard?.url || null" target="_blank" rel="noopener" *ngIf="currentHasHeroImage">
-          <img [src]="currentHeroImage" [alt]="currentQuestionTitle" class="find-card-img" (load)="onHeroImageLoad($event)" (error)="onImageError(currentHeroImage)" />
+        <a class="find-card-img-wrap" [class.find-card-img-wrap--fallback]="isFallbackHeroImage" [class.find-card-img-wrap--conversion]="isConversionMode" [attr.href]="currentCard?.url || null" target="_blank" rel="noopener" *ngIf="currentHasHeroImage">
+          <img [src]="currentHeroImage" [alt]="currentQuestionTitle" class="find-card-img" (error)="onImageError(currentHeroImage)" />
         </a>
         <!-- Result body -->
         <div class="find-card-body find-container">
@@ -267,7 +266,7 @@
   <!-- ── GRID VIEW (all results as tiles) ──────────────────────── -->
   <div class="find-grid-screen" data-cy="find-grid-shell" *ngIf="activeView === 'booklet' && result">
     <div class="find-screen-header find-screen-header--grid">
-      <button type="button" class="find-grid-back" (click)="setView('booklet')" aria-label="Back to result">←</button>
+      <button type="button" class="find-grid-back" (click)="setView('booklet')" aria-label="Back to result"><span class="find-nav-chevron" aria-hidden="true">‹</span> Back</button>
       <span class="find-grid-count">{{ totalResultCount }} found</span>
     </div>
     <div class="find-grid">
@@ -276,11 +275,11 @@
           <img [src]="card.imageUrl" [alt]="card.title" class="find-grid-tile__img" (error)="onImageError(card.imageUrl)" />
         </div>
         <div class="find-grid-tile__body" [class.find-grid-tile__body--full]="!card.imageUrl || isImageBroken(card.imageUrl)">
-          <span class="find-grid-tile__source">{{ card.displayUrl }}</span>
           <h3 [innerHTML]="highlightTerms(card.title)"></h3>
           <p *ngIf="card.summary" class="find-grid-tile__desc" [innerHTML]="highlightTerms(card.summary)"></p>
           <p *ngIf="card.address" class="find-grid-tile__address">{{ card.address }}</p>
           <p *ngIf="card.phone" class="find-grid-tile__phone">{{ card.phone }}</p>
+          <span class="find-grid-tile__source">{{ card.displayUrl }}</span>
         </div>
       </a>
     </div>
@@ -289,7 +288,7 @@
   <!-- ── HISTORY VIEW ─────────────────────────────────────────── -->
   <div class="find-history-screen" data-cy="find-history-shell" *ngIf="activeView === 'history'">
     <div class="find-screen-header">
-      <button class="find-screen-header__back" type="button" (click)="resetToSearch()" aria-label="Back to home">←</button>
+      <button class="find-screen-header__back" type="button" (click)="resetToSearch()" aria-label="Home"><i class="fa-solid fa-house" aria-hidden="true"></i></button>
       <h2>Recent searches</h2>
       <button *ngIf="searchHistory.length > 0" class="find-clear-btn" type="button" (click)="clearHistory()">Clear</button>
     </div>
@@ -306,7 +305,7 @@
   <!-- ── INFO VIEW ────────────────────────────────────────────── -->
   <div class="find-info-screen" data-cy="find-info-shell" *ngIf="activeView === 'info'">
     <div class="find-screen-header">
-      <button class="find-screen-header__back" type="button" (click)="resetToSearch()" aria-label="Back to home">←</button>
+      <button class="find-screen-header__back" type="button" (click)="resetToSearch()" aria-label="Home"><i class="fa-solid fa-house" aria-hidden="true"></i></button>
       <h2>About Find</h2>
       <span class="find-screen-header__spacer" aria-hidden="true"></span>
     </div>
@@ -364,7 +363,7 @@
   <!-- ── AWARDS VIEW ──────────────────────────────────────────── -->
   <div class="find-awards-screen" data-cy="find-awards-shell" *ngIf="activeView === 'awards'">
     <div class="find-screen-header">
-      <button class="find-screen-header__back" type="button" (click)="resetToSearch()" aria-label="Back to home">←</button>
+      <button class="find-screen-header__back" type="button" (click)="resetToSearch()" aria-label="Home"><i class="fa-solid fa-house" aria-hidden="true"></i></button>
       <h2>Awards</h2>
       <span class="find-screen-header__spacer" aria-hidden="true"></span>
     </div>
@@ -402,15 +401,22 @@
     <!-- Context pill row — visible in result and grid views -->
     <div class="find-pill-bar" *ngIf="showPillBar">
       <div class="find-pill-grid">
-        <button class="find-pill" *ngFor="let pill of currentPills" [class.find-pill--lit]="pill === highlightedPill" type="button" (click)="onPillClick(pill)">{{ pill }}</button>
+        <button class="find-pill" *ngFor="let pill of currentPills; let i = index" [class.find-pill--lit]="pill === highlightedPill || pill === activeContext" [attr.aria-pressed]="pill === activeContext" type="button" (click)="onPillClick(pill)">{{ pillLabel(pill, i) }}</button>
       </div>
     </div>
     <!-- Tab bar -->
     <div class="find-tab-bar" role="tablist">
-      <button type="button" class="find-tab" [class.find-tab--active]="activeView === 'booklet'" [class.find-tab--muted]="!result || isWeatherMode || isMovieMode" role="tab" aria-label="All results grid" (click)="setView('booklet')">
-        <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-table-cells-large"></i></span>
-        <span class="find-tab__label">Grid</span>
+      <!-- In the grid, the grid button becomes Home so there's an obvious way back to a new search -->
+      <button type="button" class="find-tab" *ngIf="activeView === 'booklet'; else gridTab" role="tab" aria-label="Home" (click)="resetToSearch()">
+        <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
+        <span class="find-tab__label">Home</span>
       </button>
+      <ng-template #gridTab>
+        <button type="button" class="find-tab" [class.find-tab--muted]="!result || isWeatherMode || isMovieMode" role="tab" aria-label="All results grid" (click)="setView('booklet')">
+          <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-list"></i></span>
+          <span class="find-tab__label">Grid</span>
+        </button>
+      </ng-template>
       <button type="button" class="find-tab" [class.find-tab--active]="activeView === 'history'" role="tab" aria-label="Search history" (click)="setView('history')">
         <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-clock-rotate-left"></i></span>
         <span class="find-tab__label">History</span>

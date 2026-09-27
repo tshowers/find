@@ -90,8 +90,6 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   readonly year = new Date().getFullYear();
   readonly appVersion = String( environment.VERSION || '' ).trim();
   private readonly brokenImageUrls = new Set<string>();
-  heroImageOrientation: 'landscape' | 'portrait' | 'square' | null = null;
-  heroImageAspectRatio = 16 / 9;
 
   private readonly HISTORY_KEY = 'find-history';
   private readonly HISTORY_MAX = 20;
@@ -475,20 +473,6 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     if ( normalized ) this.brokenImageUrls.add( normalized );
   }
 
-  onHeroImageLoad ( event: Event ): void {
-    const image = event.target as HTMLImageElement | null;
-    if ( !image?.naturalWidth || !image.naturalHeight ) return;
-
-    this.heroImageAspectRatio = image.naturalWidth / image.naturalHeight;
-    if ( this.heroImageAspectRatio > 1.15 ) {
-      this.heroImageOrientation = 'landscape';
-    } else if ( this.heroImageAspectRatio < 0.9 ) {
-      this.heroImageOrientation = 'portrait';
-    } else {
-      this.heroImageOrientation = 'square';
-    }
-  }
-
   get liveElapsedSeconds (): string {
     return ( this.loadingElapsedMs / 1000 ).toFixed( 1 );
   }
@@ -791,6 +775,14 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     const escaped = words.map( w => w.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ) );
     const pattern = new RegExp( `(${ escaped.join( '|' ) })`, 'gi' );
     return safe.replace( pattern, '<span class="find-highlight">$1</span>' );
+  }
+
+  /** Pill text, prefixed with its tilt direction (L/R/U/D) while tilt navigation is on. */
+  pillLabel ( pill: string, index: number ): string {
+    if ( !this.gyroEnabled ) return pill;
+    const letter = ( Object.keys( this.tiltToPillIndex ) as GyroTilt[] )
+      .find( ( tilt ) => this.tiltToPillIndex[tilt] === index );
+    return letter ? `${ letter.charAt( 0 ).toUpperCase() } - ${ pill }` : pill;
   }
 
   // --- History ---
