@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/organic-d63a3052-51a7-4a63-ba61-1ac1c045ee80/styles.css">
+<script src="_ds/organic-d63a3052-51a7-4a63-ba61-1ac1c045ee80/_ds_bundle.js"></script>
+<style>
+body{margin:0;background:#d9dce3}
+a{color:var(--color-accent-700);text-decoration:none}a:hover{color:var(--color-accent-800)}
+.fx a{text-decoration:none}.fx a:hover{color:inherit}
+.fx{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;--bg:#fff;--surface:#f2f3f6;--surface2:#e4e7ed;--canvas:#d9dce3;--text:#0f1115;--muted:#5a6170;--blue:#2f6bff;--blue-ink:#1f55e0;--pink:#ff4fa8;--violet:#a259ff;--cyan:#1fc8ec;--yellow:#ffd92e;--t-blue:#e3ecff;--t-blue-fg:#1d4fd6;--t-cyan:#daf6fc;--t-cyan-fg:#08657d;--t-pink:#ffe3f1;--t-pink-fg:#a8105a;--t-violet:#efe5ff;--t-violet-fg:#6427c9;--t-yellow:#fff4c2;--t-yellow-fg:#6e5700;--t-green:#e0f6e6;--t-green-fg:#17703a;--shadow:0 20px 50px rgba(15,17,21,.12)}
+@media (prefers-color-scheme:dark){.fx{--bg:#0c0e13;--surface:#171a22;--surface2:#242936;--canvas:#05060a;--text:#f2f4f8;--muted:#9aa2b2;--blue:#3d7bff;--blue-ink:#86aeff;--t-blue:#15254a;--t-blue-fg:#a3c1ff;--t-cyan:#0c2d35;--t-cyan-fg:#74e4f8;--t-pink:#3a1029;--t-pink-fg:#ff92c9;--t-violet:#2a1847;--t-violet-fg:#cdaaff;--t-yellow:#2f2906;--t-yellow-fg:#ffe56a;--t-green:#0e2c19;--t-green-fg:#80e2a4;--shadow:0 20px 50px rgba(0,0,0,.55)}}
+.fx[data-theme=light]{--bg:#fff;--surface:#f2f3f6;--surface2:#e4e7ed;--canvas:#d9dce3;--text:#0f1115;--muted:#5a6170;--blue:#2f6bff;--blue-ink:#1f55e0;--t-blue:#e3ecff;--t-blue-fg:#1d4fd6;--t-cyan:#daf6fc;--t-cyan-fg:#08657d;--t-pink:#ffe3f1;--t-pink-fg:#a8105a;--t-violet:#efe5ff;--t-violet-fg:#6427c9;--t-yellow:#fff4c2;--t-yellow-fg:#6e5700;--t-green:#e0f6e6;--t-green-fg:#17703a;--shadow:0 20px 50px rgba(15,17,21,.12)}
+.fx[data-theme=dark]{--bg:#0c0e13;--surface:#171a22;--surface2:#242936;--canvas:#05060a;--text:#f2f4f8;--muted:#9aa2b2;--blue:#3d7bff;--blue-ink:#86aeff;--t-blue:#15254a;--t-blue-fg:#a3c1ff;--t-cyan:#0c2d35;--t-cyan-fg:#74e4f8;--t-pink:#3a1029;--t-pink-fg:#ff92c9;--t-violet:#2a1847;--t-violet-fg:#cdaaff;--t-yellow:#2f2906;--t-yellow-fg:#ffe56a;--t-green:#0e2c19;--t-green-fg:#80e2a4;--shadow:0 20px 50px rgba(0,0,0,.55)}
+</style>
+</helmet>
+<section class="fx" data-theme="{{ theme }}" style="padding:64px;display:flex;flex-direction:column;gap:56px;background:var(--canvas);color:var(--text)">
+<div style="display:flex;flex-direction:column;gap:10px;max-width:820px">
+<div style="display:flex;align-items:center;gap:12px"><img src="public/assets/find-logo.png" alt="" style="height:44px;width:auto"><span style="font-size:40px;font-weight:700;letter-spacing:-0.03em">Round 3: home, quick searches, answers</span></div>
+<div style="font-size:17px;line-height:1.5;color:var(--muted)">The home screen, Weather, Conversion, News and Sports (one shared headline result, since both come from RSS), and question answers in all three image states. Same tokens, pager and footer as round 2.</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:20px">
+<div style="font-size:24px;font-weight:700;letter-spacing:-0.02em">Desktop</div>
+<div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+
+<div id="3a" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">3a</span><span style="font-weight:600">Home</span></div>
+<div style="width:1200px;height:760px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:0 40px">
+<div style="display:flex;align-items:center;gap:16px"><img src="public/assets/find-logo.png" alt="" style="height:84px;width:auto"><span style="font-size:64px;font-weight:700;letter-spacing:-0.04em">Find</span></div>
+<div style="width:100%;max-width:760px;display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:999px;padding:6px 6px 6px 24px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted)"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span style="flex:1;font-size:18px;color:var(--muted)">Search for anything…</span><a href="#" style="height:52px;padding:0 32px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:17px">Find</a></div>
+<div style="width:100%;max-width:760px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px"><sc-for list="{{ homeTiles }}" as="t" hint-placeholder-count="6"><a href="#" style="{{ t.s }}" style-hover="filter:brightness(0.96)"><span style="{{ t.icon }}"></span><span>{{ t.l }}</span><span style="font-size:11px;font-weight:600;margin-top:-4px">{{ t.soon }}</span></a></sc-for></div>
+<a href="#" style="display:flex;align-items:center;gap:10px;height:44px;padding:0 18px;border-radius:12px;background:var(--text);color:var(--bg)"><svg width="18" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.75-.78-2.88-.76-1.48.02-2.85.86-3.61 2.19-1.54 2.67-.39 6.62 1.11 8.79.73 1.06 1.6 2.25 2.75 2.2 1.1-.04 1.52-.71 2.85-.71 1.33 0 1.71.71 2.88.69 1.19-.02 1.94-1.08 2.67-2.14.84-1.23 1.19-2.42 1.21-2.48-.03-.01-2.32-.89-2.35-3.54zM14.2 6.13c.61-.74 1.02-1.76.91-2.78-.88.04-1.94.59-2.57 1.32-.56.65-1.06 1.69-.93 2.69.98.08 1.98-.5 2.59-1.23z"></path></svg><span style="display:flex;flex-direction:column;line-height:1.1"><span style="font-size:10px">Download on the</span><span style="font-size:16px;font-weight:700">App Store</span></span></a>
+</div>
+</div>
+
+<div id="3b" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">3b</span><span style="font-weight:600">Weather</span></div>
+<div style="width:1200px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 40px"><div style="display:flex;align-items:center;gap:10px"><img src="public/assets/find-logo.png" alt="" style="height:30px;width:auto"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Find</span></div><div style="flex:1;max-width:600px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:46px;padding:0 20px;color:var(--muted);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>weather 98106</span></div><a href="#" style="height:46px;padding:0 24px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:15px">Find</a></div>
+<div style="margin:0 40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;background:var(--surface);border-radius:999px;padding:6px">
+<a href="#" style="justify-self:start;display:flex;align-items:center;gap:12px;padding:4px 18px 4px 4px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:12px;color:var(--muted)">Back</span><span style="font-size:14px;font-weight:600">New search</span></span></a>
+<span style="font-size:14px;font-weight:600">Weather</span><span></span>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:44px;padding:36px 40px 8px;align-items:start">
+<div style="background:var(--t-blue);color:var(--t-blue-fg);border-radius:28px;padding:32px;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Seattle, WA 98106</span><span style="font-size:16px">Mostly cloudy</span></div><span style="{{ cloudBig }}"></span></div>
+<div style="font-size:128px;font-weight:700;letter-spacing:-0.06em;line-height:.9">62°</div>
+<div style="display:flex;gap:16px;font-size:16px;font-weight:600"><span>H 67°</span><span>L 54°</span></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
+<div style="background:var(--bg);color:var(--text);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;color:var(--muted)">Feels like</span><span style="font-size:20px;font-weight:700">61°</span></div>
+<div style="background:var(--bg);color:var(--text);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;color:var(--muted)">Humidity</span><span style="font-size:20px;font-weight:700">78%</span></div>
+<div style="background:var(--bg);color:var(--text);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;color:var(--muted)">Wind</span><span style="font-size:20px;font-weight:700">8 mph</span></div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="font-size:15px;font-weight:700;padding:0 4px 8px">6-day forecast</div>
+<sc-for list="{{ forecast }}" as="f" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:64px 30px minmax(0,1fr) 40px 150px 40px;align-items:center;gap:12px;padding:12px 16px;border-radius:16px;background:var(--surface);font-size:15px"><span style="font-weight:700">{{ f.d }}</span><span style="{{ f.icon }}"></span><span style="color:var(--muted)">{{ f.c }}</span><span style="color:var(--muted);text-align:right">{{ f.lo }}</span><span style="position:relative;height:6px;border-radius:999px;background:var(--surface2)"><span style="{{ f.bar }}"></span></span><span style="font-weight:700">{{ f.hi }}</span></div></sc-for>
+</div>
+</div>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:24px 40px 28px;font-size:13px;color:var(--muted)"><span style="margin-right:4px">Right find?</span><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Excellent</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</a><span style="margin-left:auto">Updated 6:00 PM · 47.5218, -122.3466</span></div>
+</div>
+</div>
+
+<div id="3c" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">3c</span><span style="font-weight:600">Conversion (desktop types, so no keypad)</span></div>
+<div style="width:1200px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 40px"><div style="display:flex;align-items:center;gap:10px"><img src="public/assets/find-logo.png" alt="" style="height:30px;width:auto"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Find</span></div><div style="flex:1;max-width:600px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:46px;padding:0 20px;color:var(--muted);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>100 usd to jpy</span></div><a href="#" style="height:46px;padding:0 24px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:15px">Find</a></div>
+<div style="margin:0 40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;background:var(--surface);border-radius:999px;padding:6px">
+<a href="#" style="justify-self:start;display:flex;align-items:center;gap:12px;padding:4px 18px 4px 4px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:12px;color:var(--muted)">Back</span><span style="font-size:14px;font-weight:600">New search</span></span></a>
+<span style="font-size:14px;font-weight:600">Currency conversion</span><span></span>
+</div>
+<div style="padding:44px 40px 8px;display:flex;flex-direction:column;gap:20px;max-width:900px">
+<span style="align-self:flex-start;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--t-violet);color:var(--t-violet-fg)">Currency conversion</span>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 56px minmax(0,1fr);gap:16px;align-items:center">
+<div style="background:var(--surface);border-radius:24px;padding:20px 24px;display:flex;flex-direction:column;gap:10px"><span style="font-size:13px;font-weight:600;color:var(--muted)">From</span><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="font-size:48px;font-weight:700;letter-spacing:-0.03em;border-bottom:3px solid var(--blue);padding-bottom:2px">100</span><span style="display:flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:999px;background:var(--bg);font-size:15px;font-weight:700">USD ▾</span></div><span style="font-size:14px;color:var(--muted)">US Dollar</span></div>
+<a href="#" style="width:56px;height:56px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center"><span style="{{ swapIcLr }}"></span></a>
+<div style="background:var(--t-violet);color:var(--t-violet-fg);border-radius:24px;padding:20px 24px;display:flex;flex-direction:column;gap:10px"><span style="font-size:13px;font-weight:600">To</span><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="font-size:48px;font-weight:700;letter-spacing:-0.03em;padding-bottom:5px">15,659.50</span><span style="display:flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:999px;background:var(--bg);color:var(--text);font-size:15px;font-weight:700">JPY ▾</span></div><span style="font-size:14px">Japanese Yen</span></div>
+</div>
+<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><sc-for list="{{ aConv }}" as="a" hint-placeholder-count="1"><a href="{{ a.href }}" style="{{ a.btn }}"><span style="{{ a.icon }}"></span>{{ a.label }}</a></sc-for><span style="font-size:15px">1 USD = 156.595 JPY</span><span style="font-size:14px;color:var(--muted)">Updated 6:00 PM</span></div>
+</div>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:24px 40px 28px;font-size:13px;color:var(--muted)"><span style="margin-right:4px">Right find?</span><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Excellent</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</a><span style="margin-left:auto">Source: exchange-rate-provider</span></div>
+</div>
+</div>
+
+<div id="3d" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">3d</span><span style="font-weight:600">Sports / News headline, with article image</span></div>
+<div style="width:1200px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 40px"><div style="display:flex;align-items:center;gap:10px"><img src="public/assets/find-logo.png" alt="" style="height:30px;width:auto"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Find</span></div><div style="flex:1;max-width:600px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:46px;padding:0 20px;color:var(--muted);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>sports</span></div><a href="#" style="height:46px;padding:0 24px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:15px">Find</a></div>
+<div style="margin:0 40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;background:var(--surface);border-radius:999px;padding:6px">
+<a href="#" style="justify-self:start;display:flex;align-items:center;gap:12px;padding:4px 18px 4px 4px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:12px;color:var(--muted)">Back</span><span style="font-size:14px;font-weight:600">New search</span></span></a>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;align-items:center;gap:3px"><sc-for list="{{ seg1 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:13px;color:var(--muted)"><b style="color:var(--text)">1</b> of 20 · <a href="#" style="color:var(--blue-ink);font-weight:600">See all</a></span></div>
+<a href="#" style="justify-self:end;display:flex;align-items:center;gap:12px;padding:4px 4px 4px 18px;border-radius:999px;color:var(--text);min-width:0" style-hover="background:var(--surface2)"><span style="display:flex;flex-direction:column;align-items:flex-end;min-width:0"><span style="font-size:12px;color:var(--muted)">Next · BBC Sport · 2h ago</span><span style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px">Arsenal go top after win at Villa Park</span></span><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></a>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr);gap:44px;padding:36px 40px 8px;align-items:start">
+<div style="aspect-ratio:16/10;border-radius:20px;background:var(--surface2);display:flex;align-items:flex-end;padding:18px;font-size:13px;color:var(--muted)">Article image (imageUrl)</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--t-cyan);color:var(--t-cyan-fg)">Sports</span><span style="font-size:14px;font-weight:600">CBS Sports</span><span style="font-size:14px;color:var(--muted)">· 4h ago</span></div>
+<div style="font-size:40px;font-weight:700;letter-spacing:-0.03em;line-height:1.05;text-wrap:pretty">Chiefs rally late to beat Ravens in AFC showdown</div>
+<div style="font-size:16px;line-height:1.6;text-wrap:pretty">Patrick Mahomes threw two fourth-quarter touchdowns as Kansas City came from behind to beat Baltimore.</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px"><sc-for list="{{ aHeadline }}" as="a" hint-placeholder-count="2"><a href="{{ a.href }}" style="{{ a.btn }}" style-hover="filter:brightness(0.94)"><span style="{{ a.icon }}"></span>{{ a.label }}</a></sc-for></div>
+</div>
+</div>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:28px 40px 28px;font-size:13px;color:var(--muted)"><span style="margin-right:4px">Right find?</span><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Excellent</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</a><span style="margin-left:auto">From CBS Sports, BBC Sport and Sky Sports · updated hourly</span></div>
+</div>
+</div>
+
+<div id="3e" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">3e</span><span style="font-weight:600">Headline with no article image (fallback shown small)</span></div>
+<div style="width:1200px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 40px"><div style="display:flex;align-items:center;gap:10px"><img src="public/assets/find-logo.png" alt="" style="height:30px;width:auto"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Find</span></div><div style="flex:1;max-width:600px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:46px;padding:0 20px;color:var(--muted);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>sports</span></div><a href="#" style="height:46px;padding:0 24px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:15px">Find</a></div>
+<div style="margin:0 40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;background:var(--surface);border-radius:999px;padding:6px">
+<a href="#" style="justify-self:start;display:flex;align-items:center;gap:12px;padding:4px 18px 4px 4px;border-radius:999px;color:var(--text);min-width:0" style-hover="background:var(--surface2)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:12px;color:var(--muted)">Previous · CBS Sports · 4h ago</span><span style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px">Chiefs rally late to beat Ravens in AFC showdown</span></span></a>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;align-items:center;gap:3px"><sc-for list="{{ seg2 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:13px;color:var(--muted)"><b style="color:var(--text)">2</b> of 20 · <a href="#" style="color:var(--blue-ink);font-weight:600">See all</a></span></div>
+<a href="#" style="justify-self:end;display:flex;align-items:center;gap:12px;padding:4px 4px 4px 18px;border-radius:999px;color:var(--text);min-width:0" style-hover="background:var(--surface2)"><span style="display:flex;flex-direction:column;align-items:flex-end;min-width:0"><span style="font-size:12px;color:var(--muted)">Next · Sky Sports · 5h ago</span><span style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px">Bellamy gets perfect response as Wales beat 10-man Norway</span></span><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></a>
+</div>
+<div style="display:grid;grid-template-columns:140px minmax(0,760px);gap:32px;padding:44px 40px 8px;align-items:start">
+<img src="public/fallback/find-sports.png" alt="" style="width:140px;height:140px;border-radius:28px;object-fit:cover;background:var(--surface)">
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--t-cyan);color:var(--t-cyan-fg)">Sports</span><span style="font-size:14px;font-weight:600">BBC Sport</span><span style="font-size:14px;color:var(--muted)">· 2h ago</span></div>
+<div style="font-size:40px;font-weight:700;letter-spacing:-0.03em;line-height:1.05">Arsenal go top after win at Villa Park</div>
+<div style="font-size:17px;line-height:1.6;text-wrap:pretty">Arsenal moved to the top of the Premier League table with an away win at Aston Villa.</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px"><sc-for list="{{ aHeadline2 }}" as="a" hint-placeholder-count="2"><a href="{{ a.href }}" style="{{ a.btn }}" style-hover="filter:brightness(0.94)"><span style="{{ a.icon }}"></span>{{ a.label }}</a></sc-for></div>
+</div>
+</div>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:28px 40px 28px;font-size:13px;color:var(--muted)"><span style="margin-right:4px">Right find?</span><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Excellent</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</a><span style="margin-left:auto">From CBS Sports, BBC Sport and Sky Sports · updated hourly</span></div>
+</div>
+</div>
+
+<div id="3f" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">3f</span><span style="font-weight:600">Answer with its own image</span></div>
+<div style="width:1200px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 40px"><div style="display:flex;align-items:center;gap:10px"><img src="public/assets/find-logo.png" alt="" style="height:30px;width:auto"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Find</span></div><div style="flex:1;max-width:600px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:46px;padding:0 20px;color:var(--muted);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>how much caffeine is in a cup of coffee</span></div><a href="#" style="height:46px;padding:0 24px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:15px">Find</a></div>
+<div style="margin:0 40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;background:var(--surface);border-radius:999px;padding:6px">
+<a href="#" style="justify-self:start;display:flex;align-items:center;gap:12px;padding:4px 18px 4px 4px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:12px;color:var(--muted)">Back</span><span style="font-size:14px;font-weight:600">New search</span></span></a>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;align-items:center;gap:3px"><sc-for list="{{ seg1 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:13px;color:var(--muted)"><b style="color:var(--text)">1</b> of 20 · <a href="#" style="color:var(--blue-ink);font-weight:600">See all</a></span></div>
+<a href="#" style="justify-self:end;display:flex;align-items:center;gap:12px;padding:4px 4px 4px 18px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-size:12px;color:var(--muted)">Next · supporting result</span><span style="font-size:14px;font-weight:600">Caffeine content for coffee, tea…</span></span><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></a>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:44px;padding:36px 40px 8px;align-items:start">
+<div style="aspect-ratio:4/3;border-radius:20px;background:var(--surface2);display:flex;align-items:flex-end;padding:18px;font-size:13px;color:var(--muted)">Answer image</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--t-green);color:var(--t-green-fg)">Answer · from 3 sources</span></div>
+<div style="font-size:40px;font-weight:700;letter-spacing:-0.03em;line-height:1.05">About 95 mg in an 8-oz cup</div>
+<div style="font-size:17px;line-height:1.6;text-wrap:pretty">An 8-oz (240 ml) cup of brewed coffee has about 95 mg of caffeine, with a typical range of 70–140 mg depending on the beans and how it's brewed. A 1-oz shot of espresso has about 63 mg.</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px"><sc-for list="{{ aAnswer }}" as="a" hint-placeholder-count="2"><a href="{{ a.href }}" style="{{ a.btn }}" style-hover="filter:brightness(0.94)"><span style="{{ a.icon }}"></span>{{ a.label }}</a></sc-for></div>
+<div style="display:flex;flex-direction:column;gap:6px;margin-top:8px"><span style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">References</span><sc-for list="{{ refs }}" as="r" hint-placeholder-count="3"><a href="#" style="display:flex;flex-direction:column;gap:2px;padding:10px 14px;border-radius:14px;background:var(--surface);color:var(--text)" style-hover="background:var(--surface2)"><span style="font-size:12px;color:var(--muted)">{{ r.d }}</span><span style="font-size:15px;font-weight:600">{{ r.t }}</span></a></sc-for></div>
+</div>
+</div>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:24px 40px 28px;font-size:13px;color:var(--muted)"><span style="margin-right:4px">Right find?</span><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Excellent</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</a><span style="margin-left:auto">2.2s · grounded answer</span></div>
+</div>
+</div>
+
+<div id="3g" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">3g</span><span style="font-weight:600">Answer with a default image (shown small)</span></div>
+<div style="width:1200px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 40px"><div style="display:flex;align-items:center;gap:10px"><img src="public/assets/find-logo.png" alt="" style="height:30px;width:auto"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Find</span></div><div style="flex:1;max-width:600px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:46px;padding:0 20px;color:var(--muted);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>how much caffeine is in a cup of coffee</span></div><a href="#" style="height:46px;padding:0 24px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:15px">Find</a></div>
+<div style="margin:0 40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;background:var(--surface);border-radius:999px;padding:6px">
+<a href="#" style="justify-self:start;display:flex;align-items:center;gap:12px;padding:4px 18px 4px 4px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:12px;color:var(--muted)">Back</span><span style="font-size:14px;font-weight:600">New search</span></span></a>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;align-items:center;gap:3px"><sc-for list="{{ seg1 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:13px;color:var(--muted)"><b style="color:var(--text)">1</b> of 20 · <a href="#" style="color:var(--blue-ink);font-weight:600">See all</a></span></div>
+<a href="#" style="justify-self:end;display:flex;align-items:center;gap:12px;padding:4px 4px 4px 18px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-size:12px;color:var(--muted)">Next · supporting result</span><span style="font-size:14px;font-weight:600">Caffeine content for coffee, tea…</span></span><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></a>
+</div>
+<div style="display:grid;grid-template-columns:140px minmax(0,1fr) 340px;gap:32px;padding:44px 40px 8px;align-items:start">
+<div style="width:140px;height:140px;border-radius:28px;background:var(--surface2);display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;color:var(--muted);padding:12px">Find default image</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<span style="align-self:flex-start;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--t-green);color:var(--t-green-fg)">Answer · from 3 sources</span>
+<div style="font-size:40px;font-weight:700;letter-spacing:-0.03em;line-height:1.05">About 95 mg in an 8-oz cup</div>
+<div style="font-size:17px;line-height:1.6;text-wrap:pretty">An 8-oz (240 ml) cup of brewed coffee has about 95 mg of caffeine, with a typical range of 70–140 mg depending on the beans and how it's brewed. A 1-oz shot of espresso has about 63 mg.</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px"><sc-for list="{{ aAnswer }}" as="a" hint-placeholder-count="2"><a href="{{ a.href }}" style="{{ a.btn }}" style-hover="filter:brightness(0.94)"><span style="{{ a.icon }}"></span>{{ a.label }}</a></sc-for></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:0 4px 4px">References</span><sc-for list="{{ refs }}" as="r" hint-placeholder-count="3"><a href="#" style="display:flex;flex-direction:column;gap:2px;padding:10px 14px;border-radius:14px;background:var(--surface);color:var(--text)" style-hover="background:var(--surface2)"><span style="font-size:12px;color:var(--muted)">{{ r.d }}</span><span style="font-size:15px;font-weight:600">{{ r.t }}</span></a></sc-for></div>
+</div>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:28px 40px 28px;font-size:13px;color:var(--muted)"><span style="margin-right:4px">Right find?</span><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Excellent</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</a><span style="margin-left:auto">2.2s · grounded answer</span></div>
+</div>
+</div>
+
+<div id="3h" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">3h</span><span style="font-weight:600">Answer with no image</span></div>
+<div style="width:1200px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 40px"><div style="display:flex;align-items:center;gap:10px"><img src="public/assets/find-logo.png" alt="" style="height:30px;width:auto"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Find</span></div><div style="flex:1;max-width:600px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:46px;padding:0 20px;color:var(--muted);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>how much caffeine is in a cup of coffee</span></div><a href="#" style="height:46px;padding:0 24px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:15px">Find</a></div>
+<div style="margin:0 40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;background:var(--surface);border-radius:999px;padding:6px">
+<a href="#" style="justify-self:start;display:flex;align-items:center;gap:12px;padding:4px 18px 4px 4px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:12px;color:var(--muted)">Back</span><span style="font-size:14px;font-weight:600">New search</span></span></a>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;align-items:center;gap:3px"><sc-for list="{{ seg1 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:13px;color:var(--muted)"><b style="color:var(--text)">1</b> of 20 · <a href="#" style="color:var(--blue-ink);font-weight:600">See all</a></span></div>
+<a href="#" style="justify-self:end;display:flex;align-items:center;gap:12px;padding:4px 4px 4px 18px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-size:12px;color:var(--muted)">Next · supporting result</span><span style="font-size:14px;font-weight:600">Caffeine content for coffee, tea…</span></span><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></a>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:56px;padding:44px 40px 8px;align-items:start">
+<div style="display:flex;flex-direction:column;gap:18px;max-width:700px">
+<span style="align-self:flex-start;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--t-green);color:var(--t-green-fg)">Answer · from 3 sources</span>
+<div style="font-size:52px;font-weight:700;letter-spacing:-0.035em;line-height:1.02">About 95 mg in an 8-oz cup</div>
+<div style="font-size:19px;line-height:1.6;text-wrap:pretty">An 8-oz (240 ml) cup of brewed coffee has about 95 mg of caffeine, with a typical range of 70–140 mg depending on the beans and how it's brewed. A 1-oz shot of espresso has about 63 mg.</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px"><sc-for list="{{ aAnswer }}" as="a" hint-placeholder-count="2"><a href="{{ a.href }}" style="{{ a.btn }}" style-hover="filter:brightness(0.94)"><span style="{{ a.icon }}"></span>{{ a.label }}</a></sc-for></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:0 4px 4px">References</span><sc-for list="{{ refs }}" as="r" hint-placeholder-count="3"><a href="#" style="display:flex;flex-direction:column;gap:2px;padding:10px 14px;border-radius:14px;background:var(--surface);color:var(--text)" style-hover="background:var(--surface2)"><span style="font-size:12px;color:var(--muted)">{{ r.d }}</span><span style="font-size:15px;font-weight:600">{{ r.t }}</span></a></sc-for></div>
+</div>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:28px 40px 28px;font-size:13px;color:var(--muted)"><span style="margin-right:4px">Right find?</span><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Excellent</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</a><span style="margin-left:auto">2.2s · grounded answer</span></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:20px">
+<div style="font-size:24px;font-weight:700;letter-spacing:-0.02em">iPhone</div>
+<div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+
+<div id="3i" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">3i</span><span style="font-weight:600">Home</span></div>
+<div style="width:390px;height:844px;background:var(--bg);color:var(--text);border-radius:48px;box-shadow:var(--shadow);overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;gap:24px;padding:150px 20px 0">
+<div style="display:flex;align-items:center;gap:12px"><img src="public/assets/find-logo.png" alt="" style="height:64px;width:auto"><span style="font-size:44px;font-weight:700;letter-spacing:-0.04em">Find</span></div>
+<div style="width:100%;display:flex;flex-direction:column;gap:10px"><div style="display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:54px;padding:0 20px;color:var(--muted);font-size:16px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>Search for anything…</div><a href="#" style="height:52px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px">Find</a></div>
+<div style="width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px"><sc-for list="{{ homeTilesM }}" as="t" hint-placeholder-count="6"><a href="#" style="{{ t.s }}"><span style="{{ t.icon }}"></span><span style="font-size:14px">{{ t.l }}</span><span style="font-size:10px;font-weight:600;margin-top:-4px">{{ t.soon }}</span></a></sc-for></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--bg);padding:10px 8px 28px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr))"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5"><span style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><span style="{{ t.icon }}"></span>{{ t.l }}</span></sc-for></div>
+</div>
+</div>
+
+<div id="3j" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">3j</span><span style="font-weight:600">Weather</span></div>
+<div style="width:390px;height:844px;background:var(--bg);color:var(--text);border-radius:48px;box-shadow:var(--shadow);overflow:hidden;position:relative;display:flex;flex-direction:column">
+<div style="display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;padding:54px 16px 10px"><span style="width:44px;height:44px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="text-align:center;font-size:15px;font-weight:600">Weather</span><span></span></div>
+<div style="padding:6px 16px 0;display:flex;flex-direction:column;gap:12px">
+<div style="background:var(--t-blue);color:var(--t-blue-fg);border-radius:28px;padding:22px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:18px;font-weight:700">Seattle, WA 98106</span><span style="font-size:15px">Mostly cloudy</span></div><span style="{{ cloudBig }}"></span></div>
+<div style="display:flex;align-items:flex-end;justify-content:space-between"><span style="font-size:96px;font-weight:700;letter-spacing:-0.06em;line-height:.9">62°</span><span style="display:flex;flex-direction:column;align-items:flex-end;font-size:14px;font-weight:600;gap:2px"><span>H 67° · L 54°</span><span>Feels 61° · 78% · 8 mph</span></span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:4px"><sc-for list="{{ forecast }}" as="f" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:52px 26px 34px minmax(0,1fr) 34px;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;background:var(--surface);font-size:15px"><span style="font-weight:700">{{ f.d }}</span><span style="{{ f.icon }}"></span><span style="color:var(--muted);text-align:right">{{ f.lo }}</span><span style="position:relative;height:6px;border-radius:999px;background:var(--surface2)"><span style="{{ f.bar }}"></span></span><span style="font-weight:700">{{ f.hi }}</span></div></sc-for></div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--bg);padding:10px 8px 28px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr))"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5"><span style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><span style="{{ t.icon }}"></span>{{ t.l }}</span></sc-for></div>
+</div>
+</div>
+
+<div id="3k" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">3k</span><span style="font-weight:600">Conversion, with keypad</span></div>
+<div style="width:390px;height:844px;background:var(--bg);color:var(--text);border-radius:48px;box-shadow:var(--shadow);overflow:hidden;position:relative;display:flex;flex-direction:column">
+<div style="display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;padding:54px 16px 10px"><span style="width:44px;height:44px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="text-align:center;font-size:15px;font-weight:600">Currency conversion</span><span></span></div>
+<div style="padding:6px 16px 0;display:flex;flex-direction:column;gap:8px;position:relative">
+<div style="background:var(--surface);border-radius:22px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;font-weight:600;color:var(--muted)">From</span><span style="font-size:36px;font-weight:700;letter-spacing:-0.03em">100</span></div><span style="height:38px;padding:0 14px;border-radius:999px;background:var(--bg);display:flex;align-items:center;font-size:15px;font-weight:700">USD ▾</span></div>
+<div style="background:var(--t-violet);color:var(--t-violet-fg);border-radius:22px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;font-weight:600">To</span><span style="font-size:36px;font-weight:700;letter-spacing:-0.03em">15,659.50</span></div><span style="height:38px;padding:0 14px;border-radius:999px;background:var(--bg);color:var(--text);display:flex;align-items:center;font-size:15px;font-weight:700">JPY ▾</span></div>
+<span style="position:absolute;right:120px;top:84px;width:44px;height:44px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;border:4px solid var(--bg)"><span style="{{ swapIc }}"></span></span>
+<div style="font-size:13px;color:var(--muted);padding:4px 4px 6px">1 USD = 156.595 JPY · Updated 6:00 PM</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px"><sc-for list="{{ keys }}" as="k" hint-placeholder-count="12"><span style="height:52px;border-radius:16px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600">{{ k.k }}</span></sc-for></div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--bg);padding:10px 8px 28px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr))"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5"><span style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><span style="{{ t.icon }}"></span>{{ t.l }}</span></sc-for></div>
+</div>
+</div>
+
+<div id="3l" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">3l</span><span style="font-weight:600">Sports headline, no article image</span></div>
+<div style="width:390px;height:844px;background:var(--bg);color:var(--text);border-radius:48px;box-shadow:var(--shadow);overflow:hidden;position:relative;display:flex;flex-direction:column">
+<div style="display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;padding:54px 16px 10px"><span style="width:44px;height:44px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;gap:3px"><sc-for list="{{ seg2 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:12px;color:var(--muted)"><b style="color:var(--text)">2</b> of 20 · See all</span></div><span style="width:44px;height:44px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></div>
+<div style="padding:16px 20px 0;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:center;gap:14px"><img src="public/fallback/find-sports.png" alt="" style="width:72px;height:72px;border-radius:18px;object-fit:cover;background:var(--surface)"><div style="display:flex;flex-direction:column;gap:4px"><span style="align-self:flex-start;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;background:var(--t-cyan);color:var(--t-cyan-fg)">Sports</span><span style="font-size:14px"><b>BBC Sport</b><span style="color:var(--muted)"> · 2h ago</span></span></div></div>
+<div style="font-size:30px;font-weight:700;letter-spacing:-0.03em;line-height:1.08">Arsenal go top after win at Villa Park</div>
+<div style="font-size:16px;line-height:1.55">Arsenal moved to the top of the Premier League table with an away win at Aston Villa.</div>
+<div style="display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px"><sc-for list="{{ aHeadline2 }}" as="a" hint-placeholder-count="2"><a href="{{ a.href }}" style="{{ a.tile }}"><span style="{{ a.iconLg }}"></span>{{ a.short }}</a></sc-for></div>
+<div style="background:var(--surface);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;color:var(--muted)">Next · Sky Sports · 5h ago</span><span style="font-size:15px;font-weight:600">Bellamy gets perfect response as Wales beat 10-man Norway</span></div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--bg);padding:10px 8px 28px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr))"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5"><span style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><span style="{{ t.icon }}"></span>{{ t.l }}</span></sc-for></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div style="max-width:820px;background:var(--bg);border-radius:20px;padding:24px 28px;display:flex;flex-direction:column;gap:10px">
+<div style="font-size:18px;font-weight:700">Image rules</div>
+<div style="font-size:15px;line-height:1.6">If the result has its own image, it takes the hero spot (<a href="#3d" style="color:var(--blue-ink)">3d</a>, <a href="#3f" style="color:var(--blue-ink)">3f</a>). If Find falls back to a default image such as find-sports.png, show it as a 140px rounded thumbnail next to the title, never as the hero (<a href="#3e" style="color:var(--blue-ink)">3e</a>, <a href="#3g" style="color:var(--blue-ink)">3g</a>). With no image at all, the text takes the width and references move to the right (<a href="#3h" style="color:var(--blue-ink)">3h</a>). News uses the same headline layout as Sports, with a pink News tag.</div>
+</div>
+</section>
+<section class="fx" data-theme="{{ theme }}" style="padding:64px;display:flex;flex-direction:column;gap:56px;background:var(--canvas);color:var(--text)">
+<div style="display:flex;flex-direction:column;gap:10px;max-width:820px">
+<div style="display:flex;align-items:center;gap:12px"><img src="public/assets/find-logo.png" alt="" style="height:44px;width:auto"><span style="font-size:40px;font-weight:700;letter-spacing:-0.03em">Find results, round 2</span></div>
+<div style="font-size:17px;line-height:1.5;color:var(--muted)">Logo colours on a white or near-black ground that follows the device's light/dark setting, set in Helvetica. Back/Next stays as the way through the 20 results, with a clearer pager. Use the Tweaks panel to force light or dark.</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:20px">
+<div style="font-size:24px;font-weight:700;letter-spacing:-0.02em">Desktop layout: pick one</div>
+<div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+
+<div id="2a" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">2a</span><span style="font-weight:600">Two columns: image left, details right</span></div>
+<div style="width:1200px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 40px"><div style="display:flex;align-items:center;gap:10px"><img src="public/assets/find-logo.png" alt="" style="height:30px;width:auto"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Find</span></div><div style="flex:1;max-width:600px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:46px;padding:0 20px;color:var(--muted);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>accenture</span></div><a href="#" style="height:46px;padding:0 24px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:15px">Find</a></div>
+<div style="margin:0 40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;background:var(--surface);border-radius:999px;padding:6px">
+<a href="#" style="justify-self:start;display:flex;align-items:center;gap:12px;padding:4px 18px 4px 4px;border-radius:999px;color:var(--text);min-width:0;max-width:100%" style-hover="background:var(--surface2)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:12px;color:var(--muted)">Back</span><span style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">New search</span></span></a>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;align-items:center;gap:3px"><sc-for list="{{ seg1 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:13px;color:var(--muted)"><b style="color:var(--text)">1</b> of 20 · <a href="#" style="color:var(--blue-ink);font-weight:600">See all</a></span></div>
+<a href="#" style="justify-self:end;display:flex;align-items:center;gap:12px;padding:4px 4px 4px 18px;border-radius:999px;color:var(--text);min-width:0;max-width:100%;text-align:right" style-hover="background:var(--surface2)"><span style="display:flex;flex-direction:column;min-width:0;align-items:flex-end"><span style="font-size:12px;color:var(--muted)">Next</span><span style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Accenture Careers</span></span><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></a>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:44px;padding:36px 40px 8px;align-items:start">
+<div style="aspect-ratio:4/3;border-radius:20px;background:var(--surface2);display:flex;align-items:flex-end;padding:18px;font-size:13px;color:var(--muted)">Site image (og:image)</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--t-blue);color:var(--t-blue-fg)">✓ Verified official site</span><span style="font-size:14px;color:var(--muted)">accenture.com</span></div>
+<div style="font-size:46px;font-weight:700;letter-spacing:-0.03em;line-height:1.02">Accenture</div>
+<div style="font-size:17px;color:var(--muted);margin-top:-6px">Let there be change</div>
+<div style="font-size:16px;line-height:1.6;text-wrap:pretty">A global professional services company specialising in consulting, technology services and outsourcing, with work across AI, cloud, cybersecurity and digital transformation in banking, healthcare and consumer goods.</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px"><sc-for list="{{ aCo }}" as="a" hint-placeholder-count="5"><a href="{{ a.href }}" style="{{ a.btn }}" style-hover="filter:brightness(0.94)"><span style="{{ a.icon }}"></span>{{ a.label }}</a></sc-for></div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:8px">
+<div style="background:var(--surface);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Headquarters</span><span style="font-size:15px;line-height:1.45">1 Grand Canal Square, Dublin 2, Ireland</span></div>
+<div style="background:var(--surface);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Contact</span><span style="font-size:15px;line-height:1.45">+353 1 646 2000<br>info@accenture.com</span></div>
+</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:24px 40px 28px;font-size:13px;color:var(--muted)"><span style="margin-right:4px">Right find?</span><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Excellent</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</a><span style="margin-left:auto">3.1s · 11 candidates · 9 pages checked · TODD summary</span></div>
+</div>
+</div>
+
+<div id="2b" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">2b</span><span style="font-weight:600">Full-width hero, action panel overlaid</span></div>
+<div style="width:1200px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 40px"><div style="display:flex;align-items:center;gap:10px"><img src="public/assets/find-logo.png" alt="" style="height:30px;width:auto"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Find</span></div><div style="flex:1;max-width:600px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:46px;padding:0 20px;color:var(--muted);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>accenture</span></div><a href="#" style="height:46px;padding:0 24px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:15px">Find</a></div>
+<div style="margin:0 40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;background:var(--surface);border-radius:999px;padding:6px">
+<a href="#" style="justify-self:start;display:flex;align-items:center;gap:12px;padding:4px 18px 4px 4px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:12px;color:var(--muted)">Back</span><span style="font-size:14px;font-weight:600">New search</span></span></a>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;align-items:center;gap:3px"><sc-for list="{{ seg1 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:13px;color:var(--muted)"><b style="color:var(--text)">1</b> of 20 · <a href="#" style="color:var(--blue-ink);font-weight:600">See all</a></span></div>
+<a href="#" style="justify-self:end;display:flex;align-items:center;gap:12px;padding:4px 4px 4px 18px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-size:12px;color:var(--muted)">Next</span><span style="font-size:14px;font-weight:600">Accenture Careers</span></span><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></a>
+</div>
+<div style="padding:28px 40px 0"><div style="height:340px;border-radius:20px;background:var(--surface2);display:flex;align-items:flex-start;justify-content:flex-end;padding:18px;font-size:13px;color:var(--muted)">Site image (og:image), full width</div></div>
+<div style="margin:-110px 40px 0 72px;position:relative;max-width:820px;background:var(--bg);border-radius:20px;box-shadow:var(--shadow);padding:28px 32px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--t-blue);color:var(--t-blue-fg)">✓ Verified official site</span><span style="font-size:14px;color:var(--muted)">accenture.com</span></div>
+<div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap"><span style="font-size:46px;font-weight:700;letter-spacing:-0.03em;line-height:1.02">Accenture</span><span style="font-size:17px;color:var(--muted)">Let there be change</span></div>
+<div style="display:flex;flex-wrap:wrap;gap:10px"><sc-for list="{{ aCo }}" as="a" hint-placeholder-count="5"><a href="{{ a.href }}" style="{{ a.btn }}" style-hover="filter:brightness(0.94)"><span style="{{ a.icon }}"></span>{{ a.label }}</a></sc-for></div>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:44px;padding:32px 40px 0 72px">
+<div style="font-size:17px;line-height:1.6;text-wrap:pretty">A global professional services company specialising in consulting, technology services and outsourcing, with work across AI, cloud, cybersecurity and digital transformation in banking, healthcare and consumer goods.</div>
+<div style="display:flex;flex-direction:column;gap:10px;font-size:15px;line-height:1.45"><span><span style="color:var(--muted)">HQ </span>1 Grand Canal Square, Dublin 2</span><span><span style="color:var(--muted)">Phone </span>+353 1 646 2000</span><span><span style="color:var(--muted)">Email </span>info@accenture.com</span></div>
+</div>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:28px 40px 28px 72px;font-size:13px;color:var(--muted)"><span style="margin-right:4px">Right find?</span><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Excellent</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</a><span style="margin-left:auto">3.1s · 11 candidates · 9 pages checked</span></div>
+</div>
+</div>
+
+<div id="2c" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">2c</span><span style="font-weight:600">Reading column + action panel</span></div>
+<div style="width:1200px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 40px"><div style="display:flex;align-items:center;gap:10px"><img src="public/assets/find-logo.png" alt="" style="height:30px;width:auto"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Find</span></div><div style="flex:1;max-width:600px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:46px;padding:0 20px;color:var(--muted);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>accenture</span></div><a href="#" style="height:46px;padding:0 24px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:15px">Find</a></div>
+<div style="margin:0 40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;background:var(--surface);border-radius:999px;padding:6px">
+<a href="#" style="justify-self:start;display:flex;align-items:center;gap:12px;padding:4px 18px 4px 4px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:12px;color:var(--muted)">Back</span><span style="font-size:14px;font-weight:600">New search</span></span></a>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;align-items:center;gap:3px"><sc-for list="{{ seg1 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:13px;color:var(--muted)"><b style="color:var(--text)">1</b> of 20 · <a href="#" style="color:var(--blue-ink);font-weight:600">See all</a></span></div>
+<a href="#" style="justify-self:end;display:flex;align-items:center;gap:12px;padding:4px 4px 4px 18px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-size:12px;color:var(--muted)">Next</span><span style="font-size:14px;font-weight:600">Accenture Careers</span></span><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></a>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:56px;padding:40px 40px 8px;align-items:start">
+<div style="display:flex;flex-direction:column;gap:18px;max-width:640px">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--t-blue);color:var(--t-blue-fg)">✓ Verified official site</span><span style="font-size:14px;color:var(--muted)">accenture.com</span></div>
+<div style="font-size:56px;font-weight:700;letter-spacing:-0.035em;line-height:1">Accenture</div>
+<div style="font-size:19px;color:var(--muted);margin-top:-4px">Let there be change</div>
+<div style="font-size:18px;line-height:1.6;text-wrap:pretty">A global professional services company specialising in consulting, technology services and outsourcing, with work across AI, cloud, cybersecurity and digital transformation in banking, healthcare and consumer goods.</div>
+<div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px;font-size:15px;margin-top:8px"><span style="color:var(--muted)">Headquarters</span><span>1 Grand Canal Square, Dublin 2, Ireland</span><span style="color:var(--muted)">Phone</span><span>+353 1 646 2000</span><span style="color:var(--muted)">Email</span><span>info@accenture.com</span></div>
+</div>
+<div style="background:var(--surface);border-radius:24px;padding:14px;display:flex;flex-direction:column;gap:10px">
+<div style="aspect-ratio:16/10;border-radius:16px;background:var(--surface2);display:flex;align-items:flex-end;padding:14px;font-size:13px;color:var(--muted)">Site image</div>
+<div style="display:flex;flex-direction:column;gap:8px;padding:6px 4px 4px"><sc-for list="{{ aCo }}" as="a" hint-placeholder-count="5"><a href="{{ a.href }}" style="{{ a.btn }}" style-hover="filter:brightness(0.94)"><span style="{{ a.icon }}"></span>{{ a.label }}</a></sc-for></div>
+</div>
+</div>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:24px 40px 28px;font-size:13px;color:var(--muted)"><span style="margin-right:4px">Right find?</span><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Excellent</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</a><span style="margin-left:auto">3.1s · 11 candidates · 9 pages checked</span></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:20px">
+<div style="font-size:24px;font-weight:700;letter-spacing:-0.02em">Result types (shown in layout <a href="#2a" style="color:var(--blue-ink)">2a</a>)</div>
+<div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+
+<div id="2d" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">2d</span><span style="font-weight:600">Local place, with hours and open now</span></div>
+<div style="width:1200px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 40px"><div style="display:flex;align-items:center;gap:10px"><img src="public/assets/find-logo.png" alt="" style="height:30px;width:auto"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Find</span></div><div style="flex:1;max-width:600px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:46px;padding:0 20px;color:var(--muted);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>bakery near me</span></div><a href="#" style="height:46px;padding:0 24px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:15px">Find</a></div>
+<div style="margin:0 40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;background:var(--surface);border-radius:999px;padding:6px">
+<a href="#" style="justify-self:start;display:flex;align-items:center;gap:12px;padding:4px 18px 4px 4px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:12px;color:var(--muted)">Previous</span><span style="font-size:14px;font-weight:600">Jane the Bakery</span></span></a>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;align-items:center;gap:3px"><sc-for list="{{ seg3 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:13px;color:var(--muted)"><b style="color:var(--text)">3</b> of 20 · <a href="#" style="color:var(--blue-ink);font-weight:600">See all</a></span></div>
+<a href="#" style="justify-self:end;display:flex;align-items:center;gap:12px;padding:4px 4px 4px 18px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-size:12px;color:var(--muted)">Next</span><span style="font-size:14px;font-weight:600">Arsicault Bakery</span></span><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></a>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:44px;padding:36px 40px 8px;align-items:start">
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="aspect-ratio:4/3;border-radius:20px;background:var(--surface2);display:flex;align-items:flex-end;padding:18px;font-size:13px;color:var(--muted)">Photo</div>
+<div style="height:150px;border-radius:20px;background:var(--t-cyan);position:relative;display:flex;align-items:flex-end;padding:16px;font-size:13px;color:var(--t-cyan-fg);font-weight:600"><span style="position:absolute;left:50%;top:42%;width:22px;height:22px;border-radius:50%;background:var(--blue);border:4px solid var(--bg);transform:translate(-50%,-50%)"></span>Map · opens Apple Maps</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--t-green);color:var(--t-green-fg)">Open now · until 7 pm</span><span style="font-size:14px;color:var(--muted)">Bakery · $$ · 0.4 mi</span></div>
+<div style="font-size:46px;font-weight:700;letter-spacing:-0.03em;line-height:1.02">Tartine Bakery</div>
+<div style="font-size:16px;color:var(--muted);margin-top:-6px">600 Guerrero St, San Francisco, CA 94110 · (415) 487-2600</div>
+<div style="font-size:16px;line-height:1.6;text-wrap:pretty">Neighbourhood bakery known for morning buns, croissants and country loaf. Expect a line on weekends; it moves quickly.</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px"><sc-for list="{{ aPlace }}" as="a" hint-placeholder-count="5"><a href="{{ a.href }}" style="{{ a.btn }}" style-hover="filter:brightness(0.94)"><span style="{{ a.icon }}"></span>{{ a.label }}</a></sc-for></div>
+<div style="background:var(--surface);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:2px;max-width:420px;margin-top:8px">
+<div style="display:flex;justify-content:space-between;padding:4px 12px 8px"><span style="font-size:15px;font-weight:700">Hours</span><span style="font-size:13px;color:var(--muted)">Busiest 9–11 am</span></div>
+<sc-for list="{{ hours }}" as="h" hint-placeholder-count="7"><div style="{{ h.s }}"><span>{{ h.d }}</span><span>{{ h.t }}</span></div></sc-for>
+</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:24px 40px 28px;font-size:13px;color:var(--muted)"><span style="margin-right:4px">Right find?</span><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Excellent</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</a><span style="margin-left:auto">Business details © OpenStreetMap contributors</span></div>
+</div>
+</div>
+
+<div id="2e" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">2e</span><span style="font-weight:600">Person / contact</span></div>
+<div style="width:1200px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 40px"><div style="display:flex;align-items:center;gap:10px"><img src="public/assets/find-logo.png" alt="" style="height:30px;width:auto"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Find</span></div><div style="flex:1;max-width:600px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:46px;padding:0 20px;color:var(--muted);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>maya okafor northwind</span></div><a href="#" style="height:46px;padding:0 24px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:15px">Find</a></div>
+<div style="margin:0 40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;background:var(--surface);border-radius:999px;padding:6px">
+<a href="#" style="justify-self:start;display:flex;align-items:center;gap:12px;padding:4px 18px 4px 4px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:12px;color:var(--muted)">Back</span><span style="font-size:14px;font-weight:600">New search</span></span></a>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;align-items:center;gap:3px"><sc-for list="{{ seg1 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:13px;color:var(--muted)"><b style="color:var(--text)">1</b> of 20 · <a href="#" style="color:var(--blue-ink);font-weight:600">See all</a></span></div>
+<a href="#" style="justify-self:end;display:flex;align-items:center;gap:12px;padding:4px 4px 4px 18px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-size:12px;color:var(--muted)">Next</span><span style="font-size:14px;font-weight:600">Maya Okafor on LinkedIn</span></span><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></a>
+</div>
+<div style="display:grid;grid-template-columns:260px minmax(0,1fr);gap:48px;padding:40px 40px 8px;align-items:start">
+<div style="width:240px;height:240px;border-radius:50%;background:var(--t-pink);display:flex;align-items:center;justify-content:center;font-size:72px;font-weight:700;color:var(--t-pink-fg);letter-spacing:-0.03em">MO</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--t-pink);color:var(--t-pink-fg)">Person</span><span style="font-size:14px;color:var(--muted)">northwind.example.com/team</span></div>
+<div style="font-size:46px;font-weight:700;letter-spacing:-0.03em;line-height:1.02">Maya Okafor</div>
+<div style="font-size:17px;color:var(--muted);margin-top:-6px">VP of Engineering, Northwind Logistics · Seattle, WA</div>
+<div style="font-size:16px;line-height:1.6;max-width:640px;text-wrap:pretty">Leads platform and data engineering at Northwind. Previously ran infrastructure teams at two logistics start-ups.</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px"><sc-for list="{{ aPerson }}" as="a" hint-placeholder-count="5"><a href="{{ a.href }}" style="{{ a.btn }}" style-hover="filter:brightness(0.94)"><span style="{{ a.icon }}"></span>{{ a.label }}</a></sc-for></div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:640px;margin-top:8px">
+<div style="background:var(--surface);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Email</span><span style="font-size:15px">maya.okafor@example.com</span></div>
+<div style="background:var(--surface);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Phone</span><span style="font-size:15px">(206) 555-0142</span></div>
+</div>
+<div style="font-size:14px;color:var(--muted)">Looking for more contact details? <a href="#" style="color:var(--blue-ink);font-weight:600">Search “Maya Okafor” in Lead Vault</a></div>
+</div>
+</div>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:24px 40px 28px;font-size:13px;color:var(--muted)"><span style="margin-right:4px">Right find?</span><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Excellent</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</a></div>
+</div>
+</div>
+
+<div id="2f" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">2f</span><span style="font-weight:600">Movie, widened for desktop</span></div>
+<div style="width:1200px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 40px"><div style="display:flex;align-items:center;gap:10px"><img src="public/assets/find-logo.png" alt="" style="height:30px;width:auto"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Find</span></div><div style="flex:1;max-width:600px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:46px;padding:0 20px;color:var(--muted);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>saving private ryan movie</span></div><a href="#" style="height:46px;padding:0 24px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:15px">Find</a></div>
+<div style="margin:0 40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;background:var(--surface);border-radius:999px;padding:6px">
+<a href="#" style="justify-self:start;display:flex;align-items:center;gap:12px;padding:4px 18px 4px 4px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:12px;color:var(--muted)">Back</span><span style="font-size:14px;font-weight:600">New search</span></span></a>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;align-items:center;gap:3px"><sc-for list="{{ seg1 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:13px;color:var(--muted)"><b style="color:var(--text)">1</b> of 20 · <a href="#" style="color:var(--blue-ink);font-weight:600">See all</a></span></div>
+<a href="#" style="justify-self:end;display:flex;align-items:center;gap:12px;padding:4px 4px 4px 18px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-size:12px;color:var(--muted)">Next</span><span style="font-size:14px;font-weight:600">Band of Brothers</span></span><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></a>
+</div>
+<div style="display:grid;grid-template-columns:300px minmax(0,1fr);gap:48px;padding:40px 40px 8px;align-items:start">
+<div style="aspect-ratio:2/3;border-radius:20px;background:var(--surface2);display:flex;align-items:flex-end;padding:18px;font-size:13px;color:var(--muted)">Poster</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--t-violet);color:var(--t-violet-fg)">Movie</span><span style="font-size:14px;color:var(--muted)">1998 · R · 169 min · Drama, War</span></div>
+<div style="font-size:52px;font-weight:700;letter-spacing:-0.035em;line-height:1">Saving Private Ryan</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<div style="display:flex;align-items:baseline;gap:6px;background:var(--surface);border-radius:999px;padding:9px 16px"><span style="font-size:12px;font-weight:700;color:var(--muted)">IMDb</span><span style="font-size:18px;font-weight:700">8.6</span><span style="font-size:12px;color:var(--muted)">/10</span></div>
+<div style="display:flex;align-items:baseline;gap:6px;background:var(--surface);border-radius:999px;padding:9px 16px"><span style="font-size:12px;font-weight:700;color:var(--muted)">Rotten Tomatoes</span><span style="font-size:18px;font-weight:700">94%</span></div>
+<div style="display:flex;align-items:baseline;gap:6px;background:var(--surface);border-radius:999px;padding:9px 16px"><span style="font-size:12px;font-weight:700;color:var(--muted)">Metacritic</span><span style="font-size:18px;font-weight:700">91</span><span style="font-size:12px;color:var(--muted)">/100</span></div>
+</div>
+<div style="font-size:17px;line-height:1.6;max-width:660px;text-wrap:pretty">Following the Normandy Landings, a group of U.S. soldiers go behind enemy lines to retrieve a paratrooper whose comrades have been killed in action.</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px"><sc-for list="{{ aMovie }}" as="a" hint-placeholder-count="2"><a href="{{ a.href }}" style="{{ a.btn }}" style-hover="filter:brightness(0.94)"><span style="{{ a.icon }}"></span>{{ a.label }}</a></sc-for></div>
+<div style="display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px 16px;font-size:15px;max-width:660px;margin-top:6px"><span style="color:var(--muted)">Director</span><span>Steven Spielberg</span><span style="color:var(--muted)">Starring</span><span>Tom Hanks, Matt Damon, Tom Sizemore</span></div>
+</div>
+</div>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:24px 40px 28px;font-size:13px;color:var(--muted)"><span style="margin-right:4px">Right find?</span><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Excellent</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</a><span style="margin-left:auto">Ratings via OMDb · 1.0s</span></div>
+</div>
+</div>
+
+<div id="2g" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">2g</span><span style="font-weight:600">Recipe</span></div>
+<div style="width:1200px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 40px"><div style="display:flex;align-items:center;gap:10px"><img src="public/assets/find-logo.png" alt="" style="height:30px;width:auto"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Find</span></div><div style="flex:1;max-width:600px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:46px;padding:0 20px;color:var(--muted);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>brown butter chocolate chip cookies</span></div><a href="#" style="height:46px;padding:0 24px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:15px">Find</a></div>
+<div style="margin:0 40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;background:var(--surface);border-radius:999px;padding:6px">
+<a href="#" style="justify-self:start;display:flex;align-items:center;gap:12px;padding:4px 18px 4px 4px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:12px;color:var(--muted)">Back</span><span style="font-size:14px;font-weight:600">New search</span></span></a>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;align-items:center;gap:3px"><sc-for list="{{ seg1 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:13px;color:var(--muted)"><b style="color:var(--text)">1</b> of 20 · <a href="#" style="color:var(--blue-ink);font-weight:600">See all</a></span></div>
+<a href="#" style="justify-self:end;display:flex;align-items:center;gap:12px;padding:4px 4px 4px 18px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-size:12px;color:var(--muted)">Next</span><span style="font-size:14px;font-weight:600">Chewy brown butter cookies</span></span><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></a>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:44px;padding:36px 40px 8px;align-items:start">
+<div style="aspect-ratio:4/3;border-radius:20px;background:var(--surface2);display:flex;align-items:flex-end;padding:18px;font-size:13px;color:var(--muted)">Recipe photo</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--t-yellow);color:var(--t-yellow-fg)">Recipe</span><span style="font-size:14px;color:var(--muted)">cooking.example.com</span></div>
+<div style="font-size:46px;font-weight:700;letter-spacing:-0.03em;line-height:1.02">Brown butter chocolate chip cookies</div>
+<div style="display:flex;gap:28px;flex-wrap:wrap">
+<div style="display:flex;flex-direction:column"><span style="font-size:22px;font-weight:700">45 min</span><span style="font-size:13px;color:var(--muted)">Total time</span></div>
+<div style="display:flex;flex-direction:column"><span style="font-size:22px;font-weight:700">24</span><span style="font-size:13px;color:var(--muted)">Cookies</span></div>
+<div style="display:flex;flex-direction:column"><span style="font-size:22px;font-weight:700">4.8</span><span style="font-size:13px;color:var(--muted)">2,310 ratings</span></div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px"><sc-for list="{{ aRecipe }}" as="a" hint-placeholder-count="3"><a href="{{ a.href }}" style="{{ a.btn }}" style-hover="filter:brightness(0.94)"><span style="{{ a.icon }}"></span>{{ a.label }}</a></sc-for></div>
+<div style="background:var(--surface);border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;margin-top:6px">
+<span style="font-size:15px;font-weight:700">Ingredients</span>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 24px;font-size:15px"><sc-for list="{{ ingredients }}" as="n" hint-placeholder-count="8"><span>{{ n.t }}</span></sc-for></div>
+</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:24px 40px 28px;font-size:13px;color:var(--muted)"><span style="margin-right:4px">Right find?</span><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Excellent</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</a></div>
+</div>
+</div>
+
+<div id="2h" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">2h</span><span style="font-weight:600">Generic fallback (no image, no structured data)</span></div>
+<div style="width:1200px;background:var(--bg);color:var(--text);border-radius:20px;box-shadow:var(--shadow);overflow:hidden">
+<div style="display:flex;align-items:center;gap:20px;padding:20px 40px"><div style="display:flex;align-items:center;gap:10px"><img src="public/assets/find-logo.png" alt="" style="height:30px;width:auto"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Find</span></div><div style="flex:1;max-width:600px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:999px;height:46px;padding:0 20px;color:var(--muted);font-size:15px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>how does a heat pump work</span></div><a href="#" style="height:46px;padding:0 24px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:15px">Find</a></div>
+<div style="margin:0 40px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;background:var(--surface);border-radius:999px;padding:6px">
+<a href="#" style="justify-self:start;display:flex;align-items:center;gap:12px;padding:4px 18px 4px 4px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:12px;color:var(--muted)">Back</span><span style="font-size:14px;font-weight:600">New search</span></span></a>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;align-items:center;gap:3px"><sc-for list="{{ seg1 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:13px;color:var(--muted)"><b style="color:var(--text)">1</b> of 20 · <a href="#" style="color:var(--blue-ink);font-weight:600">See all</a></span></div>
+<a href="#" style="justify-self:end;display:flex;align-items:center;gap:12px;padding:4px 4px 4px 18px;border-radius:999px;color:var(--text)" style-hover="background:var(--surface2)"><span style="display:flex;flex-direction:column;align-items:flex-end"><span style="font-size:12px;color:var(--muted)">Next</span><span style="font-size:14px;font-weight:600">Heat pump systems explained</span></span><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></a>
+</div>
+<div style="display:grid;grid-template-columns:120px minmax(0,760px);gap:32px;padding:44px 40px 8px;align-items:start">
+<div style="width:96px;height:96px;border-radius:28px;background:var(--t-blue);color:var(--t-blue-fg);display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:700">E</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--t-blue);color:var(--t-blue-fg)">✓ Government source</span><span style="font-size:14px;color:var(--muted)">energy.gov</span></div>
+<div style="font-size:46px;font-weight:700;letter-spacing:-0.03em;line-height:1.02">Heat pump systems</div>
+<div style="font-size:17px;line-height:1.65;text-wrap:pretty">A heat pump moves heat instead of making it. In winter it pulls heat from the outside air or ground and brings it indoors; in summer it reverses, carrying heat out of the house like an air conditioner. Because it transfers heat rather than burning fuel, it can deliver up to three times more energy than it uses.</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px"><sc-for list="{{ aGeneric }}" as="a" hint-placeholder-count="2"><a href="{{ a.href }}" style="{{ a.btn }}" style-hover="filter:brightness(0.94)"><span style="{{ a.icon }}"></span>{{ a.label }}</a></sc-for></div>
+</div>
+</div>
+<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:28px 40px 28px;font-size:13px;color:var(--muted)"><span style="margin-right:4px">Right find?</span><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Excellent</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</a><a href="#" style="padding:5px 12px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</a><span style="margin-left:auto">2.4s · 14 candidates · TODD summary</span></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:20px">
+<div style="font-size:24px;font-weight:700;letter-spacing:-0.02em">iPhone</div>
+<div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+
+<div id="2i" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">2i</span><span style="font-weight:600">Place, light mode</span></div>
+<div class="fx" data-theme="light" style="width:390px;height:844px;background:var(--bg);color:var(--text);border-radius:48px;box-shadow:var(--shadow);overflow:hidden;position:relative;display:flex;flex-direction:column">
+<div style="display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;padding:54px 16px 10px"><span style="width:44px;height:44px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;gap:3px"><sc-for list="{{ seg3 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:12px;color:var(--muted)"><b style="color:var(--text)">3</b> of 20 · See all</span></div><span style="width:44px;height:44px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></div>
+<div style="padding:6px 20px 0;display:flex;flex-direction:column;gap:16px">
+<div style="height:190px;border-radius:22px;background:var(--surface2);display:flex;align-items:flex-end;padding:14px;font-size:12px;color:var(--muted)">Photo</div>
+<div style="display:flex;flex-direction:column;gap:6px"><span style="align-self:flex-start;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;background:var(--t-green);color:var(--t-green-fg)">Open now · until 7 pm</span><span style="font-size:32px;font-weight:700;letter-spacing:-0.03em;line-height:1.05">Tartine Bakery</span><span style="font-size:14px;color:var(--muted)">Bakery · $$ · 0.4 mi · 600 Guerrero St</span></div>
+<div style="display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px"><sc-for list="{{ aPlace }}" as="a" hint-placeholder-count="5"><a href="{{ a.href }}" style="{{ a.tile }}"><span style="{{ a.iconLg }}"></span>{{ a.short }}</a></sc-for></div>
+<div style="font-size:15px;line-height:1.55">Neighbourhood bakery known for morning buns, croissants and country loaf.</div>
+<div style="display:flex;justify-content:space-between;background:var(--surface);border-radius:16px;padding:14px 16px;font-size:15px"><span style="font-weight:700">Today</span><span>7:30 am – 7 pm</span></div>
+<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><span>Right find?</span><span style="padding:4px 10px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</span><span style="padding:4px 10px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</span><span style="padding:4px 10px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</span></div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--bg);padding:10px 8px 28px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr))"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5"><span style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><span style="{{ t.icon }}"></span>{{ t.l }}</span></sc-for></div>
+</div>
+</div>
+
+<div id="2j" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">2j</span><span style="font-weight:600">Place, dark mode</span></div>
+<div class="fx" data-theme="dark" style="width:390px;height:844px;background:var(--bg);color:var(--text);border-radius:48px;box-shadow:var(--shadow);overflow:hidden;position:relative;display:flex;flex-direction:column">
+<div style="display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;padding:54px 16px 10px"><span style="width:44px;height:44px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;gap:3px"><sc-for list="{{ seg3 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:12px;color:var(--muted)"><b style="color:var(--text)">3</b> of 20 · See all</span></div><span style="width:44px;height:44px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></div>
+<div style="padding:6px 20px 0;display:flex;flex-direction:column;gap:16px">
+<div style="height:190px;border-radius:22px;background:var(--surface2);display:flex;align-items:flex-end;padding:14px;font-size:12px;color:var(--muted)">Photo</div>
+<div style="display:flex;flex-direction:column;gap:6px"><span style="align-self:flex-start;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;background:var(--t-green);color:var(--t-green-fg)">Open now · until 7 pm</span><span style="font-size:32px;font-weight:700;letter-spacing:-0.03em;line-height:1.05">Tartine Bakery</span><span style="font-size:14px;color:var(--muted)">Bakery · $$ · 0.4 mi · 600 Guerrero St</span></div>
+<div style="display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px"><sc-for list="{{ aPlace }}" as="a" hint-placeholder-count="5"><a href="{{ a.href }}" style="{{ a.tile }}"><span style="{{ a.iconLg }}"></span>{{ a.short }}</a></sc-for></div>
+<div style="font-size:15px;line-height:1.55">Neighbourhood bakery known for morning buns, croissants and country loaf.</div>
+<div style="display:flex;justify-content:space-between;background:var(--surface);border-radius:16px;padding:14px 16px;font-size:15px"><span style="font-weight:700">Today</span><span>7:30 am – 7 pm</span></div>
+<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><span>Right find?</span><span style="padding:4px 10px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Good</span><span style="padding:4px 10px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Fair</span><span style="padding:4px 10px;border-radius:999px;background:var(--surface);color:var(--text);font-weight:600">Poor</span></div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--bg);padding:10px 8px 28px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr))"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5"><span style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><span style="{{ t.icon }}"></span>{{ t.l }}</span></sc-for></div>
+</div>
+</div>
+
+<div id="2k" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span style="padding:4px 10px;border-radius:999px;background:var(--text);color:var(--bg);font-size:13px;font-weight:700">2k</span><span style="font-weight:600">Person (follows theme)</span></div>
+<div style="width:390px;height:844px;background:var(--bg);color:var(--text);border-radius:48px;box-shadow:var(--shadow);overflow:hidden;position:relative;display:flex;flex-direction:column">
+<div style="display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;padding:54px 16px 10px"><span style="width:44px;height:44px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></span><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;gap:3px"><sc-for list="{{ seg1 }}" as="g" hint-placeholder-count="20"><span style="{{ g.s }}"></span></sc-for></div><span style="font-size:12px;color:var(--muted)"><b style="color:var(--text)">1</b> of 20 · See all</span></div><span style="width:44px;height:44px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></div>
+<div style="padding:16px 20px 0;display:flex;flex-direction:column;gap:16px">
+<div style="width:120px;height:120px;border-radius:50%;background:var(--t-pink);color:var(--t-pink-fg);display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:700">MO</div>
+<div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:32px;font-weight:700;letter-spacing:-0.03em;line-height:1.05">Maya Okafor</span><span style="font-size:14px;color:var(--muted)">VP of Engineering, Northwind Logistics · Seattle</span></div>
+<div style="display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px"><sc-for list="{{ aPerson }}" as="a" hint-placeholder-count="5"><a href="{{ a.href }}" style="{{ a.tile }}"><span style="{{ a.iconLg }}"></span>{{ a.short }}</a></sc-for></div>
+<div style="background:var(--surface);border-radius:16px;padding:4px 16px;display:flex;flex-direction:column;font-size:15px">
+<div style="display:flex;justify-content:space-between;padding:12px 0"><span style="color:var(--muted)">Email</span><span>maya.okafor@example.com</span></div>
+<div style="display:flex;justify-content:space-between;padding:12px 0"><span style="color:var(--muted)">Phone</span><span>(206) 555-0142</span></div>
+</div>
+<div style="font-size:14px;color:var(--muted)">More contact details? <span style="color:var(--blue-ink);font-weight:600">Search in Lead Vault</span></div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--bg);padding:10px 8px 28px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr))"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5"><span style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><span style="{{ t.icon }}"></span>{{ t.l }}</span></sc-for></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div style="max-width:820px;background:var(--bg);border-radius:20px;padding:24px 28px;display:flex;flex-direction:column;gap:10px">
+<div style="font-size:18px;font-weight:700">Action rules</div>
+<div style="font-size:15px;line-height:1.6">Find shows only the actions it has data for. The first action is the main one for the result type (Visit site, Directions, Email, IMDb page, Open recipe). Call uses <b>tel:</b> and Email uses <b>mailto:</b>, so iPhone and Mac open Phone or FaceTime and Mail. Directions links to <b>maps.apple.com</b> on Apple devices and Google Maps everywhere else. Add to calendar downloads an .ics file, which opens Calendar. Copy actions put the link, address, email or ingredient list on the clipboard.</div>
+<div style="font-size:15px;line-height:1.6;color:var(--muted)">Backend gaps: <b style="color:var(--text)">FindRankedResult</b> already has address, phone and hours. Email, a person type with role and company, and a recipe type with time, yield and ingredients would need new fields.</div>
+</div>
+</section>
+<section style="padding:64px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:8px;max-width:760px">
+<div style="font-family:var(--font-heading);font-size:40px">Find: result page, redesigned</div>
+<div style="font-size:17px;line-height:1.5;color:var(--color-neutral-700)">Each result gets an action bar built from what Find pulls out of the page: an address becomes Directions, a phone number becomes Call, an email becomes Email. On Mac and iPhone these open Apple Maps, the dialer or FaceTime, and Mail. On desktop the 19 alternates sit in a side rail you can see.</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+
+<!-- 1a -->
+<div id="1a" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span class="tag tag-accent">1a</span><span style="font-weight:600">Desktop: website / company</span></div>
+<div style="width:1280px;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden">
+<div style="display:flex;align-items:center;gap:16px;padding:20px 40px">
+<div style="font-family:var(--font-heading);font-size:26px;color:var(--color-accent)">Find</div>
+<div style="flex:1;max-width:640px;display:flex;align-items:center;gap:10px;background:var(--color-surface);border-radius:999px;padding:12px 20px;color:var(--color-neutral-700)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>accenture</span></div>
+<button class="btn btn-primary">Find</button>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:40px;padding:8px 40px 40px">
+<div style="display:flex;flex-direction:column;gap:28px">
+<div style="display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:36px;align-items:center">
+<div style="aspect-ratio:4/3;border-radius:var(--radius-lg);background:var(--color-neutral-800,#3a332b);display:flex;align-items:flex-end;padding:20px;color:var(--color-neutral-200);font-size:13px;position:relative;overflow:hidden"><div style="position:absolute;width:260px;height:260px;border-radius:50%;background:var(--color-accent-700);opacity:.5;right:-60px;top:-60px"></div><span style="position:relative">og:image from accenture.com</span></div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="tag tag-accent-2" style="display:inline-flex;gap:6px;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.07"></path><path d="m9 11 3 3L22 4"></path></svg>Verified official site</span><span style="font-size:14px;color:var(--color-neutral-700)">accenture.com</span></div>
+<div style="font-family:var(--font-heading);font-size:44px;line-height:1.05">Accenture</div>
+<div style="font-size:17px;color:var(--color-neutral-700)">Let there be change</div>
+<div style="font-size:16px;line-height:1.6;text-wrap:pretty">A global professional services company specialising in consulting, technology services and outsourcing, with work across AI, cloud, cybersecurity and digital transformation in banking, healthcare and consumer goods.</div>
+</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px">
+<a href="https://www.accenture.com" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:8px;color:var(--color-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>Visit site</a>
+<a href="tel:+35316462000" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>Call</a>
+<a href="mailto:info@accenture.com" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>Email</a>
+<a href="https://maps.apple.com/?q=1+Grand+Canal+Square+Dublin" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>Directions</a>
+<button class="btn btn-ghost" style="display:inline-flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" x2="12" y1="2" y2="15"></line></svg>Share</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px">
+<div class="card" style="display:flex;flex-direction:column;gap:6px"><div class="card-kicker">Headquarters</div><div style="font-size:15px;line-height:1.5">1 Grand Canal Square<br>Dublin 2, Ireland</div><a href="https://maps.apple.com/?q=1+Grand+Canal+Square+Dublin" style="font-size:14px;font-weight:600">Open in Maps</a></div>
+<div class="card" style="display:flex;flex-direction:column;gap:6px"><div class="card-kicker">Contact</div><a href="tel:+35316462000" style="font-size:15px;color:var(--color-text)">+353 1 646 2000</a><a href="mailto:info@accenture.com" style="font-size:15px;color:var(--color-text)">info@accenture.com</a><span style="font-size:14px;font-weight:600;color:var(--color-accent-700)">Save contact</span></div>
+<div class="card" style="display:flex;flex-direction:column;gap:6px"><div class="card-kicker">Elsewhere</div><a href="#" style="font-size:15px;color:var(--color-text)">LinkedIn</a><a href="#" style="font-size:15px;color:var(--color-text)">Careers</a><a href="#" style="font-size:15px;color:var(--color-text)">Newsroom</a></div>
+</div>
+<div style="font-size:13px;color:var(--color-neutral-700)">3.1s · 11 candidates · 9 pages checked · TODD summary</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-family:var(--font-heading);font-size:20px">Other finds</span><span style="font-size:13px;color:var(--color-neutral-700)">1 of 20</span></div>
+<div style="display:flex;flex-direction:column;gap:4px">
+<sc-for list="{{ altsCo }}" as="a" hint-placeholder-count="7">
+<div style="display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:var(--radius-md);cursor:pointer" style-hover="background:var(--color-surface)">
+<div style="width:36px;height:36px;flex:none;border-radius:50%;background:var(--color-accent-2-200);color:var(--color-accent-2-800);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">{{ a.i }}</div>
+<div style="min-width:0;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.t }}</span><span style="font-size:13px;color:var(--color-neutral-700)">{{ a.d }}</span></div>
+</div>
+</sc-for>
+</div>
+<button class="btn btn-ghost" style="align-self:flex-start">Show all 19</button>
+<div class="card" style="display:flex;flex-direction:column;gap:10px;margin-top:12px"><div style="font-size:14px;font-weight:600">Was this the right find?</div><div style="display:flex;gap:8px"><button class="btn btn-secondary">Yes</button><button class="btn btn-ghost">Not quite</button></div></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 1b -->
+<div id="1b" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span class="tag tag-accent">1b</span><span style="font-weight:600">Desktop: local place</span></div>
+<div style="width:1280px;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden">
+<div style="display:flex;align-items:center;gap:16px;padding:20px 40px">
+<div style="font-family:var(--font-heading);font-size:26px;color:var(--color-accent)">Find</div>
+<div style="flex:1;max-width:640px;display:flex;align-items:center;gap:10px;background:var(--color-surface);border-radius:999px;padding:12px 20px;color:var(--color-neutral-700)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>best croissant in the mission</span></div>
+<button class="btn btn-primary">Find</button>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:40px;padding:8px 40px 40px">
+<div style="display:flex;flex-direction:column;gap:28px">
+<div style="display:grid;grid-template-columns:minmax(0,6fr) minmax(0,5fr);gap:16px;height:300px">
+<div style="border-radius:var(--radius-lg);background:var(--color-accent-200);display:flex;align-items:flex-end;padding:20px;font-size:13px;color:var(--color-accent-800)">Photo</div>
+<div style="border-radius:var(--radius-lg);background:var(--color-accent-2-200);position:relative;display:flex;align-items:flex-end;padding:20px;font-size:13px;color:var(--color-accent-2-800)"><div style="position:absolute;left:50%;top:44%;width:28px;height:28px;border-radius:50% 50% 50% 0;transform:translate(-50%,-50%) rotate(-45deg);background:var(--color-accent);box-shadow:var(--shadow-md)"></div>Map preview · tap for Apple Maps</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;max-width:720px">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="tag tag-accent-2">Open now · until 7 pm</span><span style="font-size:14px;color:var(--color-neutral-700)">Bakery · $$ · 0.4 mi</span></div>
+<div style="font-family:var(--font-heading);font-size:44px;line-height:1.05">Tartine Bakery</div>
+<div style="font-size:16px;line-height:1.6;text-wrap:pretty">Long-running neighbourhood bakery known for its morning buns, croissants and country loaf. Expect a line on weekends; it moves quickly.</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px">
+<a href="https://maps.apple.com/?daddr=600+Guerrero+St+San+Francisco" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:8px;color:var(--color-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>Directions · 8 min walk</a>
+<a href="tel:+14154872600" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>Call</a>
+<a href="https://tartinebakery.com" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>Website</a>
+<button class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>Copy address</button>
+<button class="btn btn-ghost" style="display:inline-flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" x2="12" y1="2" y2="15"></line></svg>Share</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:720px">
+<div class="card" style="display:flex;flex-direction:column;gap:6px"><div class="card-kicker">Address</div><div style="font-size:15px;line-height:1.5">600 Guerrero St<br>San Francisco, CA 94110</div></div>
+<div class="card" style="display:flex;flex-direction:column;gap:6px"><div class="card-kicker">Hours today</div><div style="font-size:15px;line-height:1.5">7:30 am – 7 pm<br><span style="color:var(--color-neutral-700)">Busiest 9–11 am</span></div></div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-family:var(--font-heading);font-size:20px">Other finds</span><span style="font-size:13px;color:var(--color-neutral-700)">1 of 20</span></div>
+<div style="display:flex;flex-direction:column;gap:4px">
+<sc-for list="{{ altsPlace }}" as="a" hint-placeholder-count="7">
+<div style="display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:var(--radius-md);cursor:pointer" style-hover="background:var(--color-surface)">
+<div style="width:36px;height:36px;flex:none;border-radius:50%;background:var(--color-accent-200);color:var(--color-accent-800);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">{{ a.i }}</div>
+<div style="min-width:0;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.t }}</span><span style="font-size:13px;color:var(--color-neutral-700)">{{ a.d }}</span></div>
+</div>
+</sc-for>
+</div>
+<button class="btn btn-ghost" style="align-self:flex-start">Show all 19</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 1c -->
+<div id="1c" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span class="tag tag-accent">1c</span><span style="font-weight:600">Desktop: movie (your favourite, widened)</span></div>
+<div style="width:1280px;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden">
+<div style="display:flex;align-items:center;gap:16px;padding:20px 40px">
+<div style="font-family:var(--font-heading);font-size:26px;color:var(--color-accent)">Find</div>
+<div style="flex:1;max-width:640px;display:flex;align-items:center;gap:10px;background:var(--color-surface);border-radius:999px;padding:12px 20px;color:var(--color-neutral-700)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span>saving private ryan movie</span></div>
+<button class="btn btn-primary">Find</button>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:40px;padding:8px 40px 40px">
+<div style="display:grid;grid-template-columns:280px minmax(0,1fr);gap:40px;align-items:start">
+<div style="aspect-ratio:2/3;border-radius:var(--radius-lg);background:var(--color-neutral-700,#5a5046);display:flex;align-items:flex-end;padding:20px;font-size:13px;color:var(--color-neutral-200);box-shadow:var(--shadow-md)">Poster</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="font-size:14px;font-weight:600;color:var(--color-neutral-700)">1998 · R · 169 min · Drama, War</div>
+<div style="font-family:var(--font-heading);font-size:52px;line-height:1.02">Saving Private Ryan</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<div style="display:flex;align-items:baseline;gap:6px;background:var(--color-surface);border-radius:999px;padding:8px 16px"><span style="font-size:12px;font-weight:700">IMDb</span><span style="font-size:18px;font-weight:700">8.6</span><span style="font-size:12px;color:var(--color-neutral-700)">/10</span></div>
+<div style="display:flex;align-items:baseline;gap:6px;background:var(--color-surface);border-radius:999px;padding:8px 16px"><span style="font-size:12px;font-weight:700">RT</span><span style="font-size:18px;font-weight:700">94%</span></div>
+<div style="display:flex;align-items:baseline;gap:6px;background:var(--color-surface);border-radius:999px;padding:8px 16px"><span style="font-size:12px;font-weight:700">Metacritic</span><span style="font-size:18px;font-weight:700">91</span><span style="font-size:12px;color:var(--color-neutral-700)">/100</span></div>
+</div>
+<div style="font-size:17px;line-height:1.6;max-width:640px;text-wrap:pretty">Following the Normandy Landings, a group of U.S. soldiers go behind enemy lines to retrieve a paratrooper whose comrades have been killed in action.</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px">
+<button class="btn btn-primary" style="display:inline-flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>Trailer</button>
+<button class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="15" x="2" y="7" rx="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>Where to watch</button>
+<button class="btn btn-ghost" style="display:inline-flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" x2="12" y1="2" y2="15"></line></svg>Share</button>
+</div>
+<div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:8px 16px;font-size:15px;max-width:640px;margin-top:8px">
+<span style="color:var(--color-neutral-700)">Director</span><span>Steven Spielberg</span>
+<span style="color:var(--color-neutral-700)">Starring</span><span>Tom Hanks, Matt Damon, Tom Sizemore</span>
+</div>
+<div style="font-size:13px;color:var(--color-neutral-700)">Ratings via OMDb · 1.0s</div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-family:var(--font-heading);font-size:20px">Other finds</span><span style="font-size:13px;color:var(--color-neutral-700)">1 of 20</span></div>
+<div style="display:flex;flex-direction:column;gap:4px">
+<sc-for list="{{ altsMovie }}" as="a" hint-placeholder-count="7">
+<div style="display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:var(--radius-md);cursor:pointer" style-hover="background:var(--color-surface)">
+<div style="width:30px;height:44px;flex:none;border-radius:8px;background:var(--color-neutral-300,#d8c8ac)"></div>
+<div style="min-width:0;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.t }}</span><span style="font-size:13px;color:var(--color-neutral-700)">{{ a.d }}</span></div>
+</div>
+</sc-for>
+</div>
+<button class="btn btn-ghost" style="align-self:flex-start">Show all 19</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 1d -->
+<div id="1d" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:10px;align-items:center"><span class="tag tag-accent">1d</span><span style="font-weight:600">iPhone: local place</span></div>
+<div style="width:390px;height:844px;background:var(--color-bg);border-radius:48px;box-shadow:var(--shadow-lg);overflow:hidden;display:flex;flex-direction:column;position:relative">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:56px 20px 12px"><span style="display:flex;align-items:center;gap:4px;font-size:15px;color:var(--color-accent-700);font-weight:600"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>Back</span><span style="font-size:13px;color:var(--color-neutral-700)">1 of 20</span><span style="display:flex;align-items:center;gap:4px;font-size:15px;color:var(--color-accent-700);font-weight:600">Next<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span></div>
+<div style="padding:0 20px;display:flex;flex-direction:column;gap:18px;overflow:hidden">
+<div style="height:200px;border-radius:var(--radius-lg);background:var(--color-accent-200);display:flex;align-items:flex-end;padding:16px;font-size:13px;color:var(--color-accent-800)">Photo</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<span class="tag tag-accent-2" style="align-self:flex-start">Open now · until 7 pm</span>
+<div style="font-family:var(--font-heading);font-size:34px;line-height:1.05">Tartine Bakery</div>
+<div style="font-size:14px;color:var(--color-neutral-700)">Bakery · $$ · 0.4 mi</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
+<a href="https://maps.apple.com/?daddr=600+Guerrero+St+San+Francisco" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 0;border-radius:var(--radius-md);background:var(--color-accent);color:var(--color-bg);font-size:13px;font-weight:600"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>Go</a>
+<a href="tel:+14154872600" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 0;border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);font-size:13px;font-weight:600"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>Call</a>
+<a href="https://tartinebakery.com" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 0;border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);font-size:13px;font-weight:600"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>Website</a>
+<button style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 0;border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);font-size:13px;font-weight:600;border:0;font-family:inherit"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" x2="12" y1="2" y2="15"></line></svg>Share</button>
+</div>
+<div style="font-size:15px;line-height:1.55">Long-running neighbourhood bakery known for its morning buns, croissants and country loaf. Expect a line on weekends.</div>
+<div class="card" style="display:flex;flex-direction:column;gap:4px"><div class="card-kicker">Address</div><div style="font-size:15px">600 Guerrero St, San Francisco</div></div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:12px 20px 34px;background:var(--color-bg);box-shadow:0 -8px 24px color-mix(in srgb, var(--color-bg) 90%, transparent);display:flex;gap:8px;overflow:hidden">
+<span class="tag tag-neutral" style="white-space:nowrap">2 · Arsicault</span><span class="tag tag-neutral" style="white-space:nowrap">3 · b. patisserie</span><span class="tag tag-neutral" style="white-space:nowrap">4 · Jane the Bakery</span>
+</div>
+</div>
+</div>
+
+</div>
+<div class="card" style="max-width:760px;display:flex;flex-direction:column;gap:10px">
+<div class="card-title">How the action bar is built</div>
+<div style="font-size:15px;line-height:1.6">Find shows only the actions it has data for, in this order: the main action for the result type (Visit site, Directions, Trailer), then Call, Email, Directions or Website, Copy, Share. Links use <b>tel:</b>, <b>mailto:</b> and <b>maps.apple.com</b>, so Mac and iPhone open Phone or FaceTime, Mail and Apple Maps directly, and other devices get the web or Google Maps version. Share uses the system share sheet where the browser supports it.</div>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;system&quot;,&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;system&quot;,&quot;tsType&quot;:&quot;'system'|'light'|'dark'&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const m = (arr) => arr.map(([t, d], k) => ({ i: k + 2, t, d }));
+    const P = {
+      nav: '<polygon points="3 11 22 2 13 21 11 13 3 11"/>',
+      phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>',
+      mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+      globe: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+      copy: '<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+      cal: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+      ext: '<path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+      grid: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+      clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+      info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+      award: '<circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/>',
+      news: '<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8V6Z"/>',
+      sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-14.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+      trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+      lr: '<path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>',
+      ud: '<path d="m21 16-4 4-4-4M17 20V4M3 8l4-4 4 4M7 4v16"/>',
+      fork: '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
+      cloud: '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',
+      rain: '<path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2M16 14v6M8 14v6M12 16v6"/>',
+      share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98"/>'
+    };
+    const ic = (k, s) => {
+      const url = `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">${P[k]}</svg>`)}")`;
+      return { width: s, height: s, flex: 'none', background: 'currentColor', WebkitMask: `${url} center/contain no-repeat`, mask: `${url} center/contain no-repeat` };
+    };
+    const A = (list) => list.map(([label, k, href, short], i) => ({ label, short: short || label, href: href || '#', icon: ic(k, 18), iconLg: ic(k, 22),
+      btn: { display: 'inline-flex', alignItems: 'center', gap: 8, height: 44, padding: '0 18px', borderRadius: 999, fontSize: 15, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap', background: i === 0 ? 'var(--blue)' : 'var(--surface)', color: i === 0 ? '#fff' : 'var(--text)' },
+      tile: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, height: 66, borderRadius: 18, fontSize: 12, fontWeight: 600, textDecoration: 'none', background: i === 0 ? 'var(--blue)' : 'var(--surface)', color: i === 0 ? '#fff' : 'var(--text)' } }));
+    const LC = ['var(--blue)', 'var(--cyan)', 'var(--yellow)', 'var(--pink)', 'var(--violet)'];
+    const segs = (cur) => Array.from({ length: 20 }, (_, i) => ({ s: { width: i === cur ? 18 : 6, height: 6, borderRadius: 999, background: i <= cur ? LC[i % 5] : 'var(--surface2)' } }));
+    const hours = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => {
+      const today = d === 'Thu';
+      return { d, t: d === 'Sat' || d === 'Sun' ? '8 am – 7 pm' : '7:30 am – 7 pm', s: { display: 'flex', justifyContent: 'space-between', padding: '6px 12px', borderRadius: 999, fontSize: 15, background: today ? 'var(--color-bg)' : 'transparent', fontWeight: today ? 700 : 400 } };
+    });
+    const t2 = {
+      aCo: A([['Visit site', 'globe', 'https://www.accenture.com', 'Site'], ['Call', 'phone', 'tel:+35316462000'], ['Email', 'mail', 'mailto:info@accenture.com'], ['Directions', 'nav', 'https://maps.apple.com/?q=1+Grand+Canal+Square,+Dublin'], ['Copy link', 'copy', '#', 'Copy']]),
+      aPlace: A([['Directions · 8 min walk', 'nav', 'https://maps.apple.com/?daddr=600+Guerrero+St,+San+Francisco', 'Go'], ['Call', 'phone', 'tel:+14154872600'], ['Website', 'globe', 'https://tartinebakery.com', 'Site'], ['Add to calendar', 'cal', '#', 'Plan'], ['Copy address', 'copy', '#', 'Copy']]),
+      aPerson: A([['Email', 'mail', 'mailto:maya.okafor@example.com'], ['Call', 'phone', 'tel:+12065550142'], ['LinkedIn', 'ext', 'https://www.linkedin.com'], ['Schedule meeting', 'cal', '#', 'Meet'], ['Copy email', 'copy', '#', 'Copy']]),
+      aMovie: A([['IMDb page', 'ext', 'https://www.imdb.com/title/tt0120815/'], ['Copy link', 'copy']]),
+      aRecipe: A([['Open recipe', 'ext', '#', 'Open'], ['Copy ingredients', 'copy', '#', 'Copy'], ['Copy link', 'copy', '#', 'Link']]),
+      aGeneric: A([['Visit site', 'globe', 'https://www.energy.gov'], ['Copy link', 'copy']]),
+      tabs: [['Grid', 'grid'], ['History', 'clock'], ['Info', 'info'], ['Awards', 'award'], ['Share', 'share']].map(([l, k]) => ({ l, icon: ic(k, 20) })),
+      hours, seg1: segs(0), seg3: segs(2), theme: this.props.theme ?? 'system',
+      ingredients: ['225 g unsalted butter', '200 g dark brown sugar', '100 g caster sugar', '2 large eggs', '2 tsp vanilla extract', '280 g plain flour', '1 tsp baking soda', '340 g dark chocolate, chopped'].map((t) => ({ t }))
+    };
+    const tint = (c) => ({ background: `var(--t-${c})`, color: `var(--t-${c}-fg)` });
+    const homeTile = (big) => ([l, k, c, soon]) => ({ l, soon: soon || '', icon: ic(k, big ? 26 : 24), s: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, height: big ? 96 : 84, borderRadius: 20, fontSize: 15, fontWeight: 700, textDecoration: 'none', opacity: soon ? 0.6 : 1, ...(c ? tint(c) : { background: 'var(--surface)', color: 'var(--muted)' }) } });
+    const homeList = [['News', 'news', 'pink'], ['Weather', 'sun', 'blue'], ['Sports', 'trophy', 'cyan'], ['Conversion', 'lr', 'violet'], ['Restaurants', 'fork', 'yellow'], ['Events', 'cal', null, 'Coming soon']];
+    const fc = [['Today', 'cloud', 'Mostly cloudy', 54, 67], ['Fri', 'sun', 'Sunny', 52, 71], ['Sat', 'sun', 'Mostly sunny', 55, 74], ['Sun', 'rain', 'Light rain', 53, 63], ['Mon', 'rain', 'Showers', 50, 60], ['Tue', 'cloud', 'Cloudy', 51, 64]];
+    const iconColor = { sun: 'var(--yellow)', cloud: 'var(--muted)', rain: 'var(--blue)' };
+    const forecast = fc.map(([d, k, c, lo, hi]) => ({ d, c, lo: lo + '°', hi: hi + '°', icon: { ...ic(k, 22), background: iconColor[k] }, bar: { position: 'absolute', top: 0, bottom: 0, borderRadius: 999, background: 'var(--cyan)', left: ((lo - 48) / 28 * 100) + '%', width: ((hi - lo) / 28 * 100) + '%' } }));
+    const t3 = {
+      homeTiles: homeList.map(homeTile(true)), homeTilesM: homeList.map(homeTile(false)),
+      forecast, cloudBig: { ...ic('cloud', 64), background: 'var(--t-blue-fg)' }, swapIc: ic('ud', 22), swapIcLr: ic('lr', 22),
+      keys: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫'].map((k) => ({ k })),
+      aHeadline: A([['Read on CBS Sports', 'ext', 'https://www.cbssports.com', 'Read'], ['Copy link', 'copy', '#', 'Copy']]),
+      aHeadline2: A([['Read on BBC Sport', 'ext', 'https://www.bbc.co.uk/sport', 'Read'], ['Copy link', 'copy', '#', 'Copy']]),
+      aConv: A([['Copy result', 'copy', '#', 'Copy']]),
+      aAnswer: A([['Read source', 'ext', '#', 'Source'], ['Copy answer', 'copy', '#', 'Copy']]),
+      refs: [['mayoclinic.org', 'Caffeine content for coffee, tea, soda and more'], ['fda.gov', 'Spilling the beans: how much caffeine is too much?'], ['usda.gov', 'FoodData Central: coffee, brewed']].map(([d, t]) => ({ d, t })),
+      seg2: segs(1)
+    };
+    return {
+      ...t2, ...t3,
+      altsCo: m([["Accenture Careers", "accenture.com/careers"], ["Accenture (Wikipedia)", "en.wikipedia.org"], ["Accenture plc on NYSE", "Stock · ACN"], ["Accenture Song", "accenture.com/song"], ["Accenture on LinkedIn", "linkedin.com"], ["Newsroom", "newsroom.accenture.com"], ["Accenture Ventures", "accenture.com"]]),
+      altsPlace: m([["Arsicault Bakery", "Bakery · 2.1 mi"], ["b. patisserie", "Bakery · 2.8 mi"], ["Jane the Bakery", "Café · 1.6 mi"], ["Le Marais Bakery", "Bakery · 1.9 mi"], ["Neighbor Bakehouse", "Bakery · 1.2 mi"], ["Devil's Teeth", "Bakery · 4.0 mi"], ["Maison Nico", "Bakery · 2.5 mi"]]),
+      altsMovie: [["Band of Brothers", "2001 · Series"], ["The Pacific", "2010 · Series"], ["Dunkirk", "2017"], ["Hacksaw Ridge", "2016"], ["1917", "2019"], ["The Thin Red Line", "1998"], ["Fury", "2014"]].map(([t, d]) => ({ t, d }))
+    };
+  }
+}
+</script>
+</body>
+</html>

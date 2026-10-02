@@ -3,13 +3,15 @@
   <!-- ── SEARCH VIEW ──────────────────────────────────────────── -->
   <div class="find-search-screen" data-cy="find-search-shell" *ngIf="activeView === 'search' && !isForwardedQuery">
     <div class="find-brand">
-      <img src="assets/find-logo.png" alt="Find" style="max-width: 100%; height: auto; max-height: 100px;">
+      <img class="find-brand__logo" src="assets/find-logo.png" alt="" />
+      <span class="find-brand__word">Find</span>
     </div>
-    <form class="find-form" (ngSubmit)="onSubmit()">
-      <div class="find-form__row" [class.find-form__row--loading]="isLoading">
-        <input id="findQuery" name="findQuery" type="search" [(ngModel)]="query" placeholder="Search for anything…" autocomplete="off" enterkeyhint="search" [disabled]="isLoading" />
-      </div>
-      <button type="submit" class="find-submit find-submit--spaced" [disabled]="isLoading">
+    <form class="find-home-search" [class.find-home-search--loading]="isLoading" (ngSubmit)="onSubmit()">
+      <label class="find-home-search__field">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input id="findQuery" name="findQuery" type="search" [(ngModel)]="query" placeholder="Search for anything…" aria-label="Search" autocomplete="off" enterkeyhint="search" [disabled]="isLoading" />
+      </label>
+      <button type="submit" class="find-submit find-submit--home" [disabled]="isLoading">
         <span *ngIf="!isLoading">Find</span>
         <span class="find-spinner" *ngIf="isLoading" aria-label="Searching…"></span>
       </button>
@@ -18,13 +20,12 @@
       <button
         *ngFor="let action of quickActions"
         type="button"
-        class="find-quick-action"
         [class]="'find-quick-action find-quick-action--' + action.color"
         [disabled]="action.disabled || isLoading"
         [attr.aria-label]="action.disabled ? action.label + ' coming soon' : 'Search ' + action.label"
         (click)="onQuickActionClick(action)"
       >
-        <i class="fa-solid" [class]="'fa-solid ' + action.icon" aria-hidden="true"></i>
+        <i [class]="'fa-solid ' + action.icon" aria-hidden="true"></i>
         <span>{{ action.label }}</span>
         <small *ngIf="action.disabled">Coming soon</small>
       </button>
@@ -39,230 +40,347 @@
   </div>
   <!-- ── RESULT VIEW ──────────────────────────────────────────── -->
   <div class="find-result-screen" data-cy="find-result-shell" *ngIf="activeView === 'result' || activeView === 'detail'">
-    <!-- Persistent search: stays above results so a new search never needs Home. -->
-    <div class="find-result-search">
-      <form class="find-form find-form--compact" (ngSubmit)="onSubmit()">
-        <div class="find-form__row" [class.find-form__row--loading]="isLoading">
-          <input id="findResultQuery" name="findResultQuery" type="search" [ngModel]="result ? '' : query" (ngModelChange)="onResultQueryChange($event)" placeholder="Search for anything…" autocomplete="off" enterkeyhint="search" [disabled]="isLoading" />
-        </div>
-        <button type="submit" class="find-submit find-submit--compact" [disabled]="isLoading">
+    <!-- Header: logo + persistent search, so a new search never needs Home. -->
+    <header class="find-header">
+      <button type="button" class="find-header__brand" (click)="resetToSearch()" aria-label="Find home">
+        <img src="assets/find-logo.png" alt="" />
+        <span>Find</span>
+      </button>
+      <form class="find-header__form" (ngSubmit)="onSubmit()">
+        <label class="find-header__field" [class.find-header__field--loading]="isLoading">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input id="findResultQuery" name="findResultQuery" type="search" [ngModel]="result ? '' : query" (ngModelChange)="onResultQueryChange($event)" placeholder="Search for anything…" aria-label="Search" autocomplete="off" enterkeyhint="search" [disabled]="isLoading" />
+        </label>
+        <button type="submit" class="find-submit find-submit--header" [disabled]="isLoading">
           <span *ngIf="!isLoading">Find</span>
           <span class="find-spinner" *ngIf="isLoading" aria-label="Searching…"></span>
         </button>
       </form>
-    </div>
+    </header>
     <div class="find-result-loading" *ngIf="isLoading">
       <span class="find-spinner find-spinner--lg" aria-hidden="true"></span>
       <p>Finding the strongest result… {{ liveElapsedSeconds }}s</p>
     </div>
     <!-- Shown once result is available -->
     <ng-container *ngIf="result && !isLoading">
-      <!-- Shelf bar: previous/home arrow | centered topic + dots | next arrow -->
-      <div class="find-shelf">
-        <button class="find-shelf__back" type="button" (click)="onPreviousResult()" [attr.aria-label]="isDetailView ? 'Back to grid' : (resultIndex === 0 ? 'Back to search' : 'Previous result')"><span class="find-nav-chevron" aria-hidden="true">‹</span> Back</button>
-        <div class="find-shelf__center">
-          <span class="find-shelf__topic">{{ shelfTitle }}</span>
-          <div class="find-shelf__dots" *ngIf="allCards.length > 1 && !isDetailView" aria-hidden="true">
-            <span *ngFor="let c of allCards; let i = index" class="find-shelf-dot" [class.find-shelf-dot--active]="i === resultIndex && !viewingGroundedAnswer"></span>
-          </div>
+      <!-- Pager: Back/Previous | progress segments + "N of M · See all" | Next -->
+      <nav class="find-pager" aria-label="Results">
+        <button type="button" class="find-pager__link find-pager__link--prev" (click)="onPreviousResult()" [attr.aria-label]="pagerPrevious.label + ': ' + pagerPrevious.title">
+          <span class="find-pager__circle" aria-hidden="true"><i class="fa-solid fa-chevron-left"></i></span>
+          <span class="find-pager__text">
+            <small>{{ pagerPrevious.label }}</small>
+            <strong>{{ pagerPrevious.title }}</strong>
+          </span>
+        </button>
+        <div class="find-pager__center">
+          <span class="find-pager__label" *ngIf="isSingleResultMode; else pagerProgress">{{ pagerCenterLabel }}</span>
+          <ng-template #pagerProgress>
+            <div class="find-pager__segments" *ngIf="allCards.length > 1 && !isDetailView" aria-hidden="true">
+              <span *ngFor="let segment of pagerSegments" class="find-pager__segment" [class.find-pager__segment--current]="segment.current" [style.background]="segment.color"></span>
+            </div>
+            <span class="find-pager__count">
+              <ng-container *ngIf="viewingGroundedAnswer; else pagerCount">Answer</ng-container>
+              <ng-template #pagerCount><b>{{ resultIndex + 1 }}</b> of {{ allCards.length }}</ng-template>
+              <ng-container *ngIf="!isDetailView && allCards.length > 1"> · <button type="button" class="find-pager__see-all" (click)="setView('booklet')">See all</button></ng-container>
+            </span>
+          </ng-template>
         </div>
-        <button class="find-shelf__next" type="button" (click)="onNextResult()" [disabled]="isDetailView || allCards.length === 0 || resultIndex === allCards.length - 1" aria-label="Next result">Next <span class="find-nav-chevron" aria-hidden="true">›</span></button>
-      </div>
-      <div class="find-result-layout">
-        <!-- Hero image — clickable link, paired with the answer on desktop -->
-        <a class="find-card-img-wrap" [class.find-card-img-wrap--fallback]="isFallbackHeroImage" [class.find-card-img-wrap--conversion]="isConversionMode" [attr.href]="currentCard?.url || null" target="_blank" rel="noopener" *ngIf="currentHasHeroImage">
-          <img [src]="currentHeroImage" [alt]="currentQuestionTitle" class="find-card-img" (error)="onImageError(currentHeroImage)" />
-        </a>
-        <!-- Result body -->
-        <div class="find-card-body find-container">
+        <ng-container *ngIf="!isSingleResultMode && !isDetailView; else pagerSpacer">
+          <button type="button" class="find-pager__link find-pager__link--next" (click)="onNextResult()" [disabled]="!pagerNext" [attr.aria-label]="pagerNext ? 'Next result: ' + pagerNext.title : 'No more results'">
+            <span class="find-pager__text" *ngIf="pagerNext as next">
+              <small>{{ next.label }}</small>
+              <strong>{{ next.title }}</strong>
+            </span>
+            <span class="find-pager__circle" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+          </button>
+        </ng-container>
+        <ng-template #pagerSpacer><span class="find-pager__spacer" aria-hidden="true"></span></ng-template>
+      </nav>
+
+      <div class="find-body">
+        <!-- ── WEATHER ── -->
         <ng-container *ngIf="isWeatherMode; else nonWeatherView">
-          <div class="find-weather-card" *ngIf="result?.weather as weather">
-            <img class="find-weather-card__icon" *ngIf="weather.iconUrl" [src]="weather.iconUrl" [alt]="weather.description || weather.condition" />
-            <div class="find-weather-card__temp">{{ weather.tempF }}°<span class="find-weather-card__unit">F</span></div>
-            <h2 class="find-weather-card__location">{{ weather.location }}<span *ngIf="weather.postalCode"> {{ weather.postalCode }}</span></h2>
-            <p class="find-weather-card__condition">{{ weather.description || weather.condition }}</p>
-            <div class="find-weather-card__stats">
-              <span>Feels like {{ weather.feelsLikeF }}°</span>
-              <span>Humidity {{ weather.humidity }}%</span>
-              <span>Wind {{ weather.windMph }} mph</span>
-            </div>
-            <div class="find-weather-card__range" *ngIf="weather.highF !== undefined || weather.lowF !== undefined">
-              <span *ngIf="weather.highF !== undefined">High {{ weather.highF }}°</span>
-              <span *ngIf="weather.lowF !== undefined">Low {{ weather.lowF }}°</span>
-            </div>
-            <p class="find-weather-card__coordinates" *ngIf="weather.latitude !== undefined && weather.longitude !== undefined">
-              Coordinates: {{ weather.latitude | number:'1.4-4' }}, {{ weather.longitude | number:'1.4-4' }}
-            </p>
-            <div class="find-weather-card__forecast" *ngIf="weather.forecast?.length">
-              <div class="find-weather-card__forecast-heading">Forecast</div>
-              <div class="find-weather-card__forecast-row" *ngFor="let day of weather.forecast">
-                <span class="find-weather-card__forecast-day">{{ day.label || day.date }}</span>
-                <span class="find-weather-card__forecast-condition">
-                  <img *ngIf="day.iconUrl" [src]="day.iconUrl" [alt]="day.description || day.condition" />
-                  {{ day.description || day.condition }}
-                </span>
-                <span class="find-weather-card__forecast-temp">
-                  <span *ngIf="day.highF !== undefined">{{ day.highF }}°</span>
-                  <span *ngIf="day.lowF !== undefined" class="find-weather-card__forecast-low">{{ day.lowF }}°</span>
-                </span>
+          <div class="find-weather" *ngIf="result?.weather as weather">
+            <section class="find-weather-card">
+              <div class="find-weather-card__top">
+                <div>
+                  <h2 class="find-weather-card__location">{{ weather.location }}<span *ngIf="weather.postalCode"> {{ weather.postalCode }}</span></h2>
+                  <p class="find-weather-card__condition">{{ weather.description || weather.condition }}</p>
+                </div>
+                <i class="fa-solid find-weather-card__icon" [ngClass]="weatherIcon(weather.description || weather.condition).icon" aria-hidden="true"></i>
               </div>
-            </div>
-            <p class="find-weather-card__updated" *ngIf="weather.updatedAt">Updated {{ weather.updatedAt | date:'short' }}</p>
+              <div class="find-weather-card__now">
+                <div class="find-weather-card__temp">{{ weather.tempF }}°</div>
+                <!-- Phones: high/low and stats sit beside the temperature as two lines. -->
+                <div class="find-weather-card__brief">
+                  <span *ngIf="weather.highF !== undefined || weather.lowF !== undefined">
+                    <ng-container *ngIf="weather.highF !== undefined">H {{ weather.highF }}°</ng-container>
+                    <ng-container *ngIf="weather.highF !== undefined && weather.lowF !== undefined"> · </ng-container>
+                    <ng-container *ngIf="weather.lowF !== undefined">L {{ weather.lowF }}°</ng-container>
+                  </span>
+                  <span>Feels {{ weather.feelsLikeF }}° · {{ weather.humidity }}% · {{ weather.windMph }} mph</span>
+                </div>
+              </div>
+              <div class="find-weather-card__range" *ngIf="weather.highF !== undefined || weather.lowF !== undefined">
+                <span *ngIf="weather.highF !== undefined">H {{ weather.highF }}°</span>
+                <span *ngIf="weather.lowF !== undefined">L {{ weather.lowF }}°</span>
+              </div>
+              <div class="find-weather-card__stats">
+                <div class="find-weather-stat"><span>Feels like</span><strong>{{ weather.feelsLikeF }}°</strong></div>
+                <div class="find-weather-stat"><span>Humidity</span><strong>{{ weather.humidity }}%</strong></div>
+                <div class="find-weather-stat"><span>Wind</span><strong>{{ weather.windMph }} mph</strong></div>
+              </div>
+            </section>
+            <section class="find-forecast" *ngIf="weather.forecast?.length">
+              <h3 class="find-forecast__heading">{{ weather.forecast?.length }}-day forecast</h3>
+              <div class="find-forecast__row" *ngFor="let day of weather.forecast">
+                <span class="find-forecast__day">{{ forecastDayLabel(day) }}</span>
+                <i class="fa-solid find-forecast__icon" [ngClass]="[weatherIcon(day.description || day.condition).icon, 'find-wx--' + weatherIcon(day.description || day.condition).tone]" [attr.title]="day.description || day.condition" aria-hidden="true"></i>
+                <span class="find-forecast__desc">{{ day.description || day.condition }}</span>
+                <span class="find-forecast__low">{{ day.lowF !== undefined ? day.lowF + '°' : '' }}</span>
+                <span class="find-forecast__bar"><span *ngIf="forecastBar(day) as bar" [style.left.%]="bar.left" [style.width.%]="bar.width"></span></span>
+                <span class="find-forecast__high">{{ day.highF !== undefined ? day.highF + '°' : '' }}</span>
+              </div>
+            </section>
           </div>
         </ng-container>
         <ng-template #nonWeatherView>
-          <ng-container *ngIf="isConversionMode; else nonConversionView">
-            <div class="find-conversion-card" *ngIf="conversion as conversion">
-              <div class="find-conversion-card__eyebrow">{{ conversion.category === 'currency' ? 'Currency conversion' : 'Unit conversion' }}</div>
-              <div class="find-conversion-card__fields">
-                <label class="find-conversion-field">
-                  <span>From</span>
-                  <input type="number" inputmode="decimal" min="-999999999999" step="any" [ngModel]="conversionAmountText" (ngModelChange)="onConversionAmountChange($event)" aria-label="Amount to convert" />
-                  <select [(ngModel)]="conversionInputUnit" (ngModelChange)="onConversionUnitChange()" aria-label="Source unit">
-                    <option *ngFor="let option of conversionUnitOptions" [value]="option.value">{{ option.label }}</option>
-                  </select>
-                </label>
-                <button type="button" class="find-conversion-swap" (click)="swapConversion()" aria-label="Swap conversion units">↕</button>
-                <label class="find-conversion-field">
-                  <span>To</span>
-                  <output class="find-conversion-output" aria-live="polite">{{ conversionOutputAmount === null ? 'Unavailable' : (conversionOutputAmount | number:'1.0-4') }}</output>
-                  <select [(ngModel)]="conversionOutputUnit" (ngModelChange)="onConversionUnitChange()" aria-label="Destination unit">
-                    <option *ngFor="let option of conversionUnitOptions" [value]="option.value">{{ option.label }}</option>
-                  </select>
-                </label>
+          <!-- ── CONVERSION ── -->
+          <ng-container *ngIf="isConversionMode; else mediaView">
+            <div class="find-conversion" *ngIf="conversion as conversion">
+              <span class="find-tag find-tag--violet">{{ pagerCenterLabel }}</span>
+              <div class="find-conversion__fields">
+                <div class="find-conversion-card find-conversion-card--from">
+                  <span class="find-conversion-card__label">From</span>
+                  <div class="find-conversion-card__row">
+                    <input class="find-conversion-card__amount" type="text" inputmode="decimal" autocomplete="off" [ngModel]="conversionAmountText" (ngModelChange)="onConversionAmountChange($event)" aria-label="Amount to convert" />
+                    <select class="find-conversion-card__unit" [(ngModel)]="conversionInputUnit" (ngModelChange)="onConversionUnitChange()" aria-label="Source unit">
+                      <option *ngFor="let option of conversionUnitOptions" [value]="option.value">{{ conversionUnitShort(option.value) }}</option>
+                    </select>
+                  </div>
+                  <span class="find-conversion-card__name">{{ conversionUnitName(conversionInputUnit) }}</span>
+                </div>
+                <button type="button" class="find-conversion-swap" (click)="swapConversion()" aria-label="Swap conversion units">
+                  <i class="fa-solid fa-arrow-right-arrow-left find-conversion-swap__lr" aria-hidden="true"></i>
+                  <i class="fa-solid fa-arrows-up-down find-conversion-swap__ud" aria-hidden="true"></i>
+                </button>
+                <div class="find-conversion-card find-conversion-card--to">
+                  <span class="find-conversion-card__label">To</span>
+                  <div class="find-conversion-card__row">
+                    <output class="find-conversion-card__amount find-conversion-card__amount--output" aria-live="polite">{{ conversionOutputAmount === null ? 'Unavailable' : (conversionOutputAmount | number:'1.0-4') }}</output>
+                    <select class="find-conversion-card__unit" [(ngModel)]="conversionOutputUnit" (ngModelChange)="onConversionUnitChange()" aria-label="Destination unit">
+                      <option *ngFor="let option of conversionUnitOptions" [value]="option.value">{{ conversionUnitShort(option.value) }}</option>
+                    </select>
+                  </div>
+                  <span class="find-conversion-card__name">{{ conversionUnitName(conversionOutputUnit) }}</span>
+                </div>
               </div>
+              <div class="find-conversion__meta">
+                <ng-container *ngTemplateOutlet="actionBar"></ng-container>
+                <span class="find-conversion__rate" *ngIf="conversion.category === 'currency' && conversionRate !== null">1 {{ conversionInputUnit }} = {{ conversionRate | number:'1.0-6' }} {{ conversionOutputUnit }}</span>
+                <span class="find-conversion__updated" *ngIf="conversion.category === 'currency' && conversionRateUpdatedAt">Updated {{ conversionRateUpdatedAt | date:'short' }}</span>
+                <span class="find-conversion__updated" *ngIf="conversion.category === 'currency' && conversionRate === null">A live exchange rate is not available right now.</span>
+              </div>
+              <!-- Phones only; desktop types into the amount field. -->
               <div class="find-conversion-keypad" aria-label="Calculator keypad">
                 <button type="button" *ngFor="let digit of conversionKeypadDigits" (click)="appendConversionDigit(digit)">{{ digit }}</button>
                 <button type="button" (click)="appendConversionDecimal()">.</button>
-                <button type="button" (click)="deleteConversionDigit()" aria-label="Backspace">⌫</button>
-                <button type="button" class="find-conversion-keypad__clear" (click)="clearConversionAmount()">Clear</button>
+                <button type="button" (click)="appendConversionDigit('0')">0</button>
+                <button type="button" (pointerdown)="onBackspacePointerDown()" (pointerup)="cancelBackspacePress()" (pointerleave)="cancelBackspacePress()" (pointercancel)="cancelBackspacePress()" (contextmenu)="$event.preventDefault()" (click)="onBackspaceClick()" aria-label="Backspace (hold to clear)">⌫</button>
               </div>
-              <div class="find-conversion-rate" *ngIf="conversion.category === 'currency' && conversionRate !== null">
-                1 {{ conversionInputUnit }} = {{ conversionRate | number:'1.0-6' }} {{ conversionOutputUnit }}
-                <span *ngIf="conversionRateUpdatedAt"> · Updated {{ conversionRateUpdatedAt | date:'short' }}</span>
-              </div>
-              <p class="find-conversion-note" *ngIf="conversion.category === 'currency' && conversionRate === null">A live exchange rate is not available right now.</p>
-              <p class="find-conversion-source" *ngIf="conversionSource">Source: {{ conversionSource }}</p>
             </div>
           </ng-container>
-          <ng-template #nonConversionView>
-            <ng-container *ngIf="isMovieMode; else standardNonWeatherView">
-              <div class="find-movie-card" *ngIf="movieRatings as movie">
-                <div class="find-movie-card__eyebrow">
-                  {{ movie.year }}<span *ngIf="movie.rated"> · {{ movie.rated }}</span><span *ngIf="movie.runtime"> · {{ movie.runtime }}</span>
-                </div>
-                <h2 class="find-card-title">{{ movie.title }}</h2>
-                <div class="find-movie-card__ratings">
-                  <span class="find-movie-card__rating" *ngIf="movie.imdbRating">
-                    <img class="find-movie-card__rating-icon" src="/assets/find/ratings/imdb.svg" alt="IMDb" />
-                    <strong>{{ movie.imdbRating }}</strong><small>/10</small>
-                  </span>
-                  <span class="find-movie-card__rating" *ngIf="movie.rottenTomatoesScore">
-                    <img class="find-movie-card__rating-icon" src="/assets/find/ratings/rotten-tomatoes.svg" alt="Rotten Tomatoes" />
-                    <strong>{{ movie.rottenTomatoesScore }}</strong>
-                  </span>
-                  <span class="find-movie-card__rating" *ngIf="movie.metascore">
-                    <img class="find-movie-card__rating-icon" src="/assets/find/ratings/metacritic.svg" alt="Metacritic" />
-                    <strong>{{ movie.metascore }}</strong><small>/100</small>
-                  </span>
-                </div>
-                <div class="desc-pad">
-                  <p class="find-movie-card__plot" *ngIf="movie.plot">{{ movie.plot }}</p>
-                </div>
-                <div class="find-movie-card__meta">
-                  <span *ngIf="movie.genre">{{ movie.genre }}</span>
-                  <span *ngIf="movie.director">Directed by {{ movie.director }}</span>
-                  <span *ngIf="movie.actors">Starring {{ movie.actors }}</span>
-                </div>
-                <p class="find-movie-card__source">Ratings via OMDb (IMDb, Rotten Tomatoes, Metacritic)</p>
-              </div>
-            </ng-container>
-          </ng-template>
-          <ng-template #standardNonWeatherView>
-            <ng-container *ngIf="!isQuestionMode; else questionAnswerView">
-              <a class="find-card-source" [href]="currentCard?.url" target="_blank" rel="noopener">
-                <span class="find-card-source__badge" *ngIf="currentCard?.isFirstParty">Official Taliferro result</span>
-                <span class="find-card-source__badge find-card-source__badge--verified" *ngIf="!currentCard?.isFirstParty && sourceTrustLabel(currentCard?.sourceType)">✓ {{ sourceTrustLabel(currentCard?.sourceType) }}</span>
-                {{ currentCard?.displayUrl }}
-              </a>
-              <h2 class="find-card-title">
-                <a class="find-card-title__link" *ngIf="currentCard?.url; else plainBusinessTitle" [href]="currentCard?.url" target="_blank" rel="noopener">{{ currentBusinessName }}</a>
-                <ng-template #plainBusinessTitle>{{ currentBusinessName }}</ng-template>
-              </h2>
-              <div class="find-business-address" *ngIf="currentBusinessAddress">{{ currentBusinessAddress }}</div>
-              <a class="find-business-phone" *ngIf="currentBusinessPhone" [href]="currentBusinessPhoneHref">{{ currentBusinessPhone }}</a>
-              <div class="find-business-meta" *ngIf="currentBusinessMeta.length">
-                <a *ngFor="let item of currentBusinessMeta" [href]="currentCard?.url" target="_blank" rel="noopener">{{ item }}</a>
-              </div>
-            <div class="find-hours-card" *ngIf="currentBusinessHours as hours">
-              <div class="find-hours-card__header">
-                <h3>Hours</h3>
-                <span *ngIf="hours.isOpenNow !== undefined" [class.find-hours-card__status--open]="hours.isOpenNow" [class.find-hours-card__status--closed]="!hours.isOpenNow">
-                  {{ hours.statusText || (hours.isOpenNow ? 'Open now' : 'Closed now') }}
-                </span>
-              </div>
-              <div class="find-hours-card__day" *ngFor="let day of hours.days" [class.find-hours-card__day--today]="isTodayHoursDay(day.day)">
-                <strong>{{ day.day }}</strong>
-                <span *ngIf="day.isClosed">Closed</span>
-                <span *ngIf="day.isTwentyFourHours">Open 24 hours</span>
-                <span *ngIf="!day.isClosed && !day.isTwentyFourHours && day.periods.length === 0">Hours unavailable</span>
-                <span *ngFor="let period of day.periods">{{ period.open }} – {{ period.close }}</span>
-              </div>
-              <p class="find-hours-card__note" *ngFor="let note of hours.holidayNotes">{{ note }}</p>
-            </div>
-            <div class="desc-pad">
-              <div class="find-card-summary find-rich-text" *ngIf="!currentHoursFromSummary" [innerHTML]="formatRichText(currentAnswerText)"></div>
-            </div>
-              <p class="find-local-attribution" *ngIf="isLocalMode">
-                Business details powered by <a href="https://www.google.com/" target="_blank" rel="noopener">Google</a>
-              </p>
-            </ng-container>
-            <ng-template #questionAnswerView>
-              <div class="find-question-card">
-                <span class="find-question-card__eyebrow">{{ currentQuestionEyebrow }}</span>
-                <a class="find-card-source" *ngIf="currentQuestionSourceUrl" [href]="currentCard?.url" target="_blank" rel="noopener">
-                  <span class="find-card-source__badge" *ngIf="currentCard?.isFirstParty">Official Taliferro result</span>
-                  <span class="find-card-source__badge find-card-source__badge--verified" *ngIf="!currentCard?.isFirstParty && sourceTrustLabel(currentCard?.sourceType)">✓ {{ sourceTrustLabel(currentCard?.sourceType) }}</span>
-                  {{ currentQuestionSourceUrl }}
-                </a>
-                <h2 class="find-card-title">
-                  <a class="find-card-title__link" *ngIf="currentQuestionSourceUrl; else plainQuestionTitle" [href]="currentCard?.url" target="_blank" rel="noopener">{{ currentQuestionTitle }}</a>
-                  <ng-template #plainQuestionTitle>{{ currentQuestionTitle }}</ng-template>
-                </h2>
-                <div class="desc-pad">
-                  <div class="find-card-summary find-card-summary--answer find-rich-text" [innerHTML]="formatRichText(currentQuestionText)"></div>
-                </div>
-              </div>
-
-              <div class="find-question-sources" *ngIf="isGroundedAnswerSlide && questionReferences.length > 0">
-                <div class="find-question-sources__header">
-                  <h3>References</h3>
-                  <span>{{ questionReferences.length }} sources</span>
-                </div>
-                <a class="find-question-source" *ngFor="let ref of questionReferences" [href]="ref.url" target="_blank" rel="noopener">
-                  <span class="find-question-source__domain">{{ ref.displayUrl }}</span>
-                  <strong>{{ ref.title }}</strong>
-                </a>
-              </div>
-            </ng-template>
-          </ng-template>
         </ng-template>
-        <p class="find-result-meta" *ngIf="result?.timings as timings">
-          {{ responseSeconds }}s total <span *ngIf="timings.candidateCount > 0"> · {{ timings.candidateCount }} candidates</span>
-          <span *ngIf="timings.enrichedCount > 0"> · {{ timings.enrichedCount }} pages checked</span>
-          <span *ngIf="currentCard?.isFirstParty"> · official Taliferro knowledge</span>
-          <span *ngIf="currentCard?.answer && !currentCard?.isFirstParty && !isQuestionMode"> · TODD summary</span>
-          <span *ngIf="isQuestionMode"> · {{ isGroundedAnswerSlide ? 'grounded answer' : 'supporting result' }}</span>
-        </p>
-        </div>
+
+        <!-- ── EVERY OTHER TYPE, laid out by the image rule ──
+             own image -> hero · Find default art -> thumbnail · none -> text only -->
+        <ng-template #mediaView>
+          <div class="find-media" [ngClass]="'find-media--' + imageState" [class.find-media--headline]="isHeadlineMode" [class.find-media--movie]="isMovieMode">
+            <a class="find-media__hero" *ngIf="imageState === 'own'" [attr.href]="currentCard?.url || null" target="_blank" rel="noopener">
+              <img [src]="currentOwnImage" [alt]="isMovieMode ? (movieRatings?.title || '') : currentQuestionTitle" (error)="onImageError(currentOwnImage)" />
+            </a>
+            <img class="find-media__thumb" *ngIf="imageState === 'fallback'" [src]="currentFallbackImage" alt="" (error)="onImageError(currentFallbackImage)" />
+            <div class="find-media__content">
+              <!-- News / Sports headline -->
+              <ng-container *ngIf="isHeadlineMode; else movieOrStandard">
+                <div class="find-source-row">
+                  <span class="find-tag" [ngClass]="headlineKind === 'news' ? 'find-tag--pink' : 'find-tag--cyan'">{{ headlineKind === 'news' ? 'News' : 'Sports' }}</span>
+                  <span class="find-source-row__name">{{ currentHeadlineSource }}</span>
+                  <span class="find-source-row__time" *ngIf="relativeTime(currentCard?.publishedAt) as ago">· {{ ago }}</span>
+                </div>
+                <h2 class="find-card-title find-card-title--headline">
+                  <a class="find-card-title__link" *ngIf="currentCard?.url; else plainHeadline" [href]="currentCard?.url" target="_blank" rel="noopener">{{ currentCard?.title }}</a>
+                  <ng-template #plainHeadline>{{ currentCard?.title }}</ng-template>
+                </h2>
+                <p class="find-card-summary" *ngIf="currentCard?.summary">{{ currentCard?.summary }}</p>
+                <ng-container *ngTemplateOutlet="actionBar"></ng-container>
+                <button type="button" class="find-next-preview" *ngIf="nextHeadlineCard as next" (click)="onNextResult()">
+                  <span>Next<ng-container *ngIf="next.rssSource"> · {{ next.rssSource }}</ng-container><ng-container *ngIf="relativeTime(next.publishedAt) as ago"> · {{ ago }}</ng-container></span>
+                  <strong>{{ next.title }}</strong>
+                </button>
+              </ng-container>
+              <ng-template #movieOrStandard>
+                <ng-container *ngIf="isMovieMode; else standardView">
+                  <div class="find-movie-card" *ngIf="movieRatings as movie">
+                    <div class="find-movie-card__eyebrow">
+                      {{ movie.year }}<span *ngIf="movie.rated"> · {{ movie.rated }}</span><span *ngIf="movie.runtime"> · {{ movie.runtime }}</span>
+                    </div>
+                    <h2 class="find-card-title find-card-title--movie">{{ movie.title }}</h2>
+                    <div class="find-movie-card__ratings">
+                      <span class="find-movie-card__rating" *ngIf="movie.imdbRating">
+                        <img class="find-movie-card__rating-icon" src="/assets/find/ratings/imdb.svg" alt="IMDb" />
+                        <strong>{{ movie.imdbRating }}</strong><small>/10</small>
+                      </span>
+                      <span class="find-movie-card__rating" *ngIf="movie.rottenTomatoesScore">
+                        <img class="find-movie-card__rating-icon" src="/assets/find/ratings/rotten-tomatoes.svg" alt="Rotten Tomatoes" />
+                        <strong>{{ movie.rottenTomatoesScore }}</strong>
+                      </span>
+                      <span class="find-movie-card__rating" *ngIf="movie.metascore">
+                        <img class="find-movie-card__rating-icon" src="/assets/find/ratings/metacritic.svg" alt="Metacritic" />
+                        <strong>{{ movie.metascore }}</strong><small>/100</small>
+                      </span>
+                    </div>
+                    <p class="find-movie-card__plot" *ngIf="movie.plot">{{ movie.plot }}</p>
+                    <div class="find-movie-card__meta">
+                      <span *ngIf="movie.genre">{{ movie.genre }}</span>
+                      <span *ngIf="movie.director">Directed by {{ movie.director }}</span>
+                      <span *ngIf="movie.actors">Starring {{ movie.actors }}</span>
+                    </div>
+                    <p class="find-movie-card__source">Ratings via OMDb (IMDb, Rotten Tomatoes, Metacritic)</p>
+                  </div>
+                </ng-container>
+              </ng-template>
+              <ng-template #standardView>
+                <ng-container *ngIf="!isQuestionMode; else questionAnswerView">
+                  <a class="find-card-source" [href]="currentCard?.url" target="_blank" rel="noopener">
+                    <span class="find-tag find-tag--blue" *ngIf="currentCard?.isFirstParty">Official Taliferro result</span>
+                    <span class="find-tag find-tag--blue" *ngIf="!currentCard?.isFirstParty && sourceTrustLabel(currentCard?.sourceType)">✓ {{ sourceTrustLabel(currentCard?.sourceType) }}</span>
+                    <span class="find-card-source__url">{{ currentCard?.displayUrl }}</span>
+                  </a>
+                  <h2 class="find-card-title">
+                    <a class="find-card-title__link" *ngIf="currentCard?.url; else plainBusinessTitle" [href]="currentCard?.url" target="_blank" rel="noopener">{{ currentBusinessName }}</a>
+                    <ng-template #plainBusinessTitle>{{ currentBusinessName }}</ng-template>
+                  </h2>
+                  <div class="find-business-address" *ngIf="currentBusinessAddress">{{ currentBusinessAddress }}</div>
+                  <a class="find-business-phone" *ngIf="currentBusinessPhone" [href]="currentBusinessPhoneHref">{{ currentBusinessPhone }}</a>
+                  <div class="find-business-meta" *ngIf="currentBusinessMeta.length">
+                    <a *ngFor="let item of currentBusinessMeta" [href]="currentCard?.url" target="_blank" rel="noopener">{{ item }}</a>
+                  </div>
+                  <ng-container *ngTemplateOutlet="actionBar"></ng-container>
+                  <div class="find-hours-card" *ngIf="currentBusinessHours as hours">
+                    <div class="find-hours-card__header">
+                      <h3>Hours</h3>
+                      <span *ngIf="hours.isOpenNow !== undefined" [class.find-hours-card__status--open]="hours.isOpenNow" [class.find-hours-card__status--closed]="!hours.isOpenNow">
+                        {{ hours.statusText || (hours.isOpenNow ? 'Open now' : 'Closed now') }}
+                      </span>
+                    </div>
+                    <div class="find-hours-card__day" *ngFor="let day of hours.days" [class.find-hours-card__day--today]="isTodayHoursDay(day.day)">
+                      <strong>{{ day.day }}</strong>
+                      <span *ngIf="day.isClosed">Closed</span>
+                      <span *ngIf="day.isTwentyFourHours">Open 24 hours</span>
+                      <span *ngIf="!day.isClosed && !day.isTwentyFourHours && day.periods.length === 0">Hours unavailable</span>
+                      <span *ngFor="let period of day.periods">{{ period.open }} – {{ period.close }}</span>
+                    </div>
+                    <p class="find-hours-card__note" *ngFor="let note of hours.holidayNotes">{{ note }}</p>
+                  </div>
+                  <div class="find-card-summary find-rich-text" *ngIf="!currentHoursFromSummary" [innerHTML]="formatRichText(currentAnswerText)"></div>
+                  <p class="find-local-attribution" *ngIf="isLocalMode">
+                    Business details powered by <a href="https://www.google.com/" target="_blank" rel="noopener">Google</a>
+                  </p>
+                </ng-container>
+                <ng-template #questionAnswerView>
+                  <div class="find-question-card">
+                    <span class="find-tag find-tag--green">{{ currentQuestionEyebrow }}</span>
+                    <a class="find-card-source" *ngIf="currentQuestionSourceUrl" [href]="currentCard?.url" target="_blank" rel="noopener">
+                      <span class="find-tag find-tag--blue" *ngIf="currentCard?.isFirstParty">Official Taliferro result</span>
+                      <span class="find-tag find-tag--blue" *ngIf="!currentCard?.isFirstParty && sourceTrustLabel(currentCard?.sourceType)">✓ {{ sourceTrustLabel(currentCard?.sourceType) }}</span>
+                      <span class="find-card-source__url">{{ currentQuestionSourceUrl }}</span>
+                    </a>
+                    <h2 class="find-card-title">
+                      <a class="find-card-title__link" *ngIf="currentQuestionSourceUrl; else plainQuestionTitle" [href]="currentCard?.url" target="_blank" rel="noopener">{{ currentQuestionTitle }}</a>
+                      <ng-template #plainQuestionTitle>{{ currentQuestionTitle }}</ng-template>
+                    </h2>
+                    <div class="find-card-summary find-card-summary--answer find-rich-text" [innerHTML]="formatRichText(currentQuestionText)"></div>
+                  </div>
+
+                  <div class="find-question-sources" *ngIf="isGroundedAnswerSlide && questionReferences.length > 0">
+                    <div class="find-question-sources__header">
+                      <h3>References</h3>
+                      <span>{{ questionReferences.length }} sources</span>
+                    </div>
+                    <a class="find-question-source" *ngFor="let ref of questionReferences" [href]="ref.url" target="_blank" rel="noopener">
+                      <span class="find-question-source__domain">{{ ref.displayUrl }}</span>
+                      <strong>{{ ref.title }}</strong>
+                    </a>
+                  </div>
+                </ng-template>
+              </ng-template>
+            </div>
+          </div>
+        </ng-template>
       </div>
+
       <div class="find-lead-vault-cta" *ngIf="isPersonSearch">
         <p>Looking for contact details or prospects?</p>
         <a [href]="leadVaultSearchUrl">Search “{{ result.query || query }}” in Lead Vault</a>
       </div>
-      <app-find-feedback *ngIf="!isDetailView" [query]="result.query || query" [queryType]="result.queryType"></app-find-feedback>
+
+      <!-- Footer: one-row feedback + source/timing meta -->
+      <footer class="find-footer">
+        <ng-container *ngIf="!isDetailView">
+          <ng-container *ngIf="!feedbackSent; else feedbackThanks">
+            <span class="find-footer__prompt">Right find?</span>
+            <button type="button" class="find-footer__pill" *ngFor="let rating of feedbackRatings" (click)="sendFeedback(rating.value)">{{ rating.label }}</button>
+          </ng-container>
+          <ng-template #feedbackThanks><span class="find-footer__prompt">Thanks for the feedback.</span></ng-template>
+        </ng-container>
+        <span class="find-footer__meta">
+          <ng-container *ngIf="isWeatherMode; else conversionMeta">
+            <ng-container *ngIf="result.weather?.updatedAt">Updated {{ result.weather?.updatedAt | date:'shortTime' }}</ng-container>
+            <ng-container *ngIf="result.weather?.updatedAt && result.weather?.latitude !== undefined && result.weather?.longitude !== undefined"> · </ng-container>
+            <ng-container *ngIf="result.weather?.latitude !== undefined && result.weather?.longitude !== undefined">{{ result.weather?.latitude | number:'1.4-4' }}, {{ result.weather?.longitude | number:'1.4-4' }}</ng-container>
+          </ng-container>
+          <ng-template #conversionMeta>
+            <ng-container *ngIf="isConversionMode; else headlineMeta">
+              <ng-container *ngIf="conversionSource">Source: {{ conversionSource }}</ng-container>
+            </ng-container>
+          </ng-template>
+          <ng-template #headlineMeta>
+            <ng-container *ngIf="isHeadlineMode; else timingMeta">{{ headlineAttribution }}</ng-container>
+          </ng-template>
+          <ng-template #timingMeta>
+            <ng-container *ngIf="result.timings as timings">
+              {{ responseSeconds }}s total<ng-container *ngIf="timings.candidateCount > 0"> · {{ timings.candidateCount }} candidates</ng-container>
+              <ng-container *ngIf="timings.enrichedCount > 0"> · {{ timings.enrichedCount }} pages checked</ng-container>
+              <ng-container *ngIf="currentCard?.isFirstParty"> · official Taliferro knowledge</ng-container>
+              <ng-container *ngIf="currentCard?.answer && !currentCard?.isFirstParty && !isQuestionMode"> · TODD summary</ng-container>
+              <ng-container *ngIf="isQuestionMode"> · {{ isGroundedAnswerSlide ? 'grounded answer' : 'supporting result' }}</ng-container>
+            </ng-container>
+          </ng-template>
+        </span>
+      </footer>
     </ng-container>
   </div>
+
+  <!-- Action bar (desktop) / action tiles (phones). First action is primary. -->
+  <ng-template #actionBar>
+    <div class="find-actions" *ngIf="currentActions.length">
+      <ng-container *ngFor="let action of currentActions; let first = first; trackBy: trackAction">
+        <a *ngIf="action.href; else copyActionButton" class="find-action" [class.find-action--primary]="first" [href]="action.href" target="_blank" rel="noopener">
+          <i class="fa-solid" [ngClass]="action.icon" aria-hidden="true"></i>
+          <span class="find-action__label">{{ action.label }}</span>
+          <span class="find-action__short" aria-hidden="true">{{ action.shortLabel }}</span>
+        </a>
+        <ng-template #copyActionButton>
+          <button type="button" class="find-action" [class.find-action--primary]="first" (click)="copyAction(action)">
+            <i class="fa-solid" [ngClass]="copiedActionKey === action.key ? 'fa-check' : action.icon" aria-hidden="true"></i>
+            <span class="find-action__label">{{ copiedActionKey === action.key ? 'Copied' : action.label }}</span>
+            <span class="find-action__short" aria-hidden="true">{{ copiedActionKey === action.key ? 'Copied' : action.shortLabel }}</span>
+          </button>
+        </ng-template>
+      </ng-container>
+    </div>
+  </ng-template>
   <!-- ── GRID VIEW (all results as tiles) ──────────────────────── -->
   <div class="find-grid-screen" data-cy="find-grid-shell" *ngIf="activeView === 'booklet' && result">
     <div class="find-screen-header find-screen-header--grid">

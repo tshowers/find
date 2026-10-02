@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
-export type FindQueryType = 'entity' | 'question' | 'person' | 'weather' | 'conversion' | 'local' | 'movie';
+export type FindQueryType = 'entity' | 'question' | 'person' | 'weather' | 'conversion' | 'local' | 'movie' | 'sports' | 'news';
 export type FindSourceType = 'official' | 'publisher' | 'government' | 'academic' | 'medical' | 'encyclopedia';
 export type FindFeedbackRating = 'excellent' | 'good' | 'fair' | 'poor';
 
@@ -67,6 +67,9 @@ export interface FindRankedResult {
   hours?: FindBusinessHours;
   address?: string;
   phone?: string;
+  // Set on News/Sports headlines served from the hourly RSS snapshot.
+  rssSource?: string;
+  publishedAt?: string;
 }
 
 export interface FindWeatherResult {
@@ -145,6 +148,8 @@ export interface FindSearchResponse {
   movieRatings?: FindMovieRatings | null;
   results: FindRankedResult[];
   selectedIndex: number;
+  // True when the results are News/Sports headlines from the RSS snapshot.
+  rssBacked?: boolean;
   timings?: {
     totalMs: number;
     planMs: number;

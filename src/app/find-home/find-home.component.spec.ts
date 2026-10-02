@@ -86,6 +86,18 @@ function makeConversionResponse(query: string): FindSearchResponse {
   };
 }
 
+function makeHeadlineResponse(query: string, results: FindRankedResult[]): FindSearchResponse {
+  return {
+    success: true,
+    query,
+    normalizedQuery: query,
+    queryType: 'sports',
+    rssBacked: true,
+    results,
+    selectedIndex: 0,
+  };
+}
+
 describe('FindHomeComponent', () => {
   let harness: RouterTestingHarness;
   let component: FindHomeComponent;
@@ -317,5 +329,153 @@ describe('FindHomeComponent', () => {
     tick();
 
     expect(shareSpy).toHaveBeenCalledWith({ title: 'Example Result', url: 'https://example.com/result' });
+  }));
+
+  // --- Redesign: image rule, headlines, pager, feedback row ---
+
+  it('puts a result\'s own image in the hero spot', fakeAsync(() => {
+    runSearch('coffee', makeEntityResponse('coffee', {
+      results: [makeResult({ imageUrl: 'https://example.com/photo.jpg' })],
+    }));
+
+    expect(component.imageState).toBe('own');
+    expect(root().querySelector('.find-media__hero img')?.getAttribute('src')).toBe('https://example.com/photo.jpg');
+    expect(root().querySelector('.find-media__thumb')).toBeNull();
+  }));
+
+  it('shows Find\'s default artwork only as a thumbnail, never the hero', fakeAsync(() => {
+    runSearch('nba scores', makeEntityResponse('nba scores'));
+
+    expect(component.imageState).toBe('fallback');
+    expect(root().querySelector('.find-media__hero')).toBeNull();
+    expect(root().querySelector('.find-media__thumb')?.getAttribute('src')).toBe('/fallback/find-sports.png');
+  }));
+
+  it('lets the text take the width when there is no image', fakeAsync(() => {
+    runSearch('coffee', makeEntityResponse('coffee'));
+
+    expect(component.imageState).toBe('none');
+    expect(root().querySelector('.find-media--none')).toBeTruthy();
+  }));
+
+  it('renders an RSS sports headline with source, time, actions and attribution, without summarizing it', fakeAsync(() => {
+    const now = Date.now();
+    component.query = 'sports news';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeHeadlineResponse('sports news', [
+      makeResult({ title: 'Chiefs rally late', url: 'https://www.cbssports.com/a', rssSource: 'CBS Sports', publishedAt: new Date(now - 4 * 3600000).toISOString() }),
+      makeResult({ title: 'Arsenal go top', url: 'https://www.bbc.co.uk/sport/b', rssSource: 'BBC Sport', publishedAt: new Date(now - 2 * 3600000).toISOString(), rank: 2 }),
+    ]));
+    tick();
+    harness.detectChanges();
+    http.expectNone(r => r.url.endsWith('/find/summarize'));
+
+    expect(component.isHeadlineMode).toBeTrue();
+    expect(root().querySelector('.find-source-row')?.textContent).toContain('CBS Sports');
+    expect(root().querySelector('.find-source-row')?.textContent).toContain('4h ago');
+    expect(root().querySelector('.find-media__thumb')?.getAttribute('src')).toBe('/fallback/find-sports.png');
+    expect(root().querySelector('.find-action--primary')?.getAttribute('href')).toBe('https://www.cbssports.com/a');
+    expect(root().querySelector('.find-action--primary')?.textContent).toContain('Read on CBS Sports');
+    expect(component.pagerNext?.label).toBe('Next · BBC Sport · 2h ago');
+    expect(root().querySelector('.find-footer__meta')?.textContent).toContain('From CBS Sports and BBC Sport · updated hourly');
+  }));
+
+  it('formats relative publish times', () => {
+    const ago = (ms: number) => new Date(Date.now() - ms).toISOString();
+    expect(component.relativeTime(ago(10 * 1000))).toBe('just now');
+    expect(component.relativeTime(ago(12 * 60000))).toBe('12m ago');
+    expect(component.relativeTime(ago(5 * 3600000))).toBe('5h ago');
+    expect(component.relativeTime('')).toBe('');
+  });
+
+  it('steps through results with the arrow keys and the pager', fakeAsync(() => {
+    runSearch('coffee', makeEntityResponse('coffee', {
+      results: [makeResult({ title: 'Result A' }), makeResult({ title: 'Result B', rank: 2 })],
+    }));
+
+    expect(component.pagerPrevious).toEqual({ label: 'Back', title: 'New search' });
+    // Arrow keys are ignored while an award overlay is up; the first search unlocks one.
+    component.dismissAwardUnlock();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+    harness.detectChanges();
+    expect(component.resultIndex).toBe(1);
+    expect(component.pagerPrevious).toEqual({ label: 'Previous', title: 'Result A' });
+    expect(component.pagerNext).toBeNull();
+
+    root().querySelector<HTMLButtonElement>('.find-pager__link--prev')!.click();
+    harness.detectChanges();
+    expect(component.resultIndex).toBe(0);
+  }));
+
+  it('shows a single Back pager with a label for weather', fakeAsync(() => {
+    runSearch('weather', makeWeatherResponse('weather'));
+
+    expect(root().querySelector('.find-pager__label')?.textContent).toContain('Weather');
+    expect(root().querySelector('.find-pager__link--next')).toBeNull();
+  }));
+
+  it('posts a rating from the one-row feedback footer', fakeAsync(() => {
+    runSearch('coffee', makeEntityResponse('coffee'));
+
+    root().querySelector<HTMLButtonElement>('.find-footer__pill')!.click();
+    const req = http.expectOne(r => r.url.endsWith('/find/feedback'));
+    expect(req.request.body.rating).toBe('excellent');
+    req.flush({});
+    harness.detectChanges();
+    expect(root().querySelector('.find-footer')?.textContent).toContain('Thanks for the feedback.');
+  }));
+
+  it('offers Visit site and Copy link on an ordinary web result', fakeAsync(() => {
+    runSearch('eiffel tower history', makeEntityResponse('eiffel tower history'));
+
+    expect(component.currentActions.map(a => a.shortLabel)).toEqual(['Site', 'Copy']);
+    expect(root().querySelector('.find-action--primary')?.getAttribute('href')).toBe('https://example.com/result');
+  }));
+
+  it('leads a place with Maps, then Call, Site and Copy', fakeAsync(() => {
+    runSearch('youngs restaurant', makeEntityResponse('youngs restaurant', {
+      queryType: 'local',
+      results: [makeResult({ title: "Young's Restaurant", phone: '(206) 555-0142', address: '9828 16th Ave SW, Seattle, WA 98106' })],
+    }));
+
+    const actions = component.currentActions;
+    expect(actions.map(a => a.shortLabel)).toEqual(['Go', 'Call', 'Site', 'Copy']);
+    expect(actions[0].href).toContain(encodeURIComponent('9828 16th Ave SW, Seattle, WA 98106'));
+    expect(actions[1].href).toBe('tel:2065550142');
+  }));
+
+  it('searches Maps by name and city when a place has hours but no address', fakeAsync(() => {
+    runSearch('youngs restaurant hours', makeEntityResponse('youngs restaurant hours', {
+      results: [makeResult({
+        title: "Young's Restaurant | Seattle, WA | View and Order Online",
+        summary: 'Hours: Tuesday: 8am - 8pm',
+        hours: { days: [{ day: 'Tuesday', periods: [{ open: '8am', close: '8pm' }] }] },
+      })],
+    }));
+
+    const maps = component.currentActions[0];
+    expect(maps.shortLabel).toBe('Go');
+    expect(maps.href).toContain(encodeURIComponent("Young's Restaurant Seattle, WA"));
+  }));
+
+  it('reads a street address and city from separate title segments', fakeAsync(() => {
+    runSearch('youngs restaurant', makeEntityResponse('youngs restaurant', {
+      results: [makeResult({ title: "Young's Restaurant - 9413 16th Ave SW - Restaurants - Seattle, WA - EverOut Seattle" })],
+    }));
+
+    expect(component.currentBusinessName).toBe("Young's Restaurant");
+    expect(component.currentBusinessAddress).toBe('9413 16th Ave SW, Seattle, WA');
+    expect(component.currentActions.map(a => a.shortLabel)).toEqual(['Go', 'Site', 'Copy']);
+  }));
+
+  it('does not mistake a numbered list title for an address', fakeAsync(() => {
+    runSearch('best pho', makeEntityResponse('best pho', {
+      results: [makeResult({ title: '10 Best Pho Spots - Seattle, WA - The Infatuation' })],
+    }));
+
+    expect(component.currentBusinessAddress).toBe('');
+    expect(component.currentActions.map(a => a.shortLabel)).toEqual(['Site', 'Copy']);
   }));
 });

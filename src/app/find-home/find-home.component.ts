@@ -1,16 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { FindSwipeDirective } from '../directives/find-swipe.directive';
 import { FindAward, FindAwardView, FindAwardsProgress, FindAwardsService } from '../services/find-awards.service';
-import { FindBusinessHours, FindBusinessHoursDay, FindConversionCategory, FindConversionResult, FindExperienceService, FindMovieRatings, FindRankedResult, FindSearchResponse, FindSourceType } from '../services/find-experience.service';
+import { FindBusinessHours, FindBusinessHoursDay, FindConversionCategory, FindConversionResult, FindExperienceService, FindFeedbackRating, FindMovieRatings, FindRankedResult, FindSearchResponse, FindSourceType, FindWeatherForecastDay } from '../services/find-experience.service';
 import { FindGyroscopeService, GyroTilt } from '../services/find-gyroscope.service';
 import { environment } from '../../environments/environment';
 import { AwardBadgeComponent } from '../shared/award-badge/award-badge.component';
 import { PlatformMenuComponent } from '../shared/platform-menu/platform-menu.component';
-import { FindFeedbackComponent } from '../shared/find-feedback/find-feedback.component';
 import { SeoService } from '../shared/seo.service';
 import { Title, Meta } from '@angular/platform-browser';
 
@@ -24,10 +23,28 @@ interface FindQuickAction {
   disabled?: boolean;
 }
 
+// One quick action on a result (Read, Copy link, ...). Desktop shows `label`
+// in the action bar; phones show `shortLabel` under the icon in a tile row.
+interface FindAction {
+  key: string;
+  label: string;
+  shortLabel: string;
+  icon: string;
+  href?: string;
+  copyText?: string;
+}
+
+interface FindPagerTarget {
+  label: string;
+  title: string;
+}
+
+type FindImageState = 'own' | 'fallback' | 'none';
+
 @Component( {
   selector: 'app-find-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent, FindFeedbackComponent],
+  imports: [CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
   templateUrl: './find-home.component.html',
   styleUrl: './find-home.component.css'
 } )
@@ -71,14 +88,14 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   private conversionBaseInputUnit = '';
   private conversionBaseOutputUnit = '';
   private conversionBaseRate: number | null = null;
-  readonly conversionKeypadDigits = [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' ];
+  readonly conversionKeypadDigits = [ '1', '2', '3', '4', '5', '6', '7', '8', '9' ];
   readonly quickActions: FindQuickAction[] = [
     { label: 'News', icon: 'fa-newspaper', color: 'news', query: "Today's News" },
     { label: 'Weather', icon: 'fa-sun', color: 'weather', query: 'weather' },
-    { label: 'Sports', icon: 'fa-futbol', color: 'sports', query: 'sports news' },
+    { label: 'Sports', icon: 'fa-trophy', color: 'sports', query: 'sports news' },
     { label: 'Conversion', icon: 'fa-arrow-right-arrow-left', color: 'conversion', query: '100 USD to EUR' },
     { label: 'Restaurants', icon: 'fa-utensils', color: 'restaurants', query: 'restaurants near me' },
-    { label: 'Events', icon: 'fa-calendar-days', color: 'events', query: 'events near me', disabled: true },
+    { label: 'Events', icon: 'fa-calendar', color: 'events', query: 'events near me', disabled: true },
   ];
 
   gyroEnabled = false;
@@ -90,6 +107,19 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   readonly year = new Date().getFullYear();
   readonly appVersion = String( environment.VERSION || '' ).trim();
   private readonly brokenImageUrls = new Set<string>();
+  readonly feedbackRatings: Array<{ value: FindFeedbackRating; label: string }> = [
+    { value: 'excellent', label: 'Excellent' },
+    { value: 'good', label: 'Good' },
+    { value: 'fair', label: 'Fair' },
+    { value: 'poor', label: 'Poor' },
+  ];
+  copiedActionKey = '';
+  private feedbackSentFor = '';
+  private copiedTimer: ReturnType<typeof setTimeout> | null = null;
+  private backspaceTimer: ReturnType<typeof setTimeout> | null = null;
+  private backspaceLongPressed = false;
+  // Logo colours, cycled across the pager's progress segments.
+  private readonly logoColors = [ 'var(--blue)', 'var(--cyan)', 'var(--yellow)', 'var(--pink)', 'var(--violet)' ];
 
   private readonly HISTORY_KEY = 'find-history';
   private readonly HISTORY_MAX = 20;
@@ -175,6 +205,21 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     this.gyroscope.disable();
     this.clearGyroTimer();
     this.stopLoadingTimer();
+    if ( this.copiedTimer !== null ) clearTimeout( this.copiedTimer );
+    this.cancelBackspacePress();
+  }
+
+  // ← / → step through results, the same as the pager's Previous / Next.
+  @HostListener( 'document:keydown', [ '$event' ] )
+  onDocumentKeydown ( event: KeyboardEvent ): void {
+    if ( event.key !== 'ArrowLeft' && event.key !== 'ArrowRight' ) return;
+    if ( event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ) return;
+    if ( ( this.activeView !== 'result' && this.activeView !== 'detail' ) || !this.result || this.isLoading || this.pendingAwardUnlock ) return;
+    const target = event.target as HTMLElement | null;
+    if ( target?.closest?.( 'input, textarea, select, [contenteditable="true"]' ) ) return;
+    event.preventDefault();
+    if ( event.key === 'ArrowLeft' ) this.onPreviousResult();
+    else this.onNextResult();
   }
 
   onSubmit (): void {
@@ -377,19 +422,32 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     return this.businessTitleParts.meta;
   }
 
+  private static readonly STREET_ADDRESS = /^\d{1,6}\s+[\w .'#-]*\b(?:St|Street|Ave|Avenue|Rd|Road|Blvd|Boulevard|Way|Dr|Drive|Ln|Lane|Pl|Place|Hwy|Highway|Pkwy|Parkway|Ct|Court|Ter|Terrace|Cir|Circle|Sq|Square)\b\.?(?:\s+(?:N|S|E|W|NE|NW|SE|SW))?$/i;
+  private static readonly CITY_STATE = /^[A-Za-z .'-]+, [A-Z]{2}(?: \d{5})?$/;
+
   private get businessTitleParts (): { name: string; address: string; meta: string[] } {
     const title = String( this.currentCard?.title || '' ).trim();
     const segments = title.split( /\s+-\s+/ ).map( segment => segment.trim() ).filter( Boolean );
     if ( segments.length < 2 ) return { name: title, address: '', meta: [] };
 
-    const addressIndex = segments.findIndex( segment => /^\d{1,6}\s+[^-]+,/.test( segment ) );
+    // A street address segment: "123 Main St, Seattle, WA", or just
+    // "9413 16th Ave SW" when the city comes in its own later segment
+    // ("... - Seattle, WA - ..."), as on listing sites like EverOut.
+    const addressIndex = segments.findIndex( segment =>
+      /^\d{1,6}\s+[^-]+,/.test( segment ) || FindHomeComponent.STREET_ADDRESS.test( segment ) );
     if ( addressIndex < 1 ) return { name: title, address: '', meta: [] };
+
+    let address = segments[addressIndex];
+    if ( !address.includes( ',' ) ) {
+      const city = segments.slice( addressIndex + 1 ).find( segment => FindHomeComponent.CITY_STATE.test( segment ) );
+      if ( city ) address = `${ address }, ${ city }`;
+    }
 
     const metadata = segments.slice( 1, addressIndex ).join( ' - ' );
     const meta = metadata.match( /Updated\s+[^&-]+|[\d,]+\s+Photos?|[\d,]+\s+Reviews?/gi ) || [];
     return {
       name: segments[0],
-      address: segments[addressIndex],
+      address,
       meta: meta.map( item => item.trim() )
     };
   }
@@ -409,49 +467,41 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     return String( day || '' ).toLowerCase() === today.toLowerCase() || String( day || '' ).toLowerCase() === today.slice( 0, 3 ).toLowerCase();
   }
 
-  get currentHasHeroImage (): boolean {
-    const fallback = this.fallbackHeroImage;
-    if ( fallback ) return !this.isImageBroken( fallback );
-    if ( this.isMovieMode ) {
-      return this.isUsableImage( this.movieRatings?.posterUrl || '' );
-    }
-    if ( this.isGroundedAnswerSlide ) {
-      return this.isUsableImage( this.result?.answer?.imageUrl || '' );
-    }
-    return this.isUsableImage( this.currentCard?.imageUrl || '' );
+  // Image rule (applies to every result type):
+  //   the result's own image      -> hero spot
+  //   Find's default artwork      -> small thumbnail, never the hero
+  //   no image                    -> text takes the full width
+  get imageState (): FindImageState {
+    if ( this.currentOwnImage ) return 'own';
+    if ( this.currentFallbackImage ) return 'fallback';
+    return 'none';
   }
 
-  get currentHeroImage (): string {
-    if ( this.fallbackHeroImage ) return this.fallbackHeroImage;
-    if ( this.isMovieMode ) {
-      return String( this.movieRatings?.posterUrl || '' ).trim();
-    }
-    if ( this.isGroundedAnswerSlide ) {
-      return String( this.result?.answer?.imageUrl || '' ).trim();
-    }
+  /** The result's own image, when it has a usable one that isn't Find's default artwork. */
+  get currentOwnImage (): string {
+    if ( this.isWeatherMode || this.isConversionMode ) return '';
+    const image = this.currentRawImage;
+    return this.isUsableImage( image ) && !this.isFindFallbackUrl( image ) ? image : '';
+  }
+
+  /** Find's own default artwork for this result. Only ever shown as a thumbnail. */
+  get currentFallbackImage (): string {
+    if ( this.isWeatherMode || this.isConversionMode || this.currentOwnImage ) return '';
+    const raw = this.currentRawImage;
+    const fallback = this.isFindFallbackUrl( raw ) ? raw : this.defaultFallbackImage;
+    return this.isUsableImage( fallback ) ? fallback : '';
+  }
+
+  private get currentRawImage (): string {
+    if ( this.isMovieMode ) return String( this.movieRatings?.posterUrl || '' ).trim();
+    if ( this.isGroundedAnswerSlide ) return String( this.result?.answer?.imageUrl || '' ).trim();
     return String( this.currentCard?.imageUrl || '' ).trim();
   }
 
-  // Our own /fallback/ artwork has a transparent canvas, whether the frontend
-  // picked it or the backend returned it as the answer image, so it skips the
-  // photo frame (border, radius, shadow).
-  get isFallbackHeroImage (): boolean {
-    if ( this.fallbackHeroImage ) return true;
-    const image = this.currentHeroImage;
-    if ( !image ) return false;
-    try {
-      const url = new URL( image, window.location.origin );
-      return url.pathname.startsWith( '/fallback/' ) &&
-        ( url.origin === window.location.origin || url.hostname === 'find.taliferro.tech' );
-    } catch {
-      return false;
+  private get defaultFallbackImage (): string {
+    if ( this.isHeadlineMode ) {
+      return this.headlineKind === 'news' ? '/fallback/find-news.png' : '/fallback/find-sports.png';
     }
-  }
-
-  private get fallbackHeroImage (): string {
-    if ( this.isWeatherMode ) return '/fallback/find-weather.png';
-    if ( this.isConversionMode ) return '/fallback/find-conversion.png';
-
     const searchText = [
       this.result?.query,
       this.result?.normalizedQuery,
@@ -461,6 +511,253 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     return /\b(sports?|nfl|nba|wnba|mlb|nhl|soccer|football|basketball|baseball|hockey)\b/.test( searchText )
       ? '/fallback/find-sports.png'
       : '';
+  }
+
+  // Our own /fallback/ artwork, whether the frontend picked it or the
+  // backend returned it as the result image.
+  private isFindFallbackUrl ( image: string ): boolean {
+    if ( !image ) return false;
+    try {
+      const url = new URL( image, typeof window === 'undefined' ? 'https://find.taliferro.tech' : window.location.origin );
+      const sameOrigin = typeof window !== 'undefined' && url.origin === window.location.origin;
+      return url.pathname.startsWith( '/fallback/' ) && ( sameOrigin || url.hostname === 'find.taliferro.tech' );
+    } catch {
+      return false;
+    }
+  }
+
+  // --- News / Sports headlines (hourly RSS snapshot) ---
+
+  get isHeadlineMode (): boolean {
+    const type = this.result?.queryType;
+    return !!this.result?.rssBacked || type === 'sports' || type === 'news';
+  }
+
+  get headlineKind (): 'sports' | 'news' {
+    return this.result?.queryType === 'news' ? 'news' : 'sports';
+  }
+
+  get currentHeadlineSource (): string {
+    return String( this.currentCard?.rssSource || this.currentCard?.displayUrl || '' ).trim();
+  }
+
+  /** "From CBS Sports, BBC Sport and Sky Sports · updated hourly" */
+  get headlineAttribution (): string {
+    const sources = Array.from( new Set(
+      this.allResults.map( card => String( card.rssSource || '' ).trim() ).filter( Boolean )
+    ) );
+    if ( !sources.length ) return 'Updated hourly';
+    const list = sources.length === 1
+      ? sources[0]
+      : `${ sources.slice( 0, -1 ).join( ', ' ) } and ${ sources[sources.length - 1] }`;
+    return `From ${ list } · updated hourly`;
+  }
+
+  /** "just now", "12m ago", "4h ago", "Yesterday", then a short date. */
+  relativeTime ( value: string | null | undefined ): string {
+    const time = new Date( String( value || '' ) ).getTime();
+    if ( !Number.isFinite( time ) ) return '';
+    const minutes = Math.floor( ( Date.now() - time ) / 60000 );
+    if ( minutes < 1 ) return 'just now';
+    if ( minutes < 60 ) return `${ minutes }m ago`;
+    const hours = Math.floor( minutes / 60 );
+    if ( hours < 24 ) return `${ hours }h ago`;
+    const yesterday = new Date();
+    yesterday.setDate( yesterday.getDate() - 1 );
+    if ( new Date( time ).toDateString() === yesterday.toDateString() ) return 'Yesterday';
+    return new Date( time ).toLocaleDateString( undefined, { month: 'short', day: 'numeric' } );
+  }
+
+  // --- Pager ---
+
+  /** Weather, conversion and movie answers are a single result: Back only, no segments. */
+  get isSingleResultMode (): boolean {
+    return this.isWeatherMode || this.isConversionMode || this.isMovieMode;
+  }
+
+  get pagerCenterLabel (): string {
+    if ( this.isWeatherMode ) return 'Weather';
+    if ( this.isConversionMode ) return this.conversionCategory === 'currency' ? 'Currency conversion' : 'Unit conversion';
+    if ( this.isMovieMode ) return 'Movie';
+    return '';
+  }
+
+  get pagerPrevious (): FindPagerTarget {
+    if ( this.isDetailView ) return { label: 'Back', title: 'All results' };
+    if ( this.viewingGroundedAnswer || this.isSingleResultMode ) return { label: 'Back', title: 'New search' };
+    if ( this.resultIndex === 0 ) {
+      return this.isQuestionMode && this.questionAnswerText
+        ? { label: 'Previous', title: 'Answer' }
+        : { label: 'Back', title: 'New search' };
+    }
+    return this.pagerTarget( 'Previous', this.allCards[this.resultIndex - 1] );
+  }
+
+  get pagerNext (): FindPagerTarget | null {
+    if ( this.isDetailView || this.isSingleResultMode ) return null;
+    const card = this.viewingGroundedAnswer ? this.allCards[0] : this.allCards[this.resultIndex + 1];
+    return card ? this.pagerTarget( 'Next', card ) : null;
+  }
+
+  /** Card shown after the current one, for the phone-only "Next" preview under a headline. */
+  get nextHeadlineCard (): FindRankedResult | null {
+    if ( !this.isHeadlineMode ) return null;
+    return this.allCards[this.resultIndex + 1] ?? null;
+  }
+
+  get pagerSegments (): Array<{ current: boolean; color: string }> {
+    const current = this.viewingGroundedAnswer ? -1 : this.resultIndex;
+    return this.allCards.map( ( _, index ) => ( {
+      current: index === current,
+      color: index <= current ? this.logoColors[index % this.logoColors.length] : 'var(--surface2)'
+    } ) );
+  }
+
+  private pagerTarget ( label: string, card: FindRankedResult ): FindPagerTarget {
+    const details = this.isHeadlineMode
+      ? [ String( card.rssSource || '' ).trim(), this.relativeTime( card.publishedAt ) ].filter( Boolean )
+      : [];
+    return { label: [ label, ...details ].join( ' · ' ), title: String( card.title || '' ).trim() };
+  }
+
+  // --- Actions ---
+
+  get currentActions (): FindAction[] {
+    if ( this.isConversionMode ) {
+      const text = this.conversionResultText;
+      return text ? [ { key: 'copy-result', label: 'Copy result', shortLabel: 'Copy', icon: 'fa-copy', copyText: text } ] : [];
+    }
+    if ( this.isHeadlineMode ) {
+      const url = String( this.currentCard?.url || '' ).trim();
+      if ( !url ) return [];
+      const source = this.currentHeadlineSource;
+      return [
+        { key: 'read', label: source ? `Read on ${ source }` : 'Read article', shortLabel: 'Read', icon: 'fa-arrow-up-right-from-square', href: url },
+        { key: 'copy-link', label: 'Copy link', shortLabel: 'Copy', icon: 'fa-copy', copyText: url },
+      ];
+    }
+    if ( this.isQuestionMode || this.isMovieMode || this.isWeatherMode || !this.currentCard ) return [];
+
+    // Any result with a link gets Visit site + Copy link; a place (hours,
+    // address, phone, or a local search) also gets Directions first, plus
+    // Call when there's a phone number - Go · Call · Site · Copy.
+    const actions: FindAction[] = [];
+    const mapsUrl = this.isPlaceResult ? this.directionsUrl : '';
+    if ( mapsUrl ) {
+      actions.push( { key: 'maps', label: this.currentBusinessAddress ? 'Directions' : 'Open in Maps', shortLabel: 'Go', icon: 'fa-location-arrow', href: mapsUrl } );
+    }
+    if ( this.currentBusinessPhone ) {
+      actions.push( { key: 'call', label: 'Call', shortLabel: 'Call', icon: 'fa-phone', href: this.currentBusinessPhoneHref } );
+    }
+    const url = String( this.currentCard.url || '' ).trim();
+    if ( /^https?:\/\//i.test( url ) ) {
+      actions.push( { key: 'site', label: 'Visit site', shortLabel: 'Site', icon: 'fa-globe', href: url } );
+      actions.push( { key: 'copy-link', label: 'Copy link', shortLabel: 'Copy', icon: 'fa-copy', copyText: url } );
+    }
+    return actions;
+  }
+
+  private get isPlaceResult (): boolean {
+    return this.isLocalMode || !!this.currentBusinessHours || !!this.currentBusinessAddress || !!this.currentBusinessPhone;
+  }
+
+  /** Apple Maps on Apple devices, Google Maps elsewhere: directions to the
+   *  address, or a search for the place name plus any "City, ST" in the title. */
+  private get directionsUrl (): string {
+    const address = this.currentBusinessAddress;
+    const query = address || this.mapsSearchQuery;
+    if ( !query ) return '';
+    const encoded = encodeURIComponent( query );
+    const isApple = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test( navigator.userAgent );
+    if ( isApple ) return address ? `https://maps.apple.com/?daddr=${ encoded }` : `https://maps.apple.com/?q=${ encoded }`;
+    return address
+      ? `https://www.google.com/maps/dir/?api=1&destination=${ encoded }`
+      : `https://www.google.com/maps/search/?api=1&query=${ encoded }`;
+  }
+
+  /** "Young's Restaurant | Seattle, WA | View and Order Online" -> "Young's Restaurant Seattle, WA". */
+  private get mapsSearchQuery (): string {
+    const segments = String( this.currentCard?.title || '' )
+      .split( /\s*[|–—]\s*|\s+-\s+/ )
+      .map( segment => segment.trim() )
+      .filter( Boolean );
+    if ( !segments.length ) return '';
+    const city = segments.slice( 1 ).find( segment => /^[A-Za-z .'-]+, [A-Z]{2}$/.test( segment ) );
+    return [ segments[0], city ].filter( Boolean ).join( ' ' );
+  }
+
+  trackAction ( _: number, action: FindAction ): string {
+    return action.key;
+  }
+
+  async copyAction ( action: FindAction ): Promise<void> {
+    if ( !action.copyText ) return;
+    try {
+      await navigator.clipboard.writeText( action.copyText );
+    } catch {
+      return;
+    }
+    this.copiedActionKey = action.key;
+    if ( this.copiedTimer !== null ) clearTimeout( this.copiedTimer );
+    this.copiedTimer = setTimeout( () => {
+      this.copiedActionKey = '';
+      this.copiedTimer = null;
+    }, 1500 );
+  }
+
+  // --- Compact feedback row ---
+
+  get feedbackSent (): boolean {
+    return !!this.feedbackSentFor && this.feedbackSentFor === this.feedbackKey;
+  }
+
+  sendFeedback ( rating: FindFeedbackRating ): void {
+    if ( this.feedbackSent ) return;
+    this.feedbackSentFor = this.feedbackKey;
+    this.findExperienceService.submitFeedback( {
+      rating,
+      query: String( this.result?.query || this.query || '' ).trim() || null,
+      queryType: this.result?.queryType || null,
+    } ).subscribe( { error: () => { } } );
+  }
+
+  private get feedbackKey (): string {
+    return String( this.result?.query || this.query || '' ).trim().toLowerCase();
+  }
+
+  // --- Weather ---
+
+  /** Font Awesome icon plus a colour tone (sun / cloud / rain / snow) for a condition. */
+  weatherIcon ( condition: string | null | undefined ): { icon: string; tone: string } {
+    const text = String( condition || '' ).toLowerCase();
+    if ( /thunder|storm/.test( text ) ) return { icon: 'fa-cloud-bolt', tone: 'rain' };
+    if ( /snow|sleet|flurr|ice|blizzard/.test( text ) ) return { icon: 'fa-snowflake', tone: 'snow' };
+    if ( /rain|shower|drizzle/.test( text ) ) return { icon: 'fa-cloud-rain', tone: 'rain' };
+    if ( /fog|haze|smoke|mist/.test( text ) ) return { icon: 'fa-smog', tone: 'cloud' };
+    if ( /partly|mostly sunny|mostly clear/.test( text ) ) return { icon: 'fa-cloud-sun', tone: 'sun' };
+    if ( /sun|clear|fair/.test( text ) ) return { icon: 'fa-sun', tone: 'sun' };
+    return { icon: 'fa-cloud', tone: 'cloud' };
+  }
+
+  /** "Saturday" -> "Sat", so day names fit the narrow forecast column. */
+  forecastDayLabel ( day: FindWeatherForecastDay ): string {
+    return String( day.label || day.date || '' ).replace( /\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*day\b/g, '$1' );
+  }
+
+  /** Position of a day's low→high bar within the whole forecast's range, in %. */
+  forecastBar ( day: FindWeatherForecastDay ): { left: number; width: number } | null {
+    const forecast = this.result?.weather?.forecast || [];
+    const temps = forecast
+      .flatMap( item => [ item.lowF, item.highF ] )
+      .filter( ( value ): value is number => typeof value === 'number' && Number.isFinite( value ) );
+    if ( !temps.length || typeof day.lowF !== 'number' || typeof day.highF !== 'number' ) return null;
+    const min = Math.min( ...temps );
+    const range = Math.max( ...temps ) - min;
+    if ( range <= 0 ) return { left: 0, width: 100 };
+    return {
+      left: ( day.lowF - min ) / range * 100,
+      width: Math.max( 4, ( day.highF - day.lowF ) / range * 100 )
+    };
   }
 
   isImageBroken ( url: string | null | undefined ): boolean {
@@ -550,6 +847,51 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     this.conversionOutputUnit = previousInput;
     this.refreshCurrencyRate();
     this.calculateConversion();
+  }
+
+  /** Backspace key: tap deletes one digit, a long press clears the amount. */
+  onBackspacePointerDown (): void {
+    this.cancelBackspacePress();
+    this.backspaceLongPressed = false;
+    this.backspaceTimer = setTimeout( () => {
+      this.backspaceLongPressed = true;
+      this.backspaceTimer = null;
+      this.clearConversionAmount();
+    }, 500 );
+  }
+
+  cancelBackspacePress (): void {
+    if ( this.backspaceTimer !== null ) {
+      clearTimeout( this.backspaceTimer );
+      this.backspaceTimer = null;
+    }
+  }
+
+  onBackspaceClick (): void {
+    this.cancelBackspacePress();
+    if ( this.backspaceLongPressed ) {
+      this.backspaceLongPressed = false;
+      return;
+    }
+    this.deleteConversionDigit();
+  }
+
+  /** Short unit shown in the unit pill: "USD", "°F", "km". */
+  conversionUnitShort ( unit: string ): string {
+    if ( this.conversionCategory === 'temperature' ) return `°${ unit }`;
+    return unit === 'l' ? 'L' : unit;
+  }
+
+  /** Full unit name shown under the amount: "US Dollar", "Kilometers". */
+  conversionUnitName ( unit: string ): string {
+    const option = this.conversionUnitOptions.find( item => item.value === unit );
+    return String( option?.label || unit ).replace( /\s*\([^)]*\)\s*$/, '' );
+  }
+
+  get conversionResultText (): string {
+    if ( this.conversionOutputAmount === null ) return '';
+    const output = Number( this.conversionOutputAmount.toFixed( 4 ) );
+    return `${ this.conversionAmount } ${ this.conversionUnitShort( this.conversionInputUnit ) } = ${ output } ${ this.conversionUnitShort( this.conversionOutputUnit ) }`;
   }
 
   get currentQuestionSourceUrl (): string {
@@ -1020,7 +1362,8 @@ export class FindHomeComponent implements OnInit, OnDestroy {
           if ( newlyUnlocked ) this.pendingAwardUnlock = newlyUnlocked;
           const isLocalResult = response?.queryType === 'local';
           const localHasRealWebsite = isLocalResult && !this.isGoogleMapsUrl( response.results?.[0]?.url );
-          if ( response?.queryType !== 'question' && response?.queryType !== 'weather' && response?.queryType !== 'conversion' && response?.queryType !== 'movie' && ( !isLocalResult || localHasRealWebsite ) ) {
+          // RSS headlines already carry the publisher's own summary.
+          if ( response?.queryType !== 'question' && response?.queryType !== 'weather' && response?.queryType !== 'conversion' && response?.queryType !== 'movie' && !this.isHeadlineMode && ( !isLocalResult || localHasRealWebsite ) ) {
             this.loadSummary();
           }
         },

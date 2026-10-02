@@ -184,7 +184,7 @@ describe( 'Find home - buttons and navigation', () => {
     cy.get( '[aria-label="Search Conversion"]' ).click();
     cy.wait( '@search' );
     cy.get( '.find-conversion-card' ).should( 'be.visible' );
-    cy.get( '.find-conversion-output' ).should( 'contain.text', '92' );
+    cy.get( '.find-conversion-card__amount--output' ).should( 'contain.text', '92' );
   } );
 
   it( 'requests geolocation and returns local results from the Restaurants quick action', () => {
