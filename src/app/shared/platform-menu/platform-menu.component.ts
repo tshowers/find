@@ -38,6 +38,7 @@ export class PlatformMenuComponent {
     { label: 'Find', url: 'https://find.taliferro.tech', icon: 'assets/find/entities/find/logo-bw-icon.png', description: 'Get to the answer faster.' },
     { label: 'Email Signature', url: 'https://signature.taliferro.tech', icon: 'assets/find/entities/email-signature-builder/logo-bw-icon.png', description: 'Make every email carry your brand.' },
     { label: 'Image Creator', url: 'https://images.taliferro.tech', icon: 'assets/find/entities/image-creator/logo-bw-icon.svg', description: 'Turn an idea into an image.' },
+    { label: 'Email Creator', url: 'https://emails.taliferro.tech', icon: 'assets/find/entities/email-creator/logo-bw-icon.svg', description: 'Design an email that looks the part.' },
     { label: 'Music', url: 'https://music.taliferro.com', icon: 'assets/find/entities/music/logo-bw-icon.png', description: 'Let the soundtrack keep moving.' },
   ];
 
