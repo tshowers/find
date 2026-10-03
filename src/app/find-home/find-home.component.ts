@@ -46,7 +46,12 @@ type FindImageState = 'own' | 'fallback' | 'none';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
   templateUrl: './find-home.component.html',
-  styleUrl: './find-home.component.css'
+  styleUrl: './find-home.component.css',
+  // The prerendered "/" always contains the home screen, but a `?query=` or
+  // `?q=` link (e.g. a Firefox search shortcut) boots straight into the
+  // result view. Hydration never removed the prerendered home screen, so both
+  // stacked and the result sat below the fold. Re-render on the client instead.
+  host: { ngSkipHydration: 'true' }
 } )
 export class FindHomeComponent implements OnInit, OnDestroy {
   query = '';
@@ -171,7 +176,9 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     this.routeSub = this.route.queryParamMap.subscribe( ( params ) => {
       // Support both the app's internal `query` parameter and browser search
       // shortcuts such as Firefox, which use the conventional `q` parameter.
-      const next = String( params.get( 'query' ) || params.get( 'q' ) || '' ).trim();
+      // `findQuery` is the home form's input name: a search submitted before
+      // the app boots falls back to a native GET with that parameter.
+      const next = String( params.get( 'query' ) || params.get( 'q' ) || params.get( 'findQuery' ) || '' ).trim();
       const nextContext = String( params.get( 'context' ) || '' ).trim();
       const requestedView = params.get( 'view' );
       this.isForwardedQuery = params.has( 'q' ) && !params.has( 'query' );
