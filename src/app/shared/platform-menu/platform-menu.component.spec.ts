@@ -7,20 +7,17 @@ describe('PlatformMenuComponent', () => {
   let component: PlatformMenuComponent;
 
   function trigger(): HTMLButtonElement {
-    return fixture.nativeElement.querySelector('.platform-menu-trigger');
+    return fixture.nativeElement.querySelector('.um-trigger');
   }
 
-  function panel(): HTMLElement {
-    return fixture.nativeElement.querySelector('.platform-menu-panel');
+  // While open, the overlay is moved to <body> so nothing on the page can cover it.
+  function panel(): HTMLElement | null {
+    return document.body.querySelector('.um-panel');
   }
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [PlatformMenuComponent],
-      // The component now uses RouterModule for the Search/Help/About
-      // links (routerLink), which needs a Router/ActivatedRoute available
-      // in the injector — an empty route config is enough for these tests,
-      // which never actually navigate.
       providers: [provideRouter([])],
     });
     fixture = TestBed.createComponent(PlatformMenuComponent);
@@ -28,36 +25,52 @@ describe('PlatformMenuComponent', () => {
     fixture.detectChanges();
   });
 
-  it('opens the product launcher panel when the menu button is clicked', () => {
+  afterEach(() => {
+    component?.close();
+    fixture?.detectChanges();
+  });
+
+  it('opens the menu when the Menu button is clicked', () => {
     expect(component.isOpen).toBeFalse();
-    expect(panel().classList).not.toContain('platform-menu-panel--open');
+    expect(panel()).toBeNull();
 
     trigger().click();
     fixture.detectChanges();
 
     expect(component.isOpen).toBeTrue();
     expect(trigger().getAttribute('aria-expanded')).toBe('true');
-    expect(panel().classList).toContain('platform-menu-panel--open');
+    expect(panel()).not.toBeNull();
   });
 
-  it('closes the panel when the menu button is clicked again', () => {
-    trigger().click();
+  it('closes when the backdrop behind the panel is clicked', () => {
+    component.open();
     fixture.detectChanges();
-    trigger().click();
+
+    (document.body.querySelector('.um-backdrop') as HTMLElement).click();
     fixture.detectChanges();
 
     expect(component.isOpen).toBeFalse();
-    expect(panel().classList).not.toContain('platform-menu-panel--open');
+    expect(panel()).toBeNull();
   });
 
-  it('closes the panel when the overlay behind it is clicked', () => {
-    trigger().click();
+  it('toggles with Command-K and closes with Escape', () => {
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
     fixture.detectChanges();
+    expect(component.isOpen).toBeTrue();
 
-    const overlay: HTMLElement = fixture.nativeElement.querySelector('.platform-menu-overlay');
-    overlay.click();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     fixture.detectChanges();
-
     expect(component.isOpen).toBeFalse();
+  });
+
+  it('lists the other products but not Find itself', () => {
+    const labels = component.products.map((product) => product.label);
+    expect(labels).toContain('Outreach');
+    expect(labels).not.toContain('Find');
+  });
+
+  it('filters products by the search query', () => {
+    component.query = 'pul';
+    expect(component.visibleProducts.map((product) => product.label)).toEqual(['Pulse']);
   });
 });

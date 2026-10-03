@@ -2,13 +2,12 @@ import { NgIf } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { environment } from '../environments/environment';
-import { CommandPaletteComponent } from './shared/page/command-palette/command-palette.component';
 import { UpdateBannerComponent } from './shared/update-banner/update-banner.component';
 import { VersionUpdateService } from './shared/version-update/version-update.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommandPaletteComponent, UpdateBannerComponent, NgIf],
+  imports: [RouterOutlet, UpdateBannerComponent, NgIf],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
