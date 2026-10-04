@@ -6,31 +6,9 @@
 /* Logo colours on white / near-black, following prefers-color-scheme.
    See docs/design_handoff_find_results/README.md. */
 .find-page {
-  --bg: #ffffff;
-  --surface: #f2f3f6;
-  --surface2: #e4e7ed;
-  --text: #0f1115;
-  --muted: #5a6170;
-  --blue: #2f6bff;
-  --blue-ink: #1f55e0;
-  --cyan: #1fc8ec;
-  --yellow: #ffd92e;
-  --pink: #ff4fa8;
-  --violet: #a259ff;
-  --t-blue: #e3ecff;
-  --t-blue-fg: #1d4fd6;
-  --t-cyan: #daf6fc;
-  --t-cyan-fg: #08657d;
-  --t-pink: #ffe3f1;
-  --t-pink-fg: #a8105a;
-  --t-violet: #efe5ff;
-  --t-violet-fg: #6427c9;
-  --t-yellow: #fff4c2;
-  --t-yellow-fg: #6e5700;
-  --t-green: #e0f6e6;
-  --t-green-fg: #17703a;
-  --shadow: 0 20px 50px rgba(15, 17, 21, .12);
-  --find-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  /* The Find family tokens (--bg, --surface, --blue, --t-*...) come from
+     @taliferro/ui/styles/tokens.css, imported in styles.css. */
+  --find-font: var(--font);
   --find-highlight-red: #d0021b;
   --find-hairline: var(--surface2);
 
@@ -64,26 +42,6 @@
 
 @media (prefers-color-scheme: dark) {
   .find-page {
-    --bg: #0c0e13;
-    --surface: #171a22;
-    --surface2: #242936;
-    --text: #f2f4f8;
-    --muted: #9aa2b2;
-    --blue: #3d7bff;
-    --blue-ink: #86aeff;
-    --t-blue: #15254a;
-    --t-blue-fg: #a3c1ff;
-    --t-cyan: #0c2d35;
-    --t-cyan-fg: #74e4f8;
-    --t-pink: #3a1029;
-    --t-pink-fg: #ff92c9;
-    --t-violet: #2a1847;
-    --t-violet-fg: #cdaaff;
-    --t-yellow: #2f2906;
-    --t-yellow-fg: #ffe56a;
-    --t-green: #0e2c19;
-    --t-green-fg: #80e2a4;
-    --shadow: 0 20px 50px rgba(0, 0, 0, .55);
     --find-highlight-red: #ff5a5f;
   }
 }

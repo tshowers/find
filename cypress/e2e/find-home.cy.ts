@@ -151,7 +151,7 @@ describe( 'Find home - buttons and navigation', () => {
   it( 'opens the platform menu from the search screen', () => {
     cy.visit( '/' );
     cy.get( '.platform-menu-trigger' ).click();
-    cy.get( '.platform-menu-panel' ).should( 'have.class', 'platform-menu-panel--open' );
+    cy.get( '.um-panel[role="dialog"]' ).should( 'be.visible' );
   } );
 
   // --- 2-6. The five quick-action chips ---

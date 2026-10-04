@@ -10,7 +10,7 @@
     <section class="um-panel" role="dialog" aria-modal="true" [attr.aria-label]="config.name + ' menu'" (click)="$event.stopPropagation()">
       <header class="um-head">
         <a class="um-brand" [routerLink]="'/'" (click)="close()">
-          <img [src]="config.logo" alt="" />
+          <span class="um-logo" [attr.data-app]="config.app" aria-hidden="true"></span>
           <span>{{ config.name }}</span>
         </a>
         <label class="um-search">

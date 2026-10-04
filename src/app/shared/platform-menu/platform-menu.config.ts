@@ -4,7 +4,6 @@ import { MenuAppConfig } from '@taliferro/ui/platform/universal-menu.model';
 export const PLATFORM_MENU_CONFIG: MenuAppConfig = {
   app: 'find',
   name: 'Find',
-  logo: 'assets/find/entities/find/logo.png',
   items: [
     { label: 'Search', icon: 'search', route: '/' },
   ],
