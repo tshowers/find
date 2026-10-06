@@ -326,6 +326,53 @@
 .find-app-store-badge small { font-size: 10px; }
 .find-app-store-badge strong { font-size: 16px; font-weight: 700; }
 
+/* Powered by TODD · Also from us — mirrors the Outreach landing byline. */
+.made-by {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.made-by strong { color: var(--text); }
+
+.made-by a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.made-by a:hover strong { text-decoration: underline; }
+
+/* TODD's mark sits in a small white circle. */
+.made-by__todd {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-right: 4px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--surface2);
+}
+
+.made-by__todd img { border-radius: 50%; }
+
+.made-by > i {
+  width: 3px;
+  height: 3px;
+  margin: 0 8px;
+  border-radius: 50%;
+  background: var(--muted);
+  opacity: .6;
+}
+
 @media (max-width: 600px) {
   .find-search-screen {
     justify-content: flex-start;
