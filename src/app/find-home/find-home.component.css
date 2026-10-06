@@ -373,6 +373,9 @@
   opacity: .6;
 }
 
+/* Crop square logos to a circle so they match TODD and Maya. */
+.made-by__round { border-radius: 50%; object-fit: cover; }
+
 /* Third byline item only fits on wider screens. */
 @media (max-width: 600px) {
   .made-by .made-by__wide { display: none; }
