@@ -1,0 +1,62 @@
+:host {
+  display: block;
+}
+
+.not-found-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 5rem 1.5rem;
+  text-align: center;
+}
+
+.not-found-eyebrow {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #0095cc;
+  margin-bottom: 0.75rem;
+}
+
+.not-found-shell h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0 0 0.75rem;
+}
+
+.not-found-shell p {
+  color: rgba(15, 15, 15, 0.6);
+  margin: 0 0 1.75rem;
+}
+
+.not-found-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-todd {
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 149, 204, 0.3);
+  background: #fff;
+  color: #0095cc;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-flex;
+}
+
+.btn-todd:hover {
+  background: rgba(0, 149, 204, 0.08);
+}
+
+.btn-todd--primary {
+  background: #0095cc;
+  color: #fff;
+  border-color: #0095cc;
+}
+
+.btn-todd--primary:hover {
+  background: #0080b3;
+}
