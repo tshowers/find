@@ -120,7 +120,7 @@ describe('FindExperienceService', () => {
     expect(response.conversion.category).toBe('currency');
     expect(response.conversion.outputAmount).toBeCloseTo(15621.7, 1);
     expect(response.conversion.rate).toBeCloseTo(156.217, 3);
-    expect(response.conversion.source).toBe('Find answer');
+    expect(response.conversion.source).toBe('Find results');
   });
 
 });

@@ -663,30 +663,6 @@
   text-decoration: underline;
 }
 
-/* Grid header's back button (kept from the original shelf). */
-.find-grid-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border: 0;
-  background: transparent;
-  color: var(--todd-panel-subtext);
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 6px 0;
-  line-height: 1;
-  flex-shrink: 0;
-  min-width: 64px;
-}
-
-.find-nav-chevron {
-  font-size: 1.7rem;
-  font-weight: 200;
-  line-height: 0.8;
-  margin-top: -3px;
-}
-
 /* ── RESULT FRAME: body + common type pieces ────────────────── */
 .find-body {
   padding: 36px 40px 8px;
@@ -759,6 +735,30 @@
   line-height: 1.6;
   color: var(--text);
   text-wrap: pretty;
+}
+
+/* TODD summary: sits under the result's own details as an addition. */
+.find-ai-summary {
+  max-width: 720px;
+  margin-top: 4px;
+  padding: 16px 20px;
+  border-radius: 20px;
+  background: var(--t-violet);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.find-ai-summary__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  color: var(--t-violet-fg);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
 }
 
 .find-media--fallback.find-media--headline .find-card-summary,
@@ -1801,193 +1801,7 @@
   .find-hours-card__day { grid-template-columns: 88px minmax(0, 1fr); font-size: 14px; }
 }
 
-/* ── GRID VIEW ───────────────────────────────────────────────── */
-.find-grid-screen {
-  padding: 20px 16px;
-  box-sizing: border-box;
-}
-
-.find-grid-count {
-  font-size: 0.82rem;
-  color: var(--todd-panel-subtext);
-  font-weight: 600;
-}
-
-/* Two-column result grid keeps the mobile browsing density high. */
-/* Original grid: equal boxes separated by hairlines, 2 up on phones and
-   3 up on tablets/laptops inside a centered container. */
-.find-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
-  max-width: 960px;
-  margin: 0 auto;
-  background: var(--find-hairline);
-  border: 1px solid var(--find-hairline);
-}
-
-@media (min-width: 768px) {
-  .find-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-.find-load-more {
-  display: block;
-  width: min(100%, 1200px);
-  margin: 16px auto 0;
-  border: 1px solid var(--todd-panel-border);
-  background: transparent;
-  color: var(--color-primary);
-  font-size: 0.88rem;
-  font-weight: 700;
-  padding: 12px 16px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.16s;
-}
-
-.find-load-more:hover {
-  background: var(--color-primary-disabled);
-}
-
-.find-grid-tile {
-  display: flex;
-  flex-direction: column;
-  aspect-ratio: 1 / 1.15;
-  min-width: 0;
-  text-decoration: none;
-  background: var(--todd-panel-bg);
-  overflow: hidden;
-  padding: 0;
-  text-align: left;
-  cursor: pointer;
-  transition: background 0.14s ease;
-}
-
-.find-grid-tile--current {
-  box-shadow: inset 0 0 0 2px var(--todd-panel-text);
-}
-
-.find-grid-tile:hover {
-  background: var(--todd-surface-1);
-}
-
-/* Image fills the top of the box */
-.find-grid-tile__media {
-  flex: 0 0 55%;
-  overflow: hidden;
-  background: var(--todd-surface-1);
-}
-
-.find-grid-tile__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-}
-
-/* Text below the image, or the whole box (from the top) when there is none */
-.find-grid-tile__body {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 8px 10px 10px;
-  overflow: hidden;
-}
-
-.find-grid-tile__body--full {
-  padding: 12px 12px 10px;
-  justify-content: flex-start;
-}
-
-.find-grid-tile h3 {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  line-height: 1.25;
-  color: var(--todd-panel-text);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-/* The summary takes whatever room the box has left after the headline and
-   fades out at the bottom, so it never runs into the domain line no matter
-   how long the headline is. */
-.find-grid-tile__desc {
-  flex: 1 1 0;
-  min-height: 0;
-  margin: 0;
-  font-size: 0.82rem;
-  line-height: 1.4;
-  color: var(--todd-panel-subtext);
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.4em), transparent);
-  mask-image: linear-gradient(to bottom, #000 calc(100% - 1.4em), transparent);
-}
-
-.find-grid-tile__source {
-  flex-shrink: 0;
-  margin-top: auto;
-  font-size: 0.68rem;
-  color: var(--todd-panel-subtext);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.find-grid-tile__address,
-.find-grid-tile__phone {
-  flex-shrink: 0;
-  margin: 0;
-  font-size: 0.78rem;
-  line-height: 1.4;
-  color: var(--todd-panel-subtext);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-@media (min-width: 768px) {
-  .find-grid-tile h3 {
-    font-size: 1.05rem;
-  }
-
-  .find-grid-tile__desc {
-    font-size: 0.88rem;
-  }
-
-}
-
-/* Phones: grid runs edge to edge like the original */
-@media (max-width: 600px) {
-  .find-grid {
-    margin: 0 -10px;
-    border-left: 0;
-    border-right: 0;
-  }
-}
-
-@media (max-width: 600px) {
-  .find-grid-screen {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-}
-
-/* Query terms in red, as in the original release. The spans are injected via
-   [innerHTML], so they need ::ng-deep to receive this component's styles. */
-:host ::ng-deep .find-highlight {
-  color: var(--find-highlight-red);
-  font-weight: inherit;
-}
+/* ── GRID VIEW: see find-home.grid.css ──────────────────────── */
 
 /* ── HISTORY VIEW ───────────────────────────────────────────── */
 .find-history-screen,
@@ -2000,34 +1814,6 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-}
-
-/* Grid's header stays pinned while its results scroll underneath, same as
-   the result shelf - it sits inside a padded parent, so pull it flush to
-   the true edges with negative margins, then restore spacing internally. */
-.find-screen-header--grid {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  margin: -20px -16px 16px;
-  padding: 14px 16px;
-  background: var(--todd-panel-bg);
-  border-bottom: 1px solid var(--todd-panel-border);
-}
-
-/* Match the narrower phone padding (.find-grid-screen) so the pinned header
-   doesn't overflow the viewport sideways. */
-@media (max-width: 600px) {
-  .find-screen-header--grid {
-    margin-left: -10px;
-    margin-right: -10px;
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-}
-
-.find-grid-back:hover {
-  color: var(--todd-panel-text);
 }
 
 .find-screen-header h2 {

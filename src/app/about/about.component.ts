@@ -2,13 +2,13 @@ import { DOCUMENT } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
-import { PlatformMenuComponent } from '../shared/platform-menu/platform-menu.component';
+import { SiteHeaderComponent } from '../shared/site-header/site-header.component';
 import { SeoService } from '../shared/seo.service';
 
 @Component({
   selector: 'app-find-about',
   standalone: true,
-  imports: [RouterLink, PlatformMenuComponent],
+  imports: [RouterLink, SiteHeaderComponent],
   templateUrl: './about.component.html',
   styleUrl: './about.component.css',
 })
@@ -25,7 +25,7 @@ export class AboutComponent implements OnInit, OnDestroy {
 
   ngOnInit (): void {
     const pageTitle = 'About Find | Taliferro Tech';
-    const description = 'Find is Taliferro Tech\'s search and answer application: the strongest result first, with context when you need it.';
+    const description = 'Find is Taliferro Tech\'s search and results application: the strongest result first, with context when you need it.';
     this.title.setTitle( pageTitle );
     this.meta.updateTag( { name: 'description', content: description } );
     this.meta.updateTag( { property: 'og:title', content: pageTitle } );
@@ -61,9 +61,9 @@ export class AboutComponent implements OnInit, OnDestroy {
           '@id': 'https://find.taliferro.tech/#software',
           name: 'Find',
           url: 'https://find.taliferro.tech/',
-          description: 'Find is a search and answer application that puts the strongest result first, with context, alternatives, and source material when you need it.',
+          description: 'Find is a search and results application that puts the strongest result first, with context, alternatives, and source material when you need it.',
           applicationCategory: 'SearchApplication',
-          applicationSubCategory: 'Answer engine',
+          applicationSubCategory: 'Search engine',
           operatingSystem: 'Web, iOS',
           isAccessibleForFree: true,
           image: 'https://find.taliferro.tech/assets/seo/find-card.webp',

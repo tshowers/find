@@ -42,22 +42,7 @@
   <!-- ── RESULT VIEW ──────────────────────────────────────────── -->
   <div class="find-result-screen" data-cy="find-result-shell" *ngIf="activeView === 'result' || activeView === 'detail'">
     <!-- Header: logo + persistent search, so a new search never needs Home. -->
-    <header class="find-header">
-      <button type="button" class="find-header__brand" (click)="resetToSearch()" aria-label="Find home">
-        <img src="assets/find-logo.png" alt="" />
-        <span>Find</span>
-      </button>
-      <form class="find-header__form" (ngSubmit)="onSubmit()">
-        <label class="find-header__field" [class.find-header__field--loading]="isLoading">
-          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          <input id="findResultQuery" name="findResultQuery" type="search" [ngModel]="result ? '' : query" (ngModelChange)="onResultQueryChange($event)" placeholder="Search for anything…" aria-label="Search" autocomplete="off" enterkeyhint="search" [disabled]="isLoading" />
-        </label>
-        <button type="submit" class="find-submit find-submit--header" [disabled]="isLoading">
-          <span *ngIf="!isLoading">Find</span>
-          <span class="find-spinner" *ngIf="isLoading" aria-label="Searching…"></span>
-        </button>
-      </form>
-    </header>
+    <ng-container *ngTemplateOutlet="resultHeader"></ng-container>
     <div class="find-result-loading" *ngIf="isLoading">
       <span class="find-spinner find-spinner--lg" aria-hidden="true"></span>
       <p>Finding the strongest result… {{ liveElapsedSeconds }}s</p>
@@ -80,7 +65,7 @@
               <span *ngFor="let segment of pagerSegments" class="find-pager__segment" [class.find-pager__segment--current]="segment.current" [style.background]="segment.color"></span>
             </div>
             <span class="find-pager__count">
-              <ng-container *ngIf="viewingGroundedAnswer; else pagerCount">Answer</ng-container>
+              <ng-container *ngIf="viewingGroundedAnswer; else pagerCount">Results</ng-container>
               <ng-template #pagerCount><b>{{ resultIndex + 1 }}</b> of {{ allCards.length }}</ng-template>
               <ng-container *ngIf="!isDetailView && allCards.length > 1"> · <button type="button" class="find-pager__see-all" (click)="setView('booklet')">See all</button></ng-container>
             </span>
@@ -285,6 +270,7 @@
                     <p class="find-hours-card__note" *ngFor="let note of hours.holidayNotes">{{ note }}</p>
                   </div>
                   <div class="find-card-summary find-rich-text" *ngIf="!currentHoursFromSummary" [innerHTML]="formatRichText(currentAnswerText)"></div>
+                  <ng-container *ngTemplateOutlet="aiSummaryBox"></ng-container>
                   <p class="find-local-attribution" *ngIf="isLocalMode">
                     Business details powered by <a href="https://www.google.com/" target="_blank" rel="noopener">Google</a>
                   </p>
@@ -302,6 +288,7 @@
                       <ng-template #plainQuestionTitle>{{ currentQuestionTitle }}</ng-template>
                     </h2>
                     <div class="find-card-summary find-card-summary--answer find-rich-text" [innerHTML]="formatRichText(currentQuestionText)"></div>
+                    <ng-container *ngIf="!isGroundedAnswerSlide"><ng-container *ngTemplateOutlet="aiSummaryBox"></ng-container></ng-container>
                   </div>
 
                   <div class="find-question-sources" *ngIf="isGroundedAnswerSlide && questionReferences.length > 0">
@@ -354,8 +341,8 @@
               {{ responseSeconds }}s total<ng-container *ngIf="timings.candidateCount > 0"> · {{ timings.candidateCount }} candidates</ng-container>
               <ng-container *ngIf="timings.enrichedCount > 0"> · {{ timings.enrichedCount }} pages checked</ng-container>
               <ng-container *ngIf="currentCard?.isFirstParty"> · official Taliferro knowledge</ng-container>
-              <ng-container *ngIf="currentCard?.answer && !currentCard?.isFirstParty && !isQuestionMode"> · TODD summary</ng-container>
-              <ng-container *ngIf="isQuestionMode"> · {{ isGroundedAnswerSlide ? 'grounded answer' : 'supporting result' }}</ng-container>
+              <ng-container *ngIf="(currentCard?.answer || currentCard?.aiSummary) && !currentCard?.isFirstParty && !isQuestionMode"> · TODD summary</ng-container>
+              <ng-container *ngIf="isQuestionMode"> · {{ isGroundedAnswerSlide ? 'results summary' : 'supporting result' }}</ng-container>
             </ng-container>
           </ng-template>
         </span>
@@ -363,6 +350,32 @@
     </ng-container>
   </div>
 
+  <!-- TODD summary: added under the result's own details, never in place of them. -->
+  <ng-template #aiSummaryBox>
+    <aside class="find-ai-summary" *ngIf="currentCard?.aiSummary as aiSummary" aria-label="TODD summary">
+      <span class="find-ai-summary__label"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> TODD summary</span>
+      <div class="find-rich-text" [innerHTML]="formatRichText(aiSummary)"></div>
+    </aside>
+  </ng-template>
+  <!-- Result header: logo + persistent search, shared by the result and grid views. -->
+  <ng-template #resultHeader>
+    <header class="find-header">
+      <button type="button" class="find-header__brand" (click)="resetToSearch()" aria-label="Find home">
+        <img src="assets/find-logo.png" alt="" />
+        <span>Find</span>
+      </button>
+      <form class="find-header__form" (ngSubmit)="onSubmit()">
+        <label class="find-header__field" [class.find-header__field--loading]="isLoading">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input id="findResultQuery" name="findResultQuery" type="search" [ngModel]="result ? '' : query" (ngModelChange)="onResultQueryChange($event)" placeholder="Search for anything…" aria-label="Search" autocomplete="off" enterkeyhint="search" [disabled]="isLoading" />
+        </label>
+        <button type="submit" class="find-submit find-submit--header" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Find</span>
+          <span class="find-spinner" *ngIf="isLoading" aria-label="Searching…"></span>
+        </button>
+      </form>
+    </header>
+  </ng-template>
   <!-- Action bar (desktop) / action tiles (phones). First action is primary. -->
   <ng-template #actionBar>
     <div class="find-actions" *ngIf="currentActions.length">
@@ -382,27 +395,58 @@
       </ng-container>
     </div>
   </ng-template>
-  <!-- ── GRID VIEW (all results as tiles) ──────────────────────── -->
+  <!-- ── GRID VIEW (all results) ────────────────────────────────── -->
+  <!-- docs/design_handoff_find_grid_about_help: one card, four layouts by
+       screen size. x-large = 4a (source plate), large = 4b (text first),
+       medium = 4c (ranked list), phone = 4d. The card carries every piece
+       and the CSS shows the ones each layout uses. -->
   <div class="find-grid-screen" data-cy="find-grid-shell" *ngIf="activeView === 'booklet' && result">
-    <div class="find-screen-header find-screen-header--grid">
-      <button type="button" class="find-grid-back" (click)="setView('booklet')" aria-label="Back to result"><span class="find-nav-chevron" aria-hidden="true">‹</span> Back</button>
-      <span class="find-grid-count">{{ totalResultCount }} found</span>
+    <ng-container *ngTemplateOutlet="resultHeader"></ng-container>
+    <div class="find-grid-wrap">
+      <nav class="find-pager find-grid-bar" aria-label="All results">
+        <button type="button" class="find-pager__link find-pager__link--prev" (click)="setView('booklet')" [attr.aria-label]="'Back to result ' + (resultIndex + 1)">
+          <span class="find-pager__circle" aria-hidden="true"><i class="fa-solid fa-chevron-left"></i></span>
+          <span class="find-pager__text">
+            <small>Back</small>
+            <strong>To result {{ resultIndex + 1 }}</strong>
+          </span>
+        </button>
+        <span class="find-grid-count"><b>{{ totalResultCount }} found</b><span class="find-grid-count__query"> for {{ result.query || query }}</span></span>
+        <span class="find-pager__spacer" aria-hidden="true"></span>
+      </nav>
+      <div class="find-grid">
+        <a *ngFor="let card of gridCards; let i = index" [href]="card.url" target="_blank" rel="noopener noreferrer" class="find-grid-card"
+           [class.find-grid-card--current]="i === resultIndex"
+           [class.find-grid-card--image]="card.imageUrl && !isImageBroken(card.imageUrl)">
+          <div class="find-grid-card__media">
+            <img *ngIf="card.imageUrl && !isImageBroken(card.imageUrl); else sourcePlate" [src]="card.imageUrl" alt="" loading="lazy" (error)="onImageError(card.imageUrl)" />
+            <ng-template #sourcePlate>
+              <div class="find-grid-card__plate" [ngClass]="'find-grid-card__plate--' + sourceTint(card.displayUrl)">
+                <span class="find-grid-card__kind" *ngIf="sourceKind(card) as kind">{{ kind }}</span>
+                <span class="find-grid-card__plate-domain">{{ card.displayUrl }}</span>
+              </div>
+            </ng-template>
+          </div>
+          <span class="find-grid-card__rank" aria-hidden="true">{{ twoDigitRank(i) }}</span>
+          <div class="find-grid-card__body">
+            <div class="find-grid-card__meta">
+              <b class="find-grid-card__num">#{{ i + 1 }}</b>
+              <b class="find-grid-card__badge" aria-hidden="true">{{ twoDigitRank(i) }}</b>
+              <span class="find-grid-card__domain">{{ card.displayUrl }}</span>
+              <span class="find-grid-card__current" *ngIf="i === resultIndex">Current</span>
+            </div>
+            <h3 class="find-grid-card__title" [innerHTML]="highlightTerms(card.title)"></h3>
+            <p *ngIf="card.summary" class="find-grid-card__summary" [innerHTML]="highlightTerms(card.summary)"></p>
+            <p *ngIf="card.address || card.phone" class="find-grid-card__contact">
+              <span *ngIf="card.address">{{ card.address }}</span>
+              <b *ngIf="card.phone">{{ card.phone }}</b>
+            </p>
+          </div>
+          <img *ngIf="card.imageUrl && !isImageBroken(card.imageUrl)" class="find-grid-card__thumb" [src]="card.imageUrl" alt="" loading="lazy" (error)="onImageError(card.imageUrl)" />
+        </a>
+      </div>
+      <button type="button" class="find-load-more" *ngIf="hasMoreGridResults" (click)="loadMoreGridResults()">Load more ({{ totalResultCount - gridVisibleCount }} remaining)</button>
     </div>
-    <div class="find-grid">
-      <a *ngFor="let card of gridCards; let i = index" [href]="card.url" target="_blank" rel="noopener noreferrer" class="find-grid-tile" [class.find-grid-tile--current]="i === resultIndex">
-        <div class="find-grid-tile__media" *ngIf="card.imageUrl && !isImageBroken(card.imageUrl)">
-          <img [src]="card.imageUrl" [alt]="card.title" class="find-grid-tile__img" (error)="onImageError(card.imageUrl)" />
-        </div>
-        <div class="find-grid-tile__body" [class.find-grid-tile__body--full]="!card.imageUrl || isImageBroken(card.imageUrl)">
-          <h3 [innerHTML]="highlightTerms(card.title)"></h3>
-          <p *ngIf="card.summary" class="find-grid-tile__desc" [innerHTML]="highlightTerms(card.summary)"></p>
-          <p *ngIf="card.address" class="find-grid-tile__address">{{ card.address }}</p>
-          <p *ngIf="card.phone" class="find-grid-tile__phone">{{ card.phone }}</p>
-          <span class="find-grid-tile__source">{{ card.displayUrl }}</span>
-        </div>
-      </a>
-    </div>
-    <button type="button" class="find-load-more" *ngIf="hasMoreGridResults" (click)="loadMoreGridResults()">Load more ({{ totalResultCount - gridVisibleCount }} remaining)</button>
   </div>
   <!-- ── HISTORY VIEW ─────────────────────────────────────────── -->
   <div class="find-history-screen" data-cy="find-history-shell" *ngIf="activeView === 'history'">
@@ -451,7 +495,7 @@
       <div class="find-info-card">
         <span class="find-info-num">04</span>
         <h3>The philosophy</h3>
-        <p>Most search tools optimize for clicks. Find optimizes for answers. We believe the best search experience ends with you knowing something — not choosing between 10 links that might.</p>
+        <p>Most search tools optimize for clicks. Find optimizes for the right result. We believe the best search experience ends with you knowing something — not choosing between 10 links that might.</p>
       </div>
       <div class="find-info-card">
         <span class="find-info-num">05</span>
@@ -525,15 +569,15 @@
     </div>
     <!-- Tab bar -->
     <div class="find-tab-bar" role="tablist">
-      <!-- In the grid, the grid button becomes Home so there's an obvious way back to a new search -->
+      <!-- In All results, the All button becomes Home so there's an obvious way back to a new search -->
       <button type="button" class="find-tab" *ngIf="activeView === 'booklet'; else gridTab" role="tab" aria-label="Home" (click)="resetToSearch()">
         <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
         <span class="find-tab__label">Home</span>
       </button>
       <ng-template #gridTab>
-        <button type="button" class="find-tab" [class.find-tab--muted]="!result || isWeatherMode || isMovieMode" role="tab" aria-label="All results grid" (click)="setView('booklet')">
-          <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-list"></i></span>
-          <span class="find-tab__label">Grid</span>
+        <button type="button" class="find-tab" [class.find-tab--muted]="!result || isWeatherMode || isMovieMode" role="tab" aria-label="All results" (click)="setView('booklet')">
+          <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-table-cells-large"></i></span>
+          <span class="find-tab__label">All</span>
         </button>
       </ng-template>
       <button type="button" class="find-tab" [class.find-tab--active]="activeView === 'history'" role="tab" aria-label="Search history" (click)="setView('history')">

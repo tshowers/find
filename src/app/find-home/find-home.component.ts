@@ -46,7 +46,7 @@ type FindImageState = 'own' | 'fallback' | 'none';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
   templateUrl: './find-home.component.html',
-  styleUrl: './find-home.component.css',
+  styleUrls: ['./find-home.component.css', './find-home.grid.css'],
   // The prerendered "/" always contains the home screen, but a `?query=` or
   // `?q=` link (e.g. a Firefox search shortcut) boots straight into the
   // result view. Hydration never removed the prerendered home screen, so both
@@ -161,13 +161,13 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     // SeoService when visited — restore the defaults here so a client-side
     // navigation back to Home (no full page reload) doesn't leave those
     // pages' metadata stuck in place.
-    this.title.setTitle( 'Find — Search that ends with an answer | Taliferro Tech' );
-    this.meta.updateTag( { name: 'description', content: 'Find is TODD\'s visual search experience: the best-weighted answer first, not ten blue links, backed by authoritative answers, curated Taliferro knowledge, and the web. Free, no account required.' } );
-    this.meta.updateTag( { property: 'og:title', content: 'Find — Search that ends with an answer' } );
-    this.meta.updateTag( { property: 'og:description', content: 'The best-weighted answer first, not ten blue links. Find combines authoritative answers, curated Taliferro knowledge, and web results — free, no account required.' } );
+    this.title.setTitle( 'Find — Search that ends with the right result | Taliferro Tech' );
+    this.meta.updateTag( { name: 'description', content: 'Find is TODD\'s visual search experience: the best-weighted result first, not ten blue links, backed by authoritative sources, curated Taliferro knowledge, and the web. Free, no account required.' } );
+    this.meta.updateTag( { property: 'og:title', content: 'Find — Search that ends with the right result' } );
+    this.meta.updateTag( { property: 'og:description', content: 'The best-weighted result first, not ten blue links. Find combines authoritative sources, curated Taliferro knowledge, and web results — free, no account required.' } );
     this.meta.updateTag( { property: 'og:url', content: 'https://find.taliferro.tech/' } );
-    this.meta.updateTag( { name: 'twitter:title', content: 'Find — Search that ends with an answer' } );
-    this.meta.updateTag( { name: 'twitter:description', content: 'The best-weighted answer first, not ten blue links. Find combines authoritative answers, curated Taliferro knowledge, and web results — free, no account required.' } );
+    this.meta.updateTag( { name: 'twitter:title', content: 'Find — Search that ends with the right result' } );
+    this.meta.updateTag( { name: 'twitter:description', content: 'The best-weighted result first, not ten blue links. Find combines authoritative sources, curated Taliferro knowledge, and web results — free, no account required.' } );
     this.seo.setCanonical( 'https://find.taliferro.tech/' );
 
     this.gyroSupported = this.gyroscope.isSupported;
@@ -594,7 +594,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     if ( this.viewingGroundedAnswer || this.isSingleResultMode ) return { label: 'Back', title: 'New search' };
     if ( this.resultIndex === 0 ) {
       return this.isQuestionMode && this.questionAnswerText
-        ? { label: 'Previous', title: 'Answer' }
+        ? { label: 'Previous', title: 'Results' }
         : { label: 'Back', title: 'New search' };
     }
     return this.pagerTarget( 'Previous', this.allCards[this.resultIndex - 1] );
@@ -801,7 +801,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   get currentQuestionEyebrow (): string {
-    return this.isGroundedAnswerSlide ? 'Answer' : `Result ${this.resultIndex + 1}`;
+    return this.isGroundedAnswerSlide ? 'Results' : `Result ${this.resultIndex + 1}`;
   }
 
   get currentQuestionTitle (): string {
@@ -1096,15 +1096,22 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     } ).subscribe( {
       next: ( res ) => {
         if ( ( res?.answer || res?.hours ) && this.allCards[0]?.url === card.url ) {
+          // Enhance, never replace: the summary goes in its own box, and its
+          // scraped hours only fill a gap. Google Places hours are a full
+          // week; the summary's are often one day off the business's site.
+          const top = this.allCards[0];
+          const summary = String( res.answer || '' ).trim();
+          const ownText = String( top.answer || top.summary || '' ).trim();
           const patch = {
-            ...( res.answer ? { answer: res.answer } : {} ),
-            ...( res.hours ? { hours: res.hours } : {} )
+            ...( summary && summary !== ownText ? { aiSummary: summary } : {} ),
+            ...( res.hours?.days?.length && !top.hours?.days?.length ? { hours: res.hours } : {} )
           };
+          if ( !Object.keys( patch ).length ) return;
           this.allCards[0] = { ...this.allCards[0], ...patch };
           if ( this.resultIndex === 0 ) this.currentCard = this.allCards[0];
           // allResults[0] only shares allCards[0]'s object reference until
           // this reassignment — patch it too so the grid view's tile for
-          // this same result doesn't show stale answer/hours data.
+          // this same result doesn't show stale summary/hours data.
           if ( this.allResults[0]?.url === card.url ) {
             this.allResults[0] = { ...this.allResults[0], ...patch };
           }
@@ -1121,9 +1128,41 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     if ( !query ) return safe;
     const words = query.split( /\s+/ ).filter( w => w.length > 2 );
     if ( !words.length ) return safe;
-    const escaped = words.map( w => w.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ) );
-    const pattern = new RegExp( `(${ escaped.join( '|' ) })`, 'gi' );
+    // Whole words only, so "RunningShoeGeeks" isn't partly lit. A trailing
+    // "s"/"es" is optional either way: "shoes" also lights "shoe".
+    const stems = words.map( w => w.replace( /s$/i, '' ) );
+    const escaped = stems.map( w => w.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ) );
+    const pattern = new RegExp( `\\b((?:${ escaped.join( '|' ) })(?:e?s)?)\\b`, 'gi' );
     return safe.replace( pattern, '<span class="find-highlight">$1</span>' );
+  }
+
+  /** Grid ranks read "01", "02"… (4b/4c/4d). */
+  twoDigitRank ( index: number ): string {
+    return String( index + 1 ).padStart( 2, '0' );
+  }
+
+  private readonly sourceTints = [ 'blue', 'cyan', 'pink', 'violet', 'yellow', 'green' ] as const;
+
+  /** Hash the domain into one of the six tints, so a site always gets the same plate colour. */
+  sourceTint ( domain: string | null | undefined ): string {
+    const key = String( domain || '' ).toLowerCase();
+    let hash = 0;
+    for ( let i = 0; i < key.length; i++ ) hash = ( hash * 31 + key.charCodeAt( i ) ) >>> 0;
+    return this.sourceTints[hash % this.sourceTints.length];
+  }
+
+  private readonly sourceKinds: Partial<Record<FindSourceType, string>> = {
+    encyclopedia: 'Encyclopedia',
+    medical: 'Health',
+    government: 'Government',
+    academic: 'Academic',
+    official: 'Official site',
+  };
+
+  /** Kind label on a source plate. Publisher results have none, so the plate shows just the domain. */
+  sourceKind ( card: FindRankedResult ): string {
+    if ( card.address || card.phone ) return 'Local business';
+    return this.sourceKinds[card.sourceType] || '';
   }
 
   /** Pill text, prefixed with its tilt direction (L/R/U/D) while tilt navigation is on. */
