@@ -280,16 +280,16 @@ describe('FindHomeComponent', () => {
 
   // --- 7-11. The five bottom tab-bar buttons ---
 
-  it('opens the results grid from the Grid tab', fakeAsync(() => {
+  it('opens all results from the All tab', fakeAsync(() => {
     runSearch('coffee', makeEntityResponse('coffee', {
       results: [makeResult({ title: 'Result A' }), makeResult({ title: 'Result B', rank: 2 })],
     }));
 
-    byLabel('All results grid').click();
+    byLabel('All results').click();
     harness.detectChanges();
 
     expect(component.activeView).toBe('booklet');
-    expect(root().querySelectorAll('.find-grid-tile').length).toBe(2);
+    expect(root().querySelectorAll('.find-grid-card').length).toBe(2);
   }));
 
   it('shows a past search in the History tab', fakeAsync(() => {
@@ -380,6 +380,30 @@ describe('FindHomeComponent', () => {
     expect(root().querySelector('.find-action--primary')?.textContent).toContain('Read on CBS Sports');
     expect(component.pagerNext?.label).toBe('Next · BBC Sport · 2h ago');
     expect(root().querySelector('.find-footer__meta')?.textContent).toContain('From CBS Sports and BBC Sport · updated hourly');
+  }));
+
+  it('adds the TODD summary under a place without replacing its hours or text', fakeAsync(() => {
+    const week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+      .map(day => ({ day, periods: [{ open: '8am', close: '3pm' }] }));
+    component.query = 'restaurants near me';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/search')).flush({
+      ...makeLocalResponse('restaurants near me'),
+      results: [makeResult({ title: "Young's Restaurant", summary: 'Chinese and American breakfast and brunch.', address: '9413 16th Ave SW, Seattle, WA', hours: { days: week } })],
+    });
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/summarize')).flush({
+      answer: "Young's Restaurant closes at 3:00 pm.",
+      hours: { days: [{ day: 'Tuesday', periods: [{ open: '8am', close: '8pm' }] }] },
+    });
+    tick();
+    harness.detectChanges();
+
+    expect(component.currentBusinessHours?.days.length).toBe(7);
+    expect(root().querySelector('.find-card-summary')?.textContent).toContain('Chinese and American breakfast and brunch.');
+    expect(root().querySelector('.find-ai-summary')?.textContent).toContain("Young's Restaurant closes at 3:00 pm.");
   }));
 
   it('formats relative publish times', () => {

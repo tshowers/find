@@ -54,6 +54,9 @@ export interface FindRankedResult {
   title: string;
   summary: string;
   answer?: string;
+  // Client-only: the /find/summarize text for the top card. Shown in its own
+  // box under the result, never in place of the result's own text.
+  aiSummary?: string;
   url: string;
   displayUrl: string;
   imageUrl: string;
@@ -284,7 +287,7 @@ export class FindExperienceService {
       outputUnit: output.unit,
       outputUnitLabel: output.label,
       rate,
-      source: input.category === 'currency' ? 'Find answer' : 'Find local conversion'
+      source: input.category === 'currency' ? 'Find results' : 'Find local conversion'
     };
   }
 

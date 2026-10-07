@@ -204,15 +204,15 @@ describe( 'Find home - buttons and navigation', () => {
 
   // --- 7-11. The five bottom tab-bar buttons ---
 
-  it( 'opens the results grid from the Grid tab', () => {
+  it( 'opens all results from the All tab', () => {
     runSearch( 'coffee', entityResponse( 'coffee', [
       { rank: 1, title: 'Result A', summary: 'First result.', url: 'https://example.com/a', displayUrl: 'example.com', imageUrl: '', sourceType: 'publisher', confidence: 0.9, pills: [] },
       { rank: 2, title: 'Result B', summary: 'Second result.', url: 'https://example.com/b', displayUrl: 'example.com', imageUrl: '', sourceType: 'publisher', confidence: 0.8, pills: [] },
     ] ) );
 
-    cy.get( '[aria-label="All results grid"]' ).click();
+    cy.get( '[aria-label="All results"]' ).click();
     cy.get( '[data-cy="find-grid-shell"]' ).should( 'be.visible' );
-    cy.get( '.find-grid-tile' ).should( 'have.length', 2 );
+    cy.get( '.find-grid-card' ).should( 'have.length', 2 );
   } );
 
   it( 'shows a past search in the History tab', () => {

@@ -49,7 +49,7 @@ const AWARD_LADDER: FindAward[] = [
   { id: 'sharp-eye', title: 'The Sharp Eye', threshold: 15, icon: 'sharp-eye',
     copy: 'Something felt off and you were right.' },
   { id: 'explorer', title: 'The Explorer', threshold: 20, icon: 'explorer',
-    copy: 'One answer was never going to be enough for you.' },
+    copy: 'One result was never going to be enough for you.' },
   { id: 'specialist', title: 'The Specialist', threshold: 30, icon: 'specialist',
     copy: 'You stopped skimming. You went all the way down.' },
   { id: 'relentless', title: 'The Relentless', threshold: 40, icon: 'relentless',

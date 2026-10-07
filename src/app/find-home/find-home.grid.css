@@ -1,0 +1,445 @@
+/* All results grid for find-home.component. Kept in its own stylesheet so
+   each file stays inside the angular.json anyComponentStyle budget; it is
+   still part of the same component (styleUrls), so encapsulation is unchanged.
+   The pager classes it reuses (.find-pager*) live in find-home.component.css. */
+
+/* ── GRID VIEW (all results) ────────────────────────────────── */
+/* docs/design_handoff_find_grid_about_help. One card, four layouts by
+   screen size:
+     x-large (1200px+)  4a  same card shape, tinted source plate
+     large (1000-1199)  4b  text first, 96px thumbnail
+     medium (600-999)   4c  ranked list
+     phone (<600)       4d  one column, 72px thumbnail
+   The card markup carries every piece (media, rank, thumbnail); each
+   layout turns on the ones it uses. */
+.find-grid-wrap {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 40px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  box-sizing: border-box;
+}
+
+.find-pager.find-grid-bar {
+  margin: 0;
+}
+
+.find-grid-count {
+  min-width: 0;
+  font-size: 14px;
+  color: var(--muted);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.find-grid-count b {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.find-grid {
+  display: grid;
+}
+
+.find-grid-card {
+  min-width: 0;
+  color: var(--text);
+  text-decoration: none;
+  transition: background .16s ease;
+}
+
+/* Pieces only some layouts use. */
+.find-grid-card__media,
+.find-grid-card__rank,
+.find-grid-card__num,
+.find-grid-card__badge,
+.find-grid-card__thumb {
+  display: none;
+}
+
+.find-grid-card__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.find-grid-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.find-grid-card__domain {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.find-grid-card__current {
+  flex: none;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.find-grid-card__title {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+.find-grid-card__summary {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.find-grid-card__title,
+.find-grid-card__summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.find-grid-card__contact {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.find-grid-card__contact b {
+  font-weight: 600;
+}
+
+.find-grid-card__thumb {
+  object-fit: cover;
+  background: var(--surface2);
+}
+
+.find-load-more {
+  align-self: center;
+  height: 48px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .16s ease;
+}
+
+.find-load-more:hover {
+  background: var(--surface2);
+}
+
+/* 4a, x-large: four equal cards, media on top. A result with no image gets
+   a tinted plate naming its source, so every card keeps the same shape. */
+@media (min-width: 1200px) {
+  .find-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .find-grid-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 20px;
+    background: var(--surface);
+  }
+
+  .find-grid-card__media {
+    display: block;
+    aspect-ratio: 16 / 10;
+    background: var(--surface2);
+  }
+
+  .find-grid-card__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .find-grid-card__body {
+    flex: 1;
+    padding: 16px 18px 18px;
+  }
+
+  .find-grid-card__num {
+    display: inline;
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .find-grid-card__current {
+    margin-left: auto;
+  }
+
+  .find-grid-card__title {
+    font-size: 17px;
+    letter-spacing: -0.01em;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .find-grid-card__summary {
+    line-height: 1.5;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+
+  .find-grid-card__contact {
+    margin-top: auto;
+  }
+}
+
+.find-grid-card__plate {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+.find-grid-card__kind {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: .8;
+}
+
+.find-grid-card__plate-domain {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  word-break: break-word;
+}
+
+.find-grid-card__plate--blue { background: var(--t-blue); color: var(--t-blue-fg); }
+.find-grid-card__plate--cyan { background: var(--t-cyan); color: var(--t-cyan-fg); }
+.find-grid-card__plate--pink { background: var(--t-pink); color: var(--t-pink-fg); }
+.find-grid-card__plate--violet { background: var(--t-violet); color: var(--t-violet-fg); }
+.find-grid-card__plate--yellow { background: var(--t-yellow); color: var(--t-yellow-fg); }
+.find-grid-card__plate--green { background: var(--t-green); color: var(--t-green-fg); }
+
+/* 4b (large) and 4d (phone) share the text-first card: text leads and an
+   image shrinks to a thumbnail on the right, so a missing one leaves no gap. */
+@media (min-width: 1000px) and (max-width: 1199.98px), (max-width: 599.98px) {
+  .find-grid-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 16px;
+    padding: 18px;
+    border-radius: 20px;
+    background: var(--surface);
+  }
+
+  .find-grid-card--image {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .find-grid-card__thumb {
+    display: block;
+  }
+
+  .find-grid-card__badge {
+    display: inline-flex;
+    flex: none;
+    color: var(--text);
+    font-weight: 700;
+  }
+}
+
+/* 4b, large: three columns. */
+@media (min-width: 1000px) and (max-width: 1199.98px) {
+  .find-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .find-grid-card__badge {
+    width: 26px;
+    height: 26px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--bg);
+    font-size: 11px;
+  }
+
+  .find-grid-card__title {
+    font-size: 18px;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .find-grid-card__summary {
+    line-height: 1.55;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
+
+  .find-grid-card__thumb {
+    width: 96px;
+    height: 96px;
+    border-radius: 16px;
+  }
+}
+
+/* 4c, medium: a ranked list. Big rank on the left, thumbnail only when
+   there's an image, current row tinted instead of ringed. */
+@media (min-width: 600px) and (max-width: 999.98px) {
+  .find-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .find-grid-card {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 16px;
+    padding: 18px 16px;
+    border-radius: 20px;
+  }
+
+  .find-grid-card--image {
+    grid-template-columns: 44px minmax(0, 1fr) 132px;
+  }
+
+  .find-grid-card.find-grid-card--current,
+  .find-grid-card.find-grid-card--current:hover {
+    background: var(--t-blue);
+  }
+
+  .find-grid-card__rank {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--muted);
+  }
+
+  .find-grid-card__title {
+    display: block;
+    font-size: 18px;
+  }
+
+  .find-grid-card__summary {
+    line-height: 1.55;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .find-grid-card__thumb {
+    display: block;
+    width: 132px;
+    height: 96px;
+    border-radius: 16px;
+  }
+}
+
+/* 4d, phone: one column under a slim "Back · N found" header. */
+@media (max-width: 599.98px) {
+  .find-grid-screen .find-header {
+    display: none;
+  }
+
+  .find-grid-wrap {
+    gap: 10px;
+    padding: 16px 16px 24px;
+  }
+
+  .find-grid-count {
+    font-size: 15px;
+  }
+
+  .find-grid-count b {
+    font-weight: 600;
+  }
+
+  .find-grid-count__query {
+    display: none;
+  }
+
+  .find-grid {
+    gap: 10px;
+  }
+
+  .find-grid-card__badge {
+    font-size: 12px;
+  }
+
+  .find-grid-card__title {
+    font-size: 16px;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .find-grid-card__summary {
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .find-grid-card__thumb {
+    width: 72px;
+    height: 72px;
+    border-radius: 14px;
+  }
+}
+
+/* Card hover and the current ring (4a, 4b, 4d). */
+@media (min-width: 1000px), (max-width: 599.98px) {
+  .find-grid-card:hover {
+    background: var(--surface2);
+  }
+
+  .find-grid-card--current {
+    box-shadow: 0 0 0 3px var(--blue);
+  }
+}
+
+@media (min-width: 600px) and (max-width: 999.98px) {
+  .find-grid-card:hover {
+    background: var(--surface);
+  }
+}
+
+@media (min-width: 600px) and (max-width: 900px) {
+  .find-grid-wrap {
+    padding: 0 16px 32px;
+    gap: 16px;
+  }
+}
+
+/* Query terms in red. The spans are injected via [innerHTML], so they need
+   ::ng-deep to receive this component's styles. */
+:host ::ng-deep .find-highlight {
+  color: var(--find-highlight-red);
+  font-weight: 700;
+}
