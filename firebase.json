@@ -2,6 +2,7 @@
   "hosting": {
     "site": "todd-find",
     "public": "dist/find/browser",
+    "trailingSlash": false,
     "ignore": [
       "firebase.json",
       "**/.*",
