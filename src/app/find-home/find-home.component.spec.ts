@@ -254,6 +254,24 @@ describe('FindHomeComponent', () => {
     expect(component.conversionOutputAmount).toBe(92);
   }));
 
+  it('swaps currencies and switches to a third currency using the backend rate table', fakeAsync(() => {
+    const response = makeConversionResponse('1000 usd to yen');
+    response.conversion = {
+      category: 'currency', inputAmount: 1000, inputUnit: 'USD', outputAmount: 158250, outputUnit: 'JPY',
+      rate: 158.25, rates: { USD: 1, JPY: 158.25, EUR: 0.89 }, source: 'test-provider',
+    };
+    runSearch('1000 usd to yen', response);
+
+    component.swapConversion();
+    expect(component.conversionInputUnit).toBe('JPY');
+    expect(component.conversionRate!).toBeCloseTo(1 / 158.25, 8);
+    expect(component.conversionOutputAmount!).toBeCloseTo(6.319, 3);
+
+    component.conversionOutputUnit = 'EUR';
+    component.onConversionUnitChange();
+    expect(component.conversionRate!).toBeCloseTo(0.89 / 158.25, 8);
+  }));
+
   it('requests geolocation and returns local results from the Restaurants quick action', fakeAsync(() => {
     byLabel('Search Restaurants').click();
     tick();
@@ -290,6 +308,22 @@ describe('FindHomeComponent', () => {
 
     expect(component.activeView).toBe('booklet');
     expect(root().querySelectorAll('.find-grid-card').length).toBe(2);
+  }));
+
+  it('shows each place\'s distance in All results', fakeAsync(() => {
+    runSearch('qfc near me', {
+      ...makeLocalResponse('qfc near me'),
+      results: [
+        makeResult({ title: 'QFC', address: '2500 SW Barton St', pills: ['Grocery store', '★ 4.0 (1300)', '0.5 mi'] }),
+        makeResult({ title: 'QFC', rank: 2, address: 'Junction', pills: ['Grocery store', '3.2 mi'] }),
+      ],
+    });
+
+    byLabel('All results').click();
+    harness.detectChanges();
+
+    const distances = Array.from(root().querySelectorAll('.find-grid-card__distance')).map(el => el.textContent?.trim());
+    expect(distances).toEqual(['0.5 mi', '3.2 mi']);
   }));
 
   it('shows a past search in the History tab', fakeAsync(() => {

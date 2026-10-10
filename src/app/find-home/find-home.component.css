@@ -1998,7 +1998,9 @@
 }
 
 .find-info-built__company {
+  display: block;
   margin: 0 0 10px;
+  text-decoration: none;
   font-size: 1.3rem;
   font-weight: 800;
   color: var(--tl-blue);
@@ -2051,6 +2053,25 @@
 }
 
 .find-info-copyright a:hover {
+  text-decoration: underline;
+}
+
+.find-info-legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+  margin: 16px 0 0;
+  font-size: 0.78rem;
+}
+
+.find-info-legal a {
+  color: var(--todd-panel-subtext);
+  text-decoration: none;
+}
+
+.find-info-legal a:hover {
+  color: var(--tl-blue);
   text-decoration: underline;
 }
 

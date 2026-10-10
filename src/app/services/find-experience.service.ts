@@ -115,6 +115,8 @@ export interface FindConversionResult {
   outputUnit: string;
   outputUnitLabel?: string;
   rate?: number;
+  /** Every supported currency against inputUnit (backend conversions only). */
+  rates?: Record<string, number>;
   rateUpdatedAt?: string;
   source?: string;
 }

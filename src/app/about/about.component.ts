@@ -50,9 +50,9 @@ export class AboutComponent implements OnInit, OnDestroy {
       '@graph': [
         {
           '@type': 'Organization',
-          '@id': 'https://taliferro.com/#organization',
+          '@id': 'https://taliferro.tech/#organization',
           name: 'Taliferro Tech, LLC',
-          url: 'https://taliferro.com',
+          url: 'https://taliferro.tech',
           logo: 'https://find.taliferro.tech/assets/find/entities/taliferro-tech/logo.png',
           description: 'Taliferro Tech creates software products that help people find information, build momentum, and act on useful context.',
         },
@@ -68,8 +68,8 @@ export class AboutComponent implements OnInit, OnDestroy {
           isAccessibleForFree: true,
           image: 'https://find.taliferro.tech/assets/seo/find-card.webp',
           downloadUrl: 'https://apps.apple.com/us/app/taliferro-find/id6806954591',
-          creator: { '@id': 'https://taliferro.com/#organization' },
-          publisher: { '@id': 'https://taliferro.com/#organization' },
+          creator: { '@id': 'https://taliferro.tech/#organization' },
+          publisher: { '@id': 'https://taliferro.tech/#organization' },
         },
       ],
     } );
