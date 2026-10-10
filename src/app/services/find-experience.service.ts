@@ -70,9 +70,19 @@ export interface FindRankedResult {
   hours?: FindBusinessHours;
   address?: string;
   phone?: string;
+  // Every verified location of a business that has more than one.
+  locations?: FindBusinessLocation[];
   // Set on News/Sports headlines served from the hourly RSS snapshot.
   rssSource?: string;
   publishedAt?: string;
+}
+
+export interface FindBusinessLocation {
+  name: string;
+  address: string;
+  phone?: string;
+  mapsUrl?: string;
+  distance?: string;
 }
 
 export interface FindWeatherResult {

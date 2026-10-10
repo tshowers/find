@@ -248,8 +248,19 @@
                     <a class="find-card-title__link" *ngIf="currentCard?.url; else plainBusinessTitle" [href]="currentCard?.url" target="_blank" rel="noopener">{{ currentBusinessName }}</a>
                     <ng-template #plainBusinessTitle>{{ currentBusinessName }}</ng-template>
                   </h2>
-                  <div class="find-business-address" *ngIf="currentBusinessAddress">{{ currentBusinessAddress }}</div>
-                  <a class="find-business-phone" *ngIf="currentBusinessPhone" [href]="currentBusinessPhoneHref">{{ currentBusinessPhone }}</a>
+                  <div class="find-business-address" *ngIf="currentBusinessAddress && !currentLocations.length">{{ currentBusinessAddress }}</div>
+                  <a class="find-business-phone" *ngIf="currentBusinessPhone && !currentLocations.length" [href]="currentBusinessPhoneHref">{{ currentBusinessPhone }}</a>
+                  <section class="find-locations" *ngIf="currentLocations.length" aria-label="Locations">
+                    <h3>{{ currentLocations.length }} locations</h3>
+                    <div class="find-locations__item" *ngFor="let location of currentLocations">
+                      <a class="find-locations__place" [href]="location.mapsUrl || currentCard?.url" target="_blank" rel="noopener">
+                        <strong>{{ locationLabel(location) }}</strong>
+                        <span>{{ location.address }}</span>
+                      </a>
+                      <span class="find-locations__distance" *ngIf="location.distance">{{ location.distance }}</span>
+                      <a class="find-locations__phone" *ngIf="location.phone" [href]="phoneHref(location.phone)">{{ location.phone }}</a>
+                    </div>
+                  </section>
                   <div class="find-business-meta" *ngIf="currentBusinessMeta.length">
                     <a *ngFor="let item of currentBusinessMeta" [href]="currentCard?.url" target="_blank" rel="noopener">{{ item }}</a>
                   </div>

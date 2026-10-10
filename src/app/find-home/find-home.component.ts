@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { FindSwipeDirective } from '../directives/find-swipe.directive';
 import { FindAward, FindAwardView, FindAwardsProgress, FindAwardsService } from '../services/find-awards.service';
-import { FindBusinessHours, FindBusinessHoursDay, FindConversionCategory, FindConversionResult, FindExperienceService, FindFeedbackRating, FindMovieRatings, FindRankedResult, FindSearchResponse, FindSourceType, FindWeatherForecastDay } from '../services/find-experience.service';
+import { FindBusinessHours, FindBusinessHoursDay, FindBusinessLocation, FindConversionCategory, FindConversionResult, FindExperienceService, FindFeedbackRating, FindMovieRatings, FindRankedResult, FindSearchResponse, FindSourceType, FindWeatherForecastDay } from '../services/find-experience.service';
 import { FindGyroscopeService, GyroTilt } from '../services/find-gyroscope.service';
 import { environment } from '../../environments/environment';
 import { AwardBadgeComponent } from '../shared/award-badge/award-badge.component';
@@ -426,7 +426,25 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   get currentBusinessPhoneHref (): string {
-    return `tel:${ this.currentBusinessPhone.replace( /[^\d+]/g, '' ) }`;
+    return this.phoneHref( this.currentBusinessPhone );
+  }
+
+  phoneHref ( phone: string ): string {
+    return `tel:${ phone.replace( /[^\d+]/g, '' ) }`;
+  }
+
+  /** A business with more than one verified location lists them all in its result. */
+  get currentLocations (): FindBusinessLocation[] {
+    const locations = this.currentCard?.locations || [];
+    return locations.length > 1 ? locations : [];
+  }
+
+  /** "Bonhomie Coffee Bar (at Labour Temple)" reads as "Labour Temple" under the business name. */
+  locationLabel ( location: FindBusinessLocation ): string {
+    const at = location.name.match( /\((?:at\s+)?([^)]+)\)\s*$/i );
+    if ( at ) return at[1].trim();
+    if ( location.name && location.name !== this.currentBusinessName ) return location.name;
+    return location.address.split( ',' )[0];
   }
 
   get currentBusinessMeta (): string[] {

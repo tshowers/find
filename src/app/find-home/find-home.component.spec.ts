@@ -326,6 +326,28 @@ describe('FindHomeComponent', () => {
     expect(distances).toEqual(['0.5 mi', '3.2 mi']);
   }));
 
+  it('lists every location of a business inside its one result', fakeAsync(() => {
+    runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle', {
+      results: [makeResult({
+        title: 'Bonhomie Coffee Bar',
+        url: 'https://www.bonhomiecoffee.co/',
+        address: '2800 1st Ave, Seattle, WA 98121',
+        locations: [
+          { name: 'Bonhomie Coffee Bar (at Labour Temple)', address: '2800 1st Ave, Seattle, WA 98121', mapsUrl: 'https://maps.google.com/?cid=1' },
+          { name: 'Bonhomie Coffee Bar (at Tower 1201)', address: '1201 3rd Ave, Seattle, WA 98101', mapsUrl: 'https://maps.google.com/?cid=2', distance: '0.3 mi' },
+        ],
+      })],
+    }));
+    drainSummarize();
+    harness.detectChanges();
+
+    const places = Array.from(root().querySelectorAll('.find-locations__place strong')).map(el => el.textContent?.trim());
+    expect(places).toEqual(['Labour Temple', 'Tower 1201']);
+    expect(root().querySelector('.find-locations h3')?.textContent?.trim()).toBe('2 locations');
+    expect(root().querySelector('.find-locations__distance')?.textContent?.trim()).toBe('0.3 mi');
+    expect(root().querySelector('.find-business-address')).toBeNull();
+  }));
+
   it('shows a past search in the History tab', fakeAsync(() => {
     runSearch('injera near me', makeLocalResponse('injera near me'));
 
