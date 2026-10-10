@@ -12,6 +12,7 @@ import { AwardBadgeComponent } from '../shared/award-badge/award-badge.component
 import { PlatformMenuComponent } from '../shared/platform-menu/platform-menu.component';
 import { SeoService } from '../shared/seo.service';
 import { Title, Meta } from '@angular/platform-browser';
+import { SiteFooterComponent } from '../shared/site-footer/site-footer.component';
 
 type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info' | 'awards';
 
@@ -44,7 +45,7 @@ type FindImageState = 'own' | 'fallback' | 'none';
 @Component( {
   selector: 'app-find-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
+  imports: [SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
   templateUrl: './find-home.component.html',
   styleUrls: ['./find-home.component.css', './find-home.grid.css'],
   // The prerendered "/" always contains the home screen, but a `?query=` or
