@@ -88,6 +88,23 @@ export interface FindInstantAnswer {
   detail?: string;
 }
 
+/** A watched result ("Watch a find"); see findWatch.service.js in the backend. */
+export interface FindWatch {
+  id: string;
+  query: string;
+  url: string;
+  title: string;
+  kind: 'price' | 'hours' | 'topic' | 'page';
+  createdAt: number;
+  expiresAt: number;
+  expired: boolean;
+  lastCheckedAt: number | null;
+  lastChange: { at: number; summary: string } | null;
+  /** Changed since this device last opened its Watching list. */
+  changed: boolean;
+  current: string;
+}
+
 /** A follow-up question about one result (POST /find/followup). */
 export interface FindFollowupResponse {
   success: boolean;
@@ -242,6 +259,56 @@ export class FindExperienceService {
   followup ( payload: { query: string; followup: string; url: string; title: string; sourceUrls?: string[] } ): Observable<FindFollowupResponse> {
     const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
     return this.postWithLocalFallback<FindFollowupResponse>( '/find/followup', payload, { headers } );
+  }
+
+  // --- Watch a find. No account: this browser keeps its own random id. ---
+
+  private readonly DEVICE_ID_KEY = 'find.deviceId';
+  private memoryDeviceId = '';
+
+  get deviceId (): string {
+    try {
+      const saved = localStorage.getItem( this.DEVICE_ID_KEY );
+      if ( saved ) return saved;
+      const created = this.newDeviceId();
+      localStorage.setItem( this.DEVICE_ID_KEY, created );
+      return created;
+    } catch {
+      // Private window: watches last for this visit only.
+      this.memoryDeviceId ||= this.newDeviceId();
+      return this.memoryDeviceId;
+    }
+  }
+
+  private newDeviceId (): string {
+    return typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `web-${ Date.now().toString( 36 ) }-${ Math.random().toString( 36 ).slice( 2 ) }${ Math.random().toString( 36 ).slice( 2 ) }`;
+  }
+
+  private watchPost<T> ( path: string, body: Record<string, unknown> ): Observable<T> {
+    const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
+    return this.postWithLocalFallback<T>( path, { deviceId: this.deviceId, ...body }, { headers } );
+  }
+
+  createWatch ( payload: { query: string; url: string; title: string; queryType?: string; address?: string; phone?: string } ): Observable<{ success: boolean; watch: FindWatch }> {
+    return this.watchPost( '/find/watches', payload );
+  }
+
+  listWatches (): Observable<{ success: boolean; watches: FindWatch[] }> {
+    return this.watchPost( '/find/watches/list', {} );
+  }
+
+  markWatchesSeen (): Observable<{ success: boolean }> {
+    return this.watchPost( '/find/watches/seen', {} );
+  }
+
+  removeWatch ( id: string ): Observable<{ success: boolean }> {
+    return this.watchPost( '/find/watches/remove', { id } );
+  }
+
+  renewWatch ( id: string ): Observable<{ success: boolean; watch: FindWatch }> {
+    return this.watchPost( '/find/watches/renew', { id } );
   }
 
   submitFeedback ( payload: FindFeedbackPayload ): Observable<{ success: boolean }> {

@@ -435,7 +435,7 @@
   </ng-template>
   <!-- Action bar (desktop) / action tiles (phones). First action is primary. -->
   <ng-template #actionBar>
-    <div class="find-actions" *ngIf="currentActions.length">
+    <div class="find-actions" *ngIf="currentActions.length || canWatch">
       <ng-container *ngFor="let action of currentActions; let first = first; trackBy: trackAction">
         <a *ngIf="action.href; else copyActionButton" class="find-action" [class.find-action--primary]="first" [href]="action.href" target="_blank" rel="noopener">
           <i class="fa-solid" [ngClass]="action.icon" aria-hidden="true"></i>
@@ -450,7 +450,13 @@
           </button>
         </ng-template>
       </ng-container>
+      <button type="button" class="find-action find-action--watch" *ngIf="canWatch" [class.find-action--watching]="!!currentWatch" [attr.aria-pressed]="!!currentWatch" [disabled]="watchBusy" (click)="toggleWatch()">
+        <i class="fa-solid" [ngClass]="currentWatch ? 'fa-eye' : 'fa-bell'" aria-hidden="true"></i>
+        <span class="find-action__label">{{ currentWatch ? 'Watching' : 'Watch' }}</span>
+        <span class="find-action__short" aria-hidden="true">{{ currentWatch ? 'Watching' : 'Watch' }}</span>
+      </button>
     </div>
+    <p class="find-watch-message" *ngIf="watchMessage && canWatch" role="status">{{ watchMessage }}</p>
   </ng-template>
   <!-- ── GRID VIEW (all results) ────────────────────────────────── -->
   <!-- docs/design_handoff_find_grid_about_help: one card, four layouts by
@@ -514,6 +520,22 @@
       <h2>Recent searches</h2>
       <button *ngIf="searchHistory.length > 0" class="find-clear-btn" type="button" (click)="clearHistory()">Clear</button>
     </div>
+    <section class="find-watching" *ngIf="watches.length" aria-label="Watching">
+      <h3>Watching <span>{{ watches.length }} of 10</span></h3>
+      <ul>
+        <li *ngFor="let watch of watches" class="find-watching__item" [class.find-watching__item--changed]="watch.changed || highlightedWatchIds.has(watch.id)" [class.find-watching__item--ended]="watch.expired">
+          <button type="button" class="find-watching__open" (click)="openWatch(watch)">
+            <span class="find-watching__kind">{{ watchKindLabel(watch) }}<ng-container *ngIf="watch.current"> · {{ watch.current }}</ng-container></span>
+            <strong>{{ watch.title }}</strong>
+            <span class="find-watching__status">{{ watchStatus(watch) }}</span>
+          </button>
+          <span class="find-watching__meta">
+            <button type="button" *ngIf="watch.expired || watchDaysLeft(watch) <= 5" (click)="renewWatchItem(watch)">{{ watch.expired ? 'Watch again' : 'Ends in ' + watchDaysLeft(watch) + 'd · Renew' }}</button>
+            <button type="button" (click)="removeWatchItem(watch)" [attr.aria-label]="'Stop watching ' + watch.title">Stop</button>
+          </span>
+        </li>
+      </ul>
+    </section>
     <ul class="find-history-list" *ngIf="searchHistory.length > 0">
       <li *ngFor="let q of searchHistory">
         <button type="button" (click)="onHistoryClick(q)">
@@ -649,7 +671,7 @@
         </button>
       </ng-template>
       <button type="button" class="find-tab" [class.find-tab--active]="activeView === 'history'" role="tab" aria-label="Search history" (click)="setView('history')">
-        <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-clock-rotate-left"></i></span>
+        <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-clock-rotate-left"></i><b class="find-tab__badge" *ngIf="changedWatchCount">{{ changedWatchCount }}</b></span>
         <span class="find-tab__label">History</span>
       </button>
       <button type="button" class="find-tab" [class.find-tab--active]="activeView === 'info'" role="tab" aria-label="About Find" (click)="setView('info')">
