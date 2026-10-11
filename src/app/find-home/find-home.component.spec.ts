@@ -624,6 +624,23 @@ describe('FindHomeComponent', () => {
     expect(root().querySelector('.find-tab__badge')).toBeNull();
   }));
 
+  it('offers Save to Knowledge, opening Docs with the result filled in', fakeAsync(() => {
+    runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle', {
+      results: [makeResult({ title: 'Bonhomie Coffee Bar', summary: 'Haitian coffee bar.', url: 'https://www.bonhomiecoffee.co/', pills: ['Coffee shop', '0.4 mi'] })],
+    }));
+    drainSummarize();
+
+    const save = component.currentActions.find(action => action.key === 'knowledge')!;
+    expect(save.label).toBe('Save to Knowledge');
+    const link = new URL(save.href!);
+    expect(link.origin + link.pathname).toBe('https://docs.taliferro.tech/knowledge/save');
+    expect(link.searchParams.get('q')).toBe('bonhomie seattle');
+    expect(link.searchParams.get('title')).toBe('Bonhomie Coffee Bar');
+    expect(link.searchParams.get('url')).toBe('https://www.bonhomiecoffee.co/');
+    expect(link.searchParams.get('keywords')).toBe('Coffee shop');
+    expect(link.searchParams.get('answer')).toContain('Haitian coffee bar.');
+  }));
+
   it('lists every location of a business inside its one result', fakeAsync(() => {
     runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle', {
       results: [makeResult({
@@ -848,7 +865,7 @@ describe('FindHomeComponent', () => {
   it('offers Visit site and Copy link on an ordinary web result', fakeAsync(() => {
     runSearch('eiffel tower history', makeEntityResponse('eiffel tower history'));
 
-    expect(component.currentActions.map(a => a.shortLabel)).toEqual(['Site', 'Copy']);
+    expect(component.currentActions.map(a => a.shortLabel)).toEqual(['Site', 'Copy', 'Save']);
     expect(root().querySelector('.find-action--primary')?.getAttribute('href')).toBe('https://example.com/result');
   }));
 
@@ -859,7 +876,7 @@ describe('FindHomeComponent', () => {
     }));
 
     const actions = component.currentActions;
-    expect(actions.map(a => a.shortLabel)).toEqual(['Go', 'Call', 'Site', 'Copy']);
+    expect(actions.map(a => a.shortLabel)).toEqual(['Go', 'Call', 'Site', 'Copy', 'Save']);
     expect(actions[0].href).toContain(encodeURIComponent('9828 16th Ave SW, Seattle, WA 98106'));
     expect(actions[1].href).toBe('tel:2065550142');
   }));
@@ -885,7 +902,7 @@ describe('FindHomeComponent', () => {
 
     expect(component.currentBusinessName).toBe("Young's Restaurant");
     expect(component.currentBusinessAddress).toBe('9413 16th Ave SW, Seattle, WA');
-    expect(component.currentActions.map(a => a.shortLabel)).toEqual(['Go', 'Site', 'Copy']);
+    expect(component.currentActions.map(a => a.shortLabel)).toEqual(['Go', 'Site', 'Copy', 'Save']);
   }));
 
   it('does not mistake a numbered list title for an address', fakeAsync(() => {
@@ -894,6 +911,6 @@ describe('FindHomeComponent', () => {
     }));
 
     expect(component.currentBusinessAddress).toBe('');
-    expect(component.currentActions.map(a => a.shortLabel)).toEqual(['Site', 'Copy']);
+    expect(component.currentActions.map(a => a.shortLabel)).toEqual(['Site', 'Copy', 'Save']);
   }));
 });
