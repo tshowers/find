@@ -5,7 +5,7 @@ import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { FindHomeComponent } from './find-home.component';
 import { routes } from '../app.routes';
-import { FindRankedResult, FindSearchResponse } from '../services/find-experience.service';
+import { FindRankedResult, FindWatch, FindSearchResponse } from '../services/find-experience.service';
 
 function makeResult(overrides: Partial<FindRankedResult> = {}): FindRankedResult {
   return {
@@ -144,6 +144,7 @@ describe('FindHomeComponent', () => {
     localStorage.removeItem('find-awards-count');
     localStorage.removeItem('find-awards-unlocked');
     localStorage.removeItem('find.useLocation');
+    localStorage.removeItem('find.hasWatches');
 
     TestBed.configureTestingModule({
       providers: [
@@ -542,6 +543,85 @@ describe('FindHomeComponent', () => {
     tick();
     drainSummarize();
     expect(component.currentFollowup).toBeNull();
+  }));
+
+  function makeWatch(overrides: Partial<FindWatch> = {}): FindWatch {
+    return {
+      id: 'w1', query: 'tree runners', url: 'https://example.com/result', title: 'Tree Runner', kind: 'price',
+      createdAt: Date.now(), expiresAt: Date.now() + 30 * 86400000, expired: false, lastCheckedAt: null,
+      lastChange: null, changed: false, current: '$100.00', ...overrides,
+    };
+  }
+
+  it('watches a result and stops watching it', fakeAsync(() => {
+    runSearch('tree runners', makeEntityResponse('tree runners'));
+    drainSummarize();
+    harness.detectChanges();
+
+    const watchButton = () => root().querySelector('.find-action--watch') as HTMLButtonElement;
+    expect(watchButton().textContent).toContain('Watch');
+    watchButton().click();
+    tick();
+    const req = http.expectOne(r => r.url.endsWith('/find/watches'));
+    expect(req.request.body).toEqual(jasmine.objectContaining({ query: 'tree runners', url: 'https://example.com/result', queryType: 'entity' }));
+    expect(req.request.body.deviceId).toMatch(/^[A-Za-z0-9-]{16,}$/);
+    req.flush({ success: true, watch: makeWatch() });
+    tick();
+    harness.detectChanges();
+
+    expect(watchButton().getAttribute('aria-pressed')).toBe('true');
+    expect(root().querySelector('.find-watch-message')?.textContent).toContain('every few hours');
+    expect(localStorage.getItem('find.hasWatches')).toBe('on');
+
+    watchButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/watches/remove')).flush({ success: true });
+    tick();
+    harness.detectChanges();
+    expect(watchButton().getAttribute('aria-pressed')).toBe('false');
+  }));
+
+  it('explains the limit when a device already watches 10 finds', fakeAsync(() => {
+    runSearch('tree runners', makeEntityResponse('tree runners'));
+    drainSummarize();
+    harness.detectChanges();
+
+    (root().querySelector('.find-action--watch') as HTMLButtonElement).click();
+    tick();
+    // A failed request is retried once against the hosted API (postWithLocalFallback).
+    for (let attempt = 0; attempt < 2; attempt++) {
+      http.expectOne(r => r.url.endsWith('/find/watches'))
+        .flush({ success: false, message: 'You can watch up to 10 finds. Remove one to add another.' }, { status: 409, statusText: 'Conflict' });
+      tick();
+    }
+    harness.detectChanges();
+    expect(root().querySelector('.find-watch-message')?.textContent).toContain('up to 10 finds');
+  }));
+
+  it('lists watches in History, badges changes, and marks them seen', fakeAsync(() => {
+    localStorage.setItem('find.hasWatches', 'on');
+    component.refreshWatches();
+    http.expectOne(r => r.url.endsWith('/find/watches/list')).flush({ success: true, watches: [
+      makeWatch({ id: 'w1', changed: true, lastChange: { at: Date.now() - 3600000, summary: 'Price dropped from $100.00 to $85.00' } }),
+      makeWatch({ id: 'w2', title: 'Bonhomie', kind: 'hours', current: '', lastCheckedAt: Date.now() - 600000 }),
+    ] });
+    harness.detectChanges();
+    expect(root().querySelector('.find-tab__badge')?.textContent?.trim()).toBe('1');
+
+    byLabel('Search history').click();
+    http.expectOne(r => r.url.endsWith('/find/watches/list')).flush({ success: true, watches: [
+      makeWatch({ id: 'w1', changed: true, lastChange: { at: Date.now() - 3600000, summary: 'Price dropped from $100.00 to $85.00' } }),
+      makeWatch({ id: 'w2', title: 'Bonhomie', kind: 'hours', current: '', lastCheckedAt: Date.now() - 600000 }),
+    ] });
+    http.expectOne(r => r.url.endsWith('/find/watches/seen')).flush({ success: true });
+    harness.detectChanges();
+
+    const items = Array.from(root().querySelectorAll('.find-watching__item'));
+    expect(items.length).toBe(2);
+    expect(items[0].classList).toContain('find-watching__item--changed');
+    expect(items[0].querySelector('.find-watching__status')?.textContent).toContain('Price dropped from $100.00 to $85.00 · 1h ago');
+    expect(items[1].querySelector('.find-watching__status')?.textContent).toContain('No changes yet · checked 10m ago');
+    expect(root().querySelector('.find-tab__badge')).toBeNull();
   }));
 
   it('lists every location of a business inside its one result', fakeAsync(() => {
