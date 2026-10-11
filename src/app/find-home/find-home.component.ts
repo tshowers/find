@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { FindSwipeDirective } from '../directives/find-swipe.directive';
 import { FindAward, FindAwardView, FindAwardsProgress, FindAwardsService } from '../services/find-awards.service';
-import { FindBusinessHours, FindBusinessHoursDay, FindBusinessLocation, FindConversionCategory, FindConversionResult, FindExperienceService, FindFeedbackRating, FindMovieRatings, FindRankedResult, FindSearchResponse, FindSourceType, FindWeatherForecastDay } from '../services/find-experience.service';
+import { FindBusinessHours, FindBusinessHoursDay, FindBusinessLocation, FindInstantAnswer, FindConversionCategory, FindConversionResult, FindExperienceService, FindFeedbackRating, FindMovieRatings, FindRankedResult, FindSearchResponse, FindSourceType, FindWeatherForecastDay } from '../services/find-experience.service';
 import { FindGyroscopeService, GyroTilt } from '../services/find-gyroscope.service';
 import { environment } from '../../environments/environment';
 import { AwardBadgeComponent } from '../shared/award-badge/award-badge.component';
@@ -305,7 +305,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   setView ( view: FindView ): void {
-    if ( view === 'booklet' && ( !this.result || this.isWeatherMode || this.isMovieMode ) ) return;
+    if ( view === 'booklet' && ( !this.result || this.isWeatherMode || this.isMovieMode || this.isInstantMode ) ) return;
     if ( view === 'booklet' && this.activeView === 'booklet' ) {
       this.activeView = 'result';
       return;
@@ -333,6 +333,19 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     return this.result?.queryType === 'conversion' && !!this.result?.conversion;
   }
 
+  get isInstantMode (): boolean {
+    return this.result?.queryType === 'instant' && !!this.result?.instant;
+  }
+
+  get instant (): FindInstantAnswer | null {
+    return this.result?.instant || null;
+  }
+
+  /** "Why this result" line for the current card. */
+  get currentReasons (): string[] {
+    return this.currentCard?.reasons || [];
+  }
+
   get isLocalMode (): boolean {
     return this.result?.queryType === 'local';
   }
@@ -354,6 +367,8 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   get conversionUnitOptions (): Array<{ value: string; label: string }> {
+    // Backend unit conversions list every unit in their category.
+    if ( this.conversion?.unitOptions?.length ) return this.conversion.unitOptions;
     const options: Record<string, Array<{ value: string; label: string }>> = {
       currency: [
         { value: 'USD', label: 'US Dollar (USD)' }, { value: 'CAD', label: 'Canadian Dollar (CAD)' },
@@ -508,14 +523,14 @@ export class FindHomeComponent implements OnInit, OnDestroy {
 
   /** The result's own image, when it has a usable one that isn't Find's default artwork. */
   get currentOwnImage (): string {
-    if ( this.isWeatherMode || this.isConversionMode ) return '';
+    if ( this.isWeatherMode || this.isConversionMode || this.isInstantMode ) return '';
     const image = this.currentRawImage;
     return this.isUsableImage( image ) && !this.isFindFallbackUrl( image ) ? image : '';
   }
 
   /** Find's own default artwork for this result. Only ever shown as a thumbnail. */
   get currentFallbackImage (): string {
-    if ( this.isWeatherMode || this.isConversionMode || this.currentOwnImage ) return '';
+    if ( this.isWeatherMode || this.isConversionMode || this.isInstantMode || this.currentOwnImage ) return '';
     const raw = this.currentRawImage;
     const fallback = this.isFindFallbackUrl( raw ) ? raw : this.defaultFallbackImage;
     return this.isUsableImage( fallback ) ? fallback : '';
@@ -601,11 +616,12 @@ export class FindHomeComponent implements OnInit, OnDestroy {
 
   /** Weather, conversion and movie answers are a single result: Back only, no segments. */
   get isSingleResultMode (): boolean {
-    return this.isWeatherMode || this.isConversionMode || this.isMovieMode;
+    return this.isWeatherMode || this.isConversionMode || this.isMovieMode || this.isInstantMode;
   }
 
   get pagerCenterLabel (): string {
     if ( this.isWeatherMode ) return 'Weather';
+    if ( this.isInstantMode ) return this.instant?.label || 'Result';
     if ( this.isConversionMode ) return this.conversionCategory === 'currency' ? 'Currency conversion' : 'Unit conversion';
     if ( this.isMovieMode ) return 'Movie';
     return '';
@@ -652,6 +668,10 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   // --- Actions ---
 
   get currentActions (): FindAction[] {
+    if ( this.isInstantMode && this.instant ) {
+      const text = `${ this.instant.title }: ${ this.instant.value }`;
+      return [ { key: 'copy-result', label: 'Copy result', shortLabel: 'Copy', icon: 'fa-copy', copyText: text } ];
+    }
     if ( this.isConversionMode ) {
       const text = this.conversionResultText;
       return text ? [ { key: 'copy-result', label: 'Copy result', shortLabel: 'Copy', icon: 'fa-copy', copyText: text } ] : [];
@@ -907,9 +927,14 @@ export class FindHomeComponent implements OnInit, OnDestroy {
 
   /** Short unit shown in the unit pill: "USD", "°F", "km". */
   conversionUnitShort ( unit: string ): string {
-    if ( this.conversionCategory === 'temperature' ) return `°${ unit }`;
-    return unit === 'l' ? 'L' : unit;
+    if ( this.conversionCategory === 'temperature' ) return unit === 'K' ? 'K' : `°${ unit }`;
+    return this.unitShortNames[unit] || unit;
   }
+
+  private readonly unitShortNames: Record<string, string> = {
+    l: 'L', floz: 'fl oz', kph: 'km/h', mps: 'm/s', knot: 'kn', sqin: 'sq in', sqft: 'sq ft',
+    sqm: 'm²', sqkm: 'km²', sqmi: 'sq mi', acre: 'ac', tonne: 't', cup: 'cup',
+  };
 
   /** Full unit name shown under the amount: "US Dollar", "Kilometers". */
   conversionUnitName ( unit: string ): string {
@@ -1533,12 +1558,10 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       return;
     }
     if ( category === 'temperature' ) {
-      const celsius = this.conversionInputUnit === 'F'
-        ? ( this.conversionAmount - 32 ) * 5 / 9
-        : ( this.conversionAmount * 9 / 5 ) + 32;
-      this.conversionOutputAmount = this.conversionOutputUnit === 'F'
-        ? celsius * 9 / 5 + 32
-        : celsius;
+      const from = this.conversionInputUnit;
+      const to = this.conversionOutputUnit;
+      const celsius = from === 'F' ? ( this.conversionAmount - 32 ) * 5 / 9 : from === 'K' ? this.conversionAmount - 273.15 : this.conversionAmount;
+      this.conversionOutputAmount = to === 'F' ? celsius * 9 / 5 + 32 : to === 'K' ? celsius + 273.15 : celsius;
       return;
     }
     this.conversionOutputAmount = this.conversionAmount * input / output;
@@ -1584,6 +1607,8 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   private unitFactor ( category: FindConversionCategory | null, unit: string ): number | null {
+    const option = this.conversion?.unitOptions?.find( item => item.value === unit );
+    if ( option?.factor !== undefined ) return option.factor;
     const factors: Record<string, Record<string, number>> = {
       distance: { mi: 1609.344, km: 1000 },
       weight: { lb: 0.45359237, kg: 1 },

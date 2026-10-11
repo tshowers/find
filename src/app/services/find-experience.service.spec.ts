@@ -32,6 +32,8 @@ describe('FindExperienceService', () => {
       context: null,
       postalCode: '98106',
       maxResults: 1,
+      timeZone: jasmine.any(String),
+      features: ['instant', 'units'],
     });
     request.flush({ success: true, query: 'weather 98106', normalizedQuery: 'weather 98106', queryType: 'weather', results: [], selectedIndex: 0 });
   });
@@ -44,6 +46,8 @@ describe('FindExperienceService', () => {
       query: 'weather tomorrow',
       context: null,
       maxResults: 20,
+      timeZone: jasmine.any(String),
+      features: ['instant', 'units'],
     });
     request.flush({ success: true, query: 'weather tomorrow', normalizedQuery: 'weather tomorrow', queryType: 'weather', results: [], selectedIndex: 0 });
   });
@@ -58,6 +62,8 @@ describe('FindExperienceService', () => {
       latitude: 47.5218,
       longitude: -122.3466,
       maxResults: 20,
+      timeZone: jasmine.any(String),
+      features: ['instant', 'units'],
     });
     request.flush({ success: true, query: 'places to eat near me', normalizedQuery: 'places to eat near me', queryType: 'local', results: [], selectedIndex: 0 });
   });
@@ -70,6 +76,8 @@ describe('FindExperienceService', () => {
       query: 'places to eat near me',
       context: null,
       maxResults: 20,
+      timeZone: jasmine.any(String),
+      features: ['instant', 'units'],
     });
     request.flush({ success: true, query: 'places to eat near me', normalizedQuery: 'places to eat near me', queryType: 'entity', results: [], selectedIndex: 0 });
   });
