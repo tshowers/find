@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
-export type FindQueryType = 'entity' | 'question' | 'person' | 'weather' | 'conversion' | 'local' | 'movie' | 'sports' | 'news';
+export type FindQueryType = 'entity' | 'question' | 'person' | 'weather' | 'conversion' | 'instant' | 'local' | 'movie' | 'sports' | 'news';
 export type FindSourceType = 'official' | 'publisher' | 'government' | 'academic' | 'medical' | 'encyclopedia';
 export type FindFeedbackRating = 'excellent' | 'good' | 'fair' | 'poor';
 
@@ -72,9 +72,20 @@ export interface FindRankedResult {
   phone?: string;
   // Every verified location of a business that has more than one.
   locations?: FindBusinessLocation[];
+  // "Why this result": short reasons the page doesn't already show.
+  reasons?: string[];
   // Set on News/Sports headlines served from the hourly RSS snapshot.
   rssSource?: string;
   publishedAt?: string;
+}
+
+/** An exact answer Find works out itself: date math, tips, percentages, sunrise/sunset. */
+export interface FindInstantAnswer {
+  kind: 'date' | 'tip' | 'percent' | 'sun';
+  label: string;
+  value: string;
+  title: string;
+  detail?: string;
 }
 
 export interface FindBusinessLocation {
@@ -114,7 +125,7 @@ export interface FindWeatherForecastDay {
   lowF?: number;
 }
 
-export type FindConversionCategory = 'currency' | 'temperature' | 'distance' | 'weight' | 'length' | 'volume';
+export type FindConversionCategory = 'currency' | 'temperature' | 'distance' | 'weight' | 'length' | 'volume' | 'speed' | 'area' | 'data';
 
 export interface FindConversionResult {
   category: FindConversionCategory;
@@ -127,6 +138,8 @@ export interface FindConversionResult {
   rate?: number;
   /** Every supported currency against inputUnit (backend conversions only). */
   rates?: Record<string, number>;
+  /** Every unit in the category, with its factor to the category's base unit (backend unit conversions). */
+  unitOptions?: Array<{ value: string; label: string; factor?: number }>;
   rateUpdatedAt?: string;
   source?: string;
 }
@@ -160,6 +173,7 @@ export interface FindSearchResponse {
   answer?: FindAnswerBlock | null;
   weather?: FindWeatherResult | null;
   conversion?: FindConversionResult | null;
+  instant?: FindInstantAnswer | null;
   movieRatings?: FindMovieRatings | null;
   results: FindRankedResult[];
   selectedIndex: number;
@@ -199,7 +213,10 @@ export class FindExperienceService {
       context: String( payload?.context || '' ).trim() || null,
       ...( postalCode ? { postalCode } : {} ),
       ...( hasCoordinates ? { latitude: payload!.latitude, longitude: payload!.longitude } : {} ),
-      maxResults: Math.max( 1, Math.min( 20, Number( payload?.maxResults ) || 20 ) )
+      maxResults: Math.max( 1, Math.min( 20, Number( payload?.maxResults ) || 20 ) ),
+      timeZone: this.userTimeZone(),
+      // Answer types this app can show; the backend leaves them out for apps that can't.
+      features: [ 'instant', 'units' ]
     };
 
     return this.postWithLocalFallback<FindSearchResponse>( '/find/search', body, { headers } )
@@ -234,6 +251,14 @@ export class FindExperienceService {
 
     const projectId = String( environment.firebaseConfig?.projectId || 'taliferrotech' ).trim() || 'taliferrotech';
     return `http://127.0.0.1:5001/${projectId}/us-central1/api/api`;
+  }
+
+  private userTimeZone (): string | null {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+    } catch {
+      return null;
+    }
   }
 
   private extractPostalCode ( value: string | null | undefined ): string | null {

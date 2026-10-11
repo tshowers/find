@@ -272,6 +272,69 @@ describe('FindHomeComponent', () => {
     expect(component.conversionRate!).toBeCloseTo(0.89 / 158.25, 8);
   }));
 
+  it('tells the backend its time zone and which answer types it can show', fakeAsync(() => {
+    component.query = 'days until christmas';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    const req = http.expectOne(r => r.url.endsWith('/find/search'));
+    expect(req.request.body.features).toEqual(['instant', 'units']);
+    expect(typeof req.request.body.timeZone).toBe('string');
+    req.flush(makeEntityResponse('days until christmas'));
+    tick();
+    drainSummarize();
+  }));
+
+  it('shows an instant answer as a single result with a copy action', fakeAsync(() => {
+    runSearch('20% tip on $84 for 3', {
+      success: true, query: '20% tip on $84 for 3', normalizedQuery: '20% tip on $84 for 3', queryType: 'instant',
+      results: [], selectedIndex: 0,
+      instant: { kind: 'tip', label: 'Tip and split', value: '$33.60 each', title: '$84.00 + 20% tip, split 3 ways', detail: 'Tip $16.80 · Total $100.80' },
+    });
+    harness.detectChanges();
+
+    expect(component.isInstantMode).toBeTrue();
+    expect(root().querySelector('.find-instant__value')?.textContent?.trim()).toBe('$33.60 each');
+    expect(root().querySelector('.find-instant__detail')?.textContent?.trim()).toBe('Tip $16.80 · Total $100.80');
+    expect(component.currentActions.map(action => action.copyText)).toEqual(['$84.00 + 20% tip, split 3 ways: $33.60 each']);
+    expect(component.isSingleResultMode).toBeTrue();
+  }));
+
+  it('uses the backend unit list for menus and conversions', fakeAsync(() => {
+    runSearch('60 mph in km/h', {
+      success: true, query: '60 mph in km/h', normalizedQuery: '60 mph in km/h', queryType: 'conversion', results: [], selectedIndex: 0,
+      conversion: {
+        category: 'speed', inputAmount: 60, inputUnit: 'mph', outputAmount: 96.56064, outputUnit: 'kph', source: 'Find',
+        unitOptions: [
+          { value: 'mps', label: 'Meters per second (m/s)', factor: 1 },
+          { value: 'kph', label: 'Kilometers per hour (km/h)', factor: 1000 / 3600 },
+          { value: 'mph', label: 'Miles per hour (mph)', factor: 0.44704 },
+          { value: 'knot', label: 'Knots (kn)', factor: 1852 / 3600 },
+        ],
+      },
+    });
+
+    expect(component.conversionUnitOptions.length).toBe(4);
+    expect(component.conversionUnitShort('kph')).toBe('km/h');
+    component.conversionOutputUnit = 'knot';
+    component.onConversionUnitChange();
+    expect(component.conversionOutputAmount!).toBeCloseTo(52.14, 2);
+  }));
+
+  it('converts Kelvin', fakeAsync(() => {
+    runSearch('300 kelvin to fahrenheit', {
+      success: true, query: '300 kelvin to fahrenheit', normalizedQuery: '300 kelvin to fahrenheit', queryType: 'conversion', results: [], selectedIndex: 0,
+      conversion: {
+        category: 'temperature', inputAmount: 300, inputUnit: 'K', outputAmount: 80.33, outputUnit: 'F', source: 'Find',
+        unitOptions: [ { value: 'F', label: 'Fahrenheit (°F)' }, { value: 'C', label: 'Celsius (°C)' }, { value: 'K', label: 'Kelvin (K)' } ],
+      },
+    });
+    component.conversionOutputUnit = 'C';
+    component.onConversionUnitChange();
+    expect(component.conversionOutputAmount!).toBeCloseTo(26.85, 2);
+    expect(component.conversionUnitShort('K')).toBe('K');
+  }));
+
   it('requests geolocation and returns local results from the Restaurants quick action', fakeAsync(() => {
     byLabel('Search Restaurants').click();
     tick();
@@ -324,6 +387,16 @@ describe('FindHomeComponent', () => {
 
     const distances = Array.from(root().querySelectorAll('.find-grid-card__distance')).map(el => el.textContent?.trim());
     expect(distances).toEqual(['0.5 mi', '3.2 mi']);
+  }));
+
+  it('says why this result was picked', fakeAsync(() => {
+    runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle', {
+      results: [makeResult({ title: 'Bonhomie Coffee Bar', reasons: ['Verified business', '2 locations', 'Top pick of 8'] })],
+    }));
+    drainSummarize();
+    harness.detectChanges();
+
+    expect(root().querySelector('.find-reasons')?.textContent?.trim()).toBe('Verified business · 2 locations · Top pick of 8');
   }));
 
   it('lists every location of a business inside its one result', fakeAsync(() => {
