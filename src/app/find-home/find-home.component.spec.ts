@@ -367,6 +367,18 @@ describe('FindHomeComponent', () => {
     expect(root().querySelector('.find-info-screen h2')?.textContent).toContain('About Find');
   }));
 
+  it('keeps the company footer on the Info tab, off the search screen', fakeAsync(() => {
+    expect(root().querySelector('.find-search-screen app-site-footer')).toBeNull();
+
+    byLabel('About Find').click();
+    harness.detectChanges();
+
+    const footer = root().querySelector('.find-info-screen app-site-footer');
+    expect(footer).not.toBeNull();
+    expect(footer!.textContent).toContain('support@taliferro.tech');
+    expect(footer!.textContent).toContain('Privacy Policy');
+  }));
+
   it('shows the awards progress from the Awards tab', fakeAsync(() => {
     byLabel('Awards').click();
     harness.detectChanges();
