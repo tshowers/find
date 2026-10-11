@@ -12,6 +12,8 @@ import { AwardBadgeComponent } from '../shared/award-badge/award-badge.component
 import { PlatformMenuComponent } from '../shared/platform-menu/platform-menu.component';
 import { SeoService } from '../shared/seo.service';
 import { Title, Meta } from '@angular/platform-browser';
+import { SiteFooterComponent } from '../shared/site-footer/site-footer.component';
+import { MENU_COMPANY } from '@taliferro/ui/platform/universal-menu.model';
 
 type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info' | 'awards';
 
@@ -44,7 +46,7 @@ type FindImageState = 'own' | 'fallback' | 'none';
 @Component( {
   selector: 'app-find-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
+  imports: [SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
   templateUrl: './find-home.component.html',
   styleUrls: ['./find-home.component.css', './find-home.grid.css'],
   // The prerendered "/" always contains the home screen, but a `?query=` or
@@ -93,6 +95,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   private conversionBaseInputUnit = '';
   private conversionBaseOutputUnit = '';
   private conversionBaseRate: number | null = null;
+  private conversionRates: Record<string, number> = {};
   readonly conversionKeypadDigits = [ '1', '2', '3', '4', '5', '6', '7', '8', '9' ];
   readonly quickActions: FindQuickAction[] = [
     { label: 'News', icon: 'fa-newspaper', color: 'news', query: "Today's News" },
@@ -110,6 +113,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   searchHistory: string[] = [];
   pendingAwardUnlock: FindAward | null = null;
   readonly year = new Date().getFullYear();
+  readonly company = MENU_COMPANY;
   readonly appVersion = String( environment.VERSION || '' ).trim();
   private readonly brokenImageUrls = new Set<string>();
   readonly feedbackRatings: Array<{ value: FindFeedbackRating; label: string }> = [
@@ -963,6 +967,11 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     this.currentCard = this.allCards[this.resultIndex] ?? null;
   }
 
+  /** A local result's distance ("0.5 mi"), which the backend sends as a pill. */
+  cardDistance ( card: FindRankedResult ): string {
+    return card.pills?.find( pill => /^\d+(?:\.\d+)?\s*mi$/.test( pill ) ) || '';
+  }
+
   get gridCards (): FindRankedResult[] {
     return this.allResults.slice( 0, this.gridVisibleCount );
   }
@@ -1472,6 +1481,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       this.conversionBaseInputUnit = '';
       this.conversionBaseOutputUnit = '';
       this.conversionBaseRate = null;
+      this.conversionRates = {};
       return;
     }
     this.conversionAmount = conversion.inputAmount;
@@ -1485,6 +1495,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     this.conversionBaseInputUnit = this.conversionInputUnit;
     this.conversionBaseOutputUnit = this.conversionOutputUnit;
     this.conversionBaseRate = this.conversionRate;
+    this.conversionRates = conversion.rates || {};
   }
 
   private calculateConversion (): void {
@@ -1523,6 +1534,14 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     }
     if ( this.conversionInputUnit === this.conversionBaseOutputUnit && this.conversionOutputUnit === this.conversionBaseInputUnit && this.conversionBaseRate ) {
       this.conversionRate = 1 / this.conversionBaseRate;
+      return;
+    }
+    // Backend conversions carry every supported currency's rate against the
+    // original input, so any pair can be worked out from those two.
+    const inputRate = this.conversionRates[this.conversionInputUnit];
+    const outputRate = this.conversionRates[this.conversionOutputUnit];
+    if ( inputRate && outputRate ) {
+      this.conversionRate = outputRate / inputRate;
       return;
     }
     this.conversionRate = null;

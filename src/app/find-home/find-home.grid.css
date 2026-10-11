@@ -128,6 +128,12 @@
   font-weight: 600;
 }
 
+/* Results are already nearest first; the distance makes that visible. */
+.find-grid-card__distance {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .find-grid-card__thumb {
   object-fit: cover;
   background: var(--surface2);

@@ -38,6 +38,7 @@
       <span><small>Download on the</small><strong>App Store</strong></span>
     </a>
     <p class="made-by"><a href="https://todd.taliferro.tech" target="_blank" rel="noopener"><span class="made-by__todd"><img src="assets/find/entities/todd/logo-bw-icon.png" alt="" width="20" height="20"></span>Powered by <strong>TODD</strong></a><i aria-hidden="true"></i><a href="https://maya.taliferro.tech" target="_blank" rel="noopener">Also from us <img src="assets/find/entities/maya/logo-icon.png" alt="" width="22" height="25"> <strong>Maya</strong></a><i class="made-by__wide" aria-hidden="true"></i><a class="made-by__wide" href="https://music.taliferro.com" target="_blank" rel="noopener"><img class="made-by__round" src="assets/find/entities/music/logo.png" alt="" width="22" height="22"> <strong>Music Radio</strong></a></p>
+    <app-site-footer><a routerLink="/help">Help</a><a routerLink="/about">About</a></app-site-footer>
   </div>
   <!-- ── RESULT VIEW ──────────────────────────────────────────── -->
   <div class="find-result-screen" data-cy="find-result-shell" *ngIf="activeView === 'result' || activeView === 'detail'">
@@ -437,8 +438,9 @@
             </div>
             <h3 class="find-grid-card__title" [innerHTML]="highlightTerms(card.title)"></h3>
             <p *ngIf="card.summary" class="find-grid-card__summary" [innerHTML]="highlightTerms(card.summary)"></p>
-            <p *ngIf="card.address || card.phone" class="find-grid-card__contact">
+            <p *ngIf="card.address || card.phone || cardDistance(card)" class="find-grid-card__contact">
               <span *ngIf="card.address">{{ card.address }}</span>
+              <span *ngIf="cardDistance(card) as distance" class="find-grid-card__distance">{{ distance }}</span>
               <b *ngIf="card.phone">{{ card.phone }}</b>
             </p>
           </div>
@@ -507,13 +509,15 @@
 
     <div class="find-info-built">
       <p class="find-info-built__label">Built by</p>
-      <p class="find-info-built__company">Taliferro Tech</p>
+      <a class="find-info-built__company" [href]="company.url" target="_blank" rel="noopener noreferrer">{{ company.name }}</a>
       <p class="find-info-built__tagline">Find is part of TODD — the Momentum System designed for teams that move fast and need information faster.</p>
-      <a class="find-info-built__contact" href="mailto:ty.showers&#64;taliferro.com">ty.showers&#64;taliferro.com</a>
-      <a class="find-info-built__website" href="https://taliferro.com" target="_blank" rel="noopener noreferrer">taliferro.com</a>
+      <a class="find-info-built__contact" [href]="'mailto:' + company.email">{{ company.email }}</a>
+      <a class="find-info-built__website" [href]="company.url" target="_blank" rel="noopener noreferrer">taliferro.tech</a>
+      <nav class="find-info-legal" aria-label="Taliferro Tech policies">
+        <a *ngFor="let link of company.links" [href]="link.url" target="_blank" rel="noopener noreferrer">{{ link.label }}</a>
+      </nav>
       <p class="find-info-copyright">
-        &#169; {{ year }} TODD. Site design <a href="https://taliferro.com/website-development" target="_blank" rel="noopener noreferrer">Taliferro Group</a>. Taliferro Is Registered In The U.S. Patent And Trademark Office. All rights reserved.
-        | <a href="https://taliferro.com/contact.html" target="_blank" rel="noopener noreferrer">Contact</a>
+        &#169; {{ year }} {{ company.legalName }}. Taliferro Is Registered In The U.S. Patent And Trademark Office. All rights reserved.
       </p>
       <p class="find-info-version" *ngIf="appVersion">Version {{ appVersion }}</p>
     </div>
