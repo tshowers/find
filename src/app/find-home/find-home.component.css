@@ -1295,6 +1295,57 @@
   text-decoration: none;
 }
 
+/* Every location of a business, inside its one result. */
+.find-locations {
+  display: flex;
+  flex-direction: column;
+  max-width: 420px;
+  border-top: 1px solid var(--surface2);
+}
+
+.find-locations h3 {
+  margin: 12px 0 4px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.find-locations__item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--surface2);
+}
+
+.find-locations__place {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.find-locations__place strong { font-size: 15px; font-weight: 600; }
+.find-locations__place span { font-size: 14px; color: var(--muted); }
+.find-locations__place:hover strong { text-decoration: underline; }
+
+.find-locations__distance {
+  align-self: start;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.find-locations__phone {
+  grid-column: 1;
+  font-size: 14px;
+  color: var(--blue-ink);
+  text-decoration: none;
+}
+
 .find-business-meta {
   display: flex;
   flex-wrap: wrap;
