@@ -88,6 +88,17 @@ export interface FindInstantAnswer {
   detail?: string;
 }
 
+/** A follow-up question about one result (POST /find/followup). */
+export interface FindFollowupResponse {
+  success: boolean;
+  /** "search": the question wanted something else; run searchQuery instead. */
+  mode: 'answer' | 'search';
+  answered: boolean;
+  answer: string;
+  sources: Array<{ title: string; url: string; displayUrl: string }>;
+  searchQuery: string;
+}
+
 export interface FindBusinessLocation {
   name: string;
   address: string;
@@ -226,6 +237,11 @@ export class FindExperienceService {
   summarize ( payload: { query: string; url: string; title: string } ): Observable<{ answer: string; hours?: FindBusinessHours | null }> {
     const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
     return this.postWithLocalFallback<{ answer: string; hours?: FindBusinessHours | null }>( '/find/summarize', payload, { headers } );
+  }
+
+  followup ( payload: { query: string; followup: string; url: string; title: string; sourceUrls?: string[] } ): Observable<FindFollowupResponse> {
+    const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
+    return this.postWithLocalFallback<FindFollowupResponse>( '/find/followup', payload, { headers } );
   }
 
   submitFeedback ( payload: FindFeedbackPayload ): Observable<{ success: boolean }> {

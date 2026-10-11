@@ -299,6 +299,7 @@
                   </div>
                   <div class="find-card-summary find-rich-text" *ngIf="!currentHoursFromSummary" [innerHTML]="formatRichText(currentAnswerText)"></div>
                   <ng-container *ngTemplateOutlet="aiSummaryBox"></ng-container>
+                  <ng-container *ngTemplateOutlet="followupBox"></ng-container>
                   <p class="find-local-attribution" *ngIf="isLocalMode">
                     Business details powered by <a href="https://www.google.com/" target="_blank" rel="noopener">Google</a>
                   </p>
@@ -317,6 +318,7 @@
                     </h2>
                     <div class="find-card-summary find-card-summary--answer find-rich-text" [innerHTML]="formatRichText(currentQuestionText)"></div>
                     <ng-container *ngIf="!isGroundedAnswerSlide"><ng-container *ngTemplateOutlet="aiSummaryBox"></ng-container></ng-container>
+                    <ng-container *ngTemplateOutlet="followupBox"></ng-container>
                   </div>
 
                   <div class="find-question-sources" *ngIf="isGroundedAnswerSlide && questionReferences.length > 0">
@@ -382,6 +384,30 @@
   </div>
 
   <!-- TODD summary: added under the result's own details, never in place of them. -->
+  <!-- "Ask about this result": answered from this result's own sources. -->
+  <ng-template #followupBox>
+    <section class="find-followup" aria-label="Ask about this result">
+      <div class="find-followup__answer" *ngIf="currentFollowup as followup" aria-live="polite">
+        <p class="find-followup__question">{{ followup.question }}</p>
+        <ng-container *ngIf="followup.response.answered; else followupNotCovered">
+          <p class="find-followup__text">{{ followup.response.answer }}</p>
+          <p class="find-followup__sources" *ngIf="followup.response.sources.length">
+            From <ng-container *ngFor="let source of followup.response.sources; let last = last"><a [href]="source.url" target="_blank" rel="noopener">{{ source.displayUrl }}</a><ng-container *ngIf="!last">, </ng-container></ng-container>
+          </p>
+        </ng-container>
+        <ng-template #followupNotCovered>
+          <p class="find-followup__text">{{ followup.response.success ? 'The sources for this result don’t say.' : 'Find couldn’t check the sources right now.' }}</p>
+          <button type="button" class="find-followup__search" (click)="searchFollowup()">Search for “{{ followup.response.searchQuery }}”</button>
+        </ng-template>
+        <button type="button" class="find-followup__back" (click)="clearFollowup()">Back to the result</button>
+      </div>
+      <form class="find-followup__form" (ngSubmit)="submitFollowup()">
+        <input type="text" name="followup" [(ngModel)]="followupText" placeholder="Ask about this result" maxlength="200" autocomplete="off" aria-label="Ask about this result" [disabled]="followupLoading" />
+        <button type="submit" [disabled]="followupLoading || !followupText.trim()">{{ followupLoading ? 'Asking…' : 'Ask' }}</button>
+      </form>
+    </section>
+  </ng-template>
+
   <ng-template #aiSummaryBox>
     <aside class="find-ai-summary" *ngIf="currentCard?.aiSummary as aiSummary" aria-label="TODD summary">
       <span class="find-ai-summary__label"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> TODD summary</span>
