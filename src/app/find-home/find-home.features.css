@@ -1,0 +1,390 @@
+/* Find 1.4 features: every location, instant answers, "why this result",
+   Open now, Use my location, follow-ups and Watch. Kept apart from
+   find-home.component.css, which is at its size budget. */
+
+/* Every location of a business, inside its one result. */
+.find-locations {
+  display: flex;
+  flex-direction: column;
+  max-width: 420px;
+  border-top: 1px solid var(--surface2);
+}
+
+.find-locations h3 {
+  margin: 12px 0 4px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.find-locations__item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--surface2);
+}
+
+.find-locations__place {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.find-locations__place strong { font-size: 15px; font-weight: 600; }
+.find-locations__place span { font-size: 14px; color: var(--muted); }
+.find-locations__place:hover strong { text-decoration: underline; }
+
+.find-locations__distance {
+  align-self: start;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.find-locations__phone {
+  grid-column: 1;
+  font-size: 14px;
+  color: var(--blue-ink);
+  text-decoration: none;
+}
+
+/* ── INSTANT ANSWER: date math, tips, percentages, sun ─────── */
+.find-instant {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  max-width: 900px;
+  padding-top: 8px;
+}
+
+.find-instant__card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-self: stretch;
+  padding: 24px 28px;
+  border-radius: 24px;
+  background: var(--t-violet);
+  color: var(--t-violet-fg);
+}
+
+.find-instant__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.find-instant__value {
+  font-size: clamp(36px, 7vw, 64px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.find-instant__detail {
+  margin: 0;
+  font-size: 15px;
+  opacity: 0.85;
+}
+
+/* "Why this result" */
+.find-reasons {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Nearby results: show only places open right now. */
+.find-open-now {
+  align-self: flex-start;
+  padding: 6px 14px;
+  border: 1px solid var(--surface2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.find-open-now--on {
+  border-color: transparent;
+  background: var(--t-blue);
+  color: var(--t-blue-fg);
+}
+
+/* Info tab: "Use my location" */
+.find-info-setting__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.find-info-setting__row > span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.find-info-setting__row small {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--todd-panel-subtext);
+}
+
+.find-info-setting__note {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: var(--danger);
+}
+
+.find-switch {
+  flex: none;
+  appearance: none;
+  position: relative;
+  width: 46px;
+  height: 28px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--surface2);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.find-switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s;
+}
+
+.find-switch:checked { background: var(--blue); }
+.find-switch:checked::after { transform: translateX(18px); }
+.find-switch:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+/* "Ask about this result" */
+.find-followup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 640px;
+  margin-top: 8px;
+}
+
+.find-followup__answer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: var(--t-blue);
+  color: var(--t-blue-fg);
+}
+
+.find-followup__question {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.find-followup__text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.find-followup__sources {
+  margin: 0;
+  font-size: 13px;
+}
+
+.find-followup__sources a,
+.find-followup__search,
+.find-followup__back {
+  color: var(--blue-ink);
+  text-decoration: none;
+}
+
+.find-followup__search,
+.find-followup__back {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.find-followup__back { color: var(--muted); }
+.find-followup__sources a:hover,
+.find-followup__search:hover,
+.find-followup__back:hover { text-decoration: underline; }
+
+.find-followup__form {
+  display: flex;
+  gap: 8px;
+}
+
+.find-followup__form input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--surface2);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+}
+
+.find-followup__form input:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+
+.find-followup__form button {
+  height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.find-followup__form button:disabled { opacity: 0.5; cursor: default; }
+
+/* Watch a find */
+.find-action--watching {
+  background: var(--t-blue);
+  color: var(--t-blue-fg);
+}
+
+.find-watch-message {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.find-tab__icon { position: relative; }
+
+.find-tab__badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+.find-watching {
+  margin: 0 0 20px;
+}
+
+.find-watching h3 {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.find-watching h3 span { font-weight: 500; letter-spacing: 0; text-transform: none; }
+
+.find-watching ul {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.find-watching__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.find-watching__item--changed { background: var(--t-blue); color: var(--t-blue-fg); }
+.find-watching__item--ended { opacity: 0.7; }
+
+.find-watching__open {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.find-watching__open strong {
+  overflow: hidden;
+  font-size: 15px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+
+.find-watching__kind { font-size: 12px; font-weight: 700; }
+.find-watching__status { font-size: 13px; color: var(--muted); }
+.find-watching__item--changed .find-watching__status { color: inherit; font-weight: 600; }
+
+.find-watching__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.find-watching__meta button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--blue-ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}

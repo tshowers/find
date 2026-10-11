@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { FindSwipeDirective } from '../directives/find-swipe.directive';
 import { FindAward, FindAwardView, FindAwardsProgress, FindAwardsService } from '../services/find-awards.service';
-import { FindBusinessHours, FindBusinessHoursDay, FindBusinessLocation, FindFollowupResponse, FindInstantAnswer, FindConversionCategory, FindConversionResult, FindExperienceService, FindFeedbackRating, FindMovieRatings, FindRankedResult, FindSearchResponse, FindSourceType, FindWeatherForecastDay } from '../services/find-experience.service';
+import { FindBusinessHours, FindBusinessHoursDay, FindBusinessLocation, FindFollowupResponse, FindInstantAnswer, FindWatch, FindConversionCategory, FindConversionResult, FindExperienceService, FindFeedbackRating, FindMovieRatings, FindRankedResult, FindSearchResponse, FindSourceType, FindWeatherForecastDay } from '../services/find-experience.service';
 import { FindGyroscopeService, GyroTilt } from '../services/find-gyroscope.service';
 import { environment } from '../../environments/environment';
 import { AwardBadgeComponent } from '../shared/award-badge/award-badge.component';
@@ -48,7 +48,7 @@ type FindImageState = 'own' | 'fallback' | 'none';
   standalone: true,
   imports: [SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
   templateUrl: './find-home.component.html',
-  styleUrls: ['./find-home.component.css', './find-home.grid.css'],
+  styleUrls: ['./find-home.component.css', './find-home.grid.css', './find-home.features.css'],
   // The prerendered "/" always contains the home screen, but a `?query=` or
   // `?q=` link (e.g. a Firefox search shortcut) boots straight into the
   // result view. Hydration never removed the prerendered home screen, so both
@@ -147,6 +147,14 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   followupText = '';
   followupLoading = false;
   private followup: { question: string; response: FindFollowupResponse; cardKey: string } | null = null;
+  // "Watch a find". Only fetched once this browser has watched something,
+  // so ordinary visits make no extra request.
+  private readonly HAS_WATCHES_KEY = 'find.hasWatches';
+  watches: FindWatch[] = [];
+  watchBusy = false;
+  watchMessage = '';
+  /** Changed watches stay highlighted for the visit they were first seen on. */
+  highlightedWatchIds = new Set<string>();
   private readonly OPEN_NOW_PATTERN = /\b(?:open\s+(?:right\s+)?now|currently\s+open)\b/i;
   private readonly NEAR_ME_PATTERN = /\b(?:near me|nearby|near here|close(?:st)? to me|close by|around here|by me|in my area|in my neighborhood|in my zip\s*code|in my zipcode|in my zip)\b/i;
   private readonly LOCATIONLESS_WEATHER_PATTERN = /^(?:(?:what'?s|what is|how'?s|how is|the)\s+)?(?:weather|forecast|temperature)(?:\s+(?:like|today|tomorrow|tonight|right now|currently|this week|this weekend|now))?[?.!]*$/i;
@@ -187,6 +195,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
 
     this.gyroSupported = this.gyroscope.isSupported;
     this.loadHistory();
+    if ( this.readFlag( this.HAS_WATCHES_KEY ) ) this.refreshWatches();
 
     this.routeSub = this.route.queryParamMap.subscribe( ( params ) => {
       // Support both the app's internal `query` parameter and browser search
@@ -417,7 +426,128 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     }
   }
 
+  // --- Watch a find ---
+
+  get canWatch (): boolean {
+    return !!this.result && !!this.currentCard && !this.isConversionMode && !this.isInstantMode
+      && !this.isWeatherMode && !this.isMovieMode && !this.isQuestionMode;
+  }
+
+  get currentWatch (): FindWatch | null {
+    const query = String( this.result?.query || '' ).trim();
+    const url = String( this.currentCard?.url || '' ).trim();
+    return this.watches.find( watch => watch.query === query && watch.url === url ) || null;
+  }
+
+  get changedWatchCount (): number {
+    return this.watches.filter( watch => watch.changed ).length;
+  }
+
+  toggleWatch (): void {
+    if ( this.watchBusy || !this.currentCard ) return;
+    this.watchMessage = '';
+    const existing = this.currentWatch;
+    this.watchBusy = true;
+    if ( existing ) {
+      this.findExperienceService.removeWatch( existing.id ).subscribe( {
+        next: () => { this.watchBusy = false; this.watches = this.watches.filter( watch => watch.id !== existing.id ); },
+        error: () => { this.watchBusy = false; this.watchMessage = 'Find couldn’t stop watching right now.'; },
+      } );
+      return;
+    }
+    this.findExperienceService.createWatch( {
+      query: String( this.result?.query || '' ).trim(),
+      url: String( this.currentCard.url || '' ).trim(),
+      title: this.currentBusinessName || String( this.currentCard.title || '' ),
+      queryType: this.result?.queryType,
+      address: this.currentBusinessAddress || undefined,
+      phone: this.currentBusinessPhone || undefined,
+    } ).subscribe( {
+      next: ( { watch } ) => {
+        this.watchBusy = false;
+        this.watches = [ watch, ...this.watches.filter( item => item.id !== watch.id ) ];
+        this.writeFlag( this.HAS_WATCHES_KEY, true );
+        this.watchMessage = `Watching. Find checks it ${ this.watchCadence( watch ) } and shows changes in History.`;
+      },
+      error: ( err ) => {
+        this.watchBusy = false;
+        this.watchMessage = err?.error?.message || 'Find couldn’t start watching right now.';
+      },
+    } );
+  }
+
+  refreshWatches ( markSeen = false ): void {
+    this.findExperienceService.listWatches().subscribe( {
+      next: ( { watches } ) => {
+        this.watches = watches || [];
+        if ( !this.watches.length ) this.writeFlag( this.HAS_WATCHES_KEY, false );
+        if ( markSeen && this.changedWatchCount ) {
+          this.watches.filter( watch => watch.changed ).forEach( watch => this.highlightedWatchIds.add( watch.id ) );
+          this.findExperienceService.markWatchesSeen().subscribe( {
+            next: () => { this.watches = this.watches.map( watch => ( { ...watch, changed: false } ) ); },
+            error: () => { /* the badge just stays until next time */ },
+          } );
+        }
+      },
+      error: () => { /* keep whatever we already had */ },
+    } );
+  }
+
+  openWatch ( watch: FindWatch ): void {
+    this.query = watch.query;
+    this.onSubmit();
+  }
+
+  removeWatchItem ( watch: FindWatch ): void {
+    this.findExperienceService.removeWatch( watch.id ).subscribe( {
+      next: () => { this.watches = this.watches.filter( item => item.id !== watch.id ); },
+      error: () => { /* leave it listed */ },
+    } );
+  }
+
+  renewWatchItem ( watch: FindWatch ): void {
+    this.findExperienceService.renewWatch( watch.id ).subscribe( {
+      next: ( { watch: renewed } ) => { this.watches = this.watches.map( item => item.id === renewed.id ? renewed : item ); },
+      error: () => { /* leave it as it was */ },
+    } );
+  }
+
+  watchKindLabel ( watch: FindWatch ): string {
+    return { price: 'Price', hours: 'Hours', topic: 'New results', page: 'Page' }[watch.kind] || 'Watching';
+  }
+
+  watchStatus ( watch: FindWatch ): string {
+    if ( watch.expired ) return 'Watch ended';
+    if ( watch.lastChange ) return `${ watch.lastChange.summary } · ${ this.relativeTime( new Date( watch.lastChange.at ).toISOString() ) }`;
+    if ( watch.lastCheckedAt ) return `No changes yet · checked ${ this.relativeTime( new Date( watch.lastCheckedAt ).toISOString() ) }`;
+    return 'First check coming up';
+  }
+
+  watchDaysLeft ( watch: FindWatch ): number {
+    return Math.max( 0, Math.ceil( ( watch.expiresAt - Date.now() ) / 86400000 ) );
+  }
+
+  private watchCadence ( watch: FindWatch ): string {
+    return watch.kind === 'hours' || watch.kind === 'page' ? 'twice a day' : 'every few hours';
+  }
+
+  private readFlag ( key: string ): boolean {
+    try {
+      return typeof localStorage !== 'undefined' && localStorage.getItem( key ) === 'on';
+    } catch {
+      return false;
+    }
+  }
+
+  private writeFlag ( key: string, on: boolean ): void {
+    try {
+      if ( on ) localStorage.setItem( key, 'on' );
+      else localStorage.removeItem( key );
+    } catch { /* private window */ }
+  }
+
   setView ( view: FindView ): void {
+    if ( view === 'history' && this.readFlag( this.HAS_WATCHES_KEY ) ) this.refreshWatches( true );
     if ( view === 'booklet' && ( !this.result || this.isWeatherMode || this.isMovieMode || this.isInstantMode ) ) return;
     if ( view === 'booklet' && this.activeView === 'booklet' ) {
       this.activeView = 'result';
@@ -1562,6 +1692,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
           this.isLoading = false;
           this.stopLoadingTimer( response?.timings?.totalMs );
           this.result = response || null;
+          this.watchMessage = '';
           this.followup = null;
           this.followupText = '';
           this.syncConversionState( response?.conversion || null );
