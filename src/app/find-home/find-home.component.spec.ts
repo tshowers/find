@@ -685,16 +685,44 @@ describe('FindHomeComponent', () => {
     expect(root().querySelector('.find-awards-screen')).toBeTruthy();
   }));
 
-  it('shares the current result from the Share tab', fakeAsync(() => {
+  it('shares a short link to the current result from the Share tab', fakeAsync(() => {
     runSearch('sushi in seattle', makeEntityResponse('sushi in seattle'));
+    drainSummarize();
 
     const shareSpy = jasmine.createSpy('share').and.returnValue(Promise.resolve());
     (navigator as unknown as { share: unknown }).share = shareSpy;
 
     byLabel('Share result').click();
     tick();
+    const req = http.expectOne(r => r.url.endsWith('/find/share'));
+    expect(req.request.body).toEqual(jasmine.objectContaining({ query: 'sushi in seattle', title: 'Example Result', url: 'https://example.com/result' }));
+    req.flush({ success: true, id: 'AbCdEfGhIj', url: 'https://find.taliferro.tech/s/AbCdEfGhIj' });
+    tick();
+    harness.detectChanges();
 
-    expect(shareSpy).toHaveBeenCalledWith({ title: 'Example Result', url: 'https://example.com/result' });
+    expect((root().querySelector('.find-share-panel__link') as HTMLInputElement).value).toBe('https://find.taliferro.tech/s/AbCdEfGhIj');
+    (root().querySelector('.find-share-panel__primary') as HTMLButtonElement).click();
+    tick();
+    expect(shareSpy).toHaveBeenCalledWith({ title: 'Example Result', url: 'https://find.taliferro.tech/s/AbCdEfGhIj' });
+    harness.detectChanges();
+    expect(root().querySelector('.find-share-panel')).toBeNull();
+  }));
+
+  it('still offers a plain link when the short link can\'t be made', fakeAsync(() => {
+    runSearch('sushi in seattle', makeEntityResponse('sushi in seattle'));
+    drainSummarize();
+
+    byLabel('Share result').click();
+    tick();
+    for (const pending of http.match(r => r.url.endsWith('/find/share'))) pending.flush('down', { status: 500, statusText: 'Error' });
+    tick();
+    for (const pending of http.match(r => r.url.endsWith('/find/share'))) pending.flush('down', { status: 500, statusText: 'Error' });
+    tick();
+    harness.detectChanges();
+
+    expect(component.sharePanel?.loading).toBeFalse();
+    expect(component.sharePanel?.url).toBe('https://find.taliferro.tech/?query=sushi%20in%20seattle');
+    component.closeSharePanel();
   }));
 
   // --- Redesign: image rule, headlines, pager, feedback row ---

@@ -261,6 +261,12 @@ export class FindExperienceService {
     return this.postWithLocalFallback<FindFollowupResponse>( '/find/followup', payload, { headers } );
   }
 
+  /** A short find.taliferro.tech/s/<id> link that previews this result. */
+  createShare ( payload: { query: string; title: string; summary?: string; url?: string; displayUrl?: string; imageUrl?: string } ): Observable<{ success: boolean; id: string; url: string }> {
+    const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
+    return this.postWithLocalFallback( '/find/share', payload, { headers } );
+  }
+
   // --- Watch a find. No account: this browser keeps its own random id. ---
 
   private readonly DEVICE_ID_KEY = 'find.deviceId';

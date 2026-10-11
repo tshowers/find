@@ -415,15 +415,57 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     } );
   }
 
-  async shareResult (): Promise<void> {
+  // Share opens a small panel: the short link is made first, then Share… and
+  // Copy link are each their own tap, because browsers only allow the share
+  // sheet and the clipboard straight after a tap, not after a network wait.
+  sharePanel: { title: string; url: string; loading: boolean; copied: boolean } | null = null;
+
+  get canShareNatively (): boolean {
+    return typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+  }
+
+  shareResult (): void {
     const card = this.currentCard;
-    if ( !card ) return;
-    const data = { title: card.title, url: card.url };
-    if ( navigator.share ) {
-      try { await navigator.share( data ); } catch { /* user cancelled */ }
-    } else {
-      try { await navigator.clipboard.writeText( card.url ); } catch { /* ignore */ }
-    }
+    const query = String( this.result?.query || this.query || '' ).trim();
+    if ( !this.result || !query || this.isWeatherMode ) return;
+    const title = this.isInstantMode ? `${ this.instant?.title }: ${ this.instant?.value }`
+      : this.isConversionMode ? this.conversionResultText || query
+      : this.isQuestionMode ? this.currentQuestionTitle || query
+      : this.currentBusinessName || String( card?.title || query );
+    const summary = this.isInstantMode ? String( this.instant?.detail || '' )
+      : this.isConversionMode ? ''
+      : String( this.currentAnswerText || card?.summary || '' ).replace( /<[^>]+>/g, '' ).slice( 0, 300 );
+    // Until the short link is ready, sharing still works with a plain link.
+    const fallbackUrl = `https://find.taliferro.tech/?query=${ encodeURIComponent( query ) }`;
+    this.sharePanel = { title, url: fallbackUrl, loading: true, copied: false };
+    this.findExperienceService.createShare( {
+      query, title, summary,
+      url: card?.url, displayUrl: card?.displayUrl,
+      imageUrl: this.currentOwnImage || undefined,
+    } ).subscribe( {
+      next: ( share ) => { if ( this.sharePanel ) this.sharePanel = { ...this.sharePanel, url: share.url || fallbackUrl, loading: false }; },
+      error: () => { if ( this.sharePanel ) this.sharePanel = { ...this.sharePanel, loading: false }; },
+    } );
+  }
+
+  async shareNatively (): Promise<void> {
+    if ( !this.sharePanel ) return;
+    try {
+      await navigator.share( { title: this.sharePanel.title, url: this.sharePanel.url } );
+      this.sharePanel = null;
+    } catch { /* cancelled */ }
+  }
+
+  async copyShareLink (): Promise<void> {
+    if ( !this.sharePanel ) return;
+    try {
+      await navigator.clipboard.writeText( this.sharePanel.url );
+      this.sharePanel = { ...this.sharePanel, copied: true };
+    } catch { /* clipboard blocked; the link is still shown to select */ }
+  }
+
+  closeSharePanel (): void {
+    this.sharePanel = null;
   }
 
   // --- Watch a find ---

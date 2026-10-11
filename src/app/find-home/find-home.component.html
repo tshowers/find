@@ -688,4 +688,17 @@
       </button>
     </div>
   </div>
+  <!-- Share: the short link, then Share… / Copy link as their own taps. -->
+  <div class="find-share-backdrop" *ngIf="sharePanel as share" (click)="closeSharePanel()">
+    <section class="find-share-panel" role="dialog" aria-modal="true" aria-label="Share this result" (click)="$event.stopPropagation()">
+      <p class="find-share-panel__eyebrow">Share this result</p>
+      <strong class="find-share-panel__title">{{ share.title }}</strong>
+      <input class="find-share-panel__link" type="text" readonly [value]="share.loading ? 'Making a link…' : share.url" aria-label="Share link" (focus)="$any($event.target).select()" />
+      <div class="find-share-panel__actions">
+        <button type="button" class="find-share-panel__primary" *ngIf="canShareNatively" [disabled]="share.loading" (click)="shareNatively()">Share…</button>
+        <button type="button" [class.find-share-panel__primary]="!canShareNatively" [disabled]="share.loading" (click)="copyShareLink()">{{ share.copied ? 'Copied' : 'Copy link' }}</button>
+        <button type="button" class="find-share-panel__close" (click)="closeSharePanel()">Close</button>
+      </div>
+    </section>
+  </div>
 </div>
