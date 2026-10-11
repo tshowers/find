@@ -1219,6 +1219,104 @@
 .find-switch:checked::after { transform: translateX(18px); }
 .find-switch:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
+/* "Ask about this result" */
+.find-followup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 640px;
+  margin-top: 8px;
+}
+
+.find-followup__answer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: var(--t-blue);
+  color: var(--t-blue-fg);
+}
+
+.find-followup__question {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.find-followup__text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.find-followup__sources {
+  margin: 0;
+  font-size: 13px;
+}
+
+.find-followup__sources a,
+.find-followup__search,
+.find-followup__back {
+  color: var(--blue-ink);
+  text-decoration: none;
+}
+
+.find-followup__search,
+.find-followup__back {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.find-followup__back { color: var(--muted); }
+.find-followup__sources a:hover,
+.find-followup__search:hover,
+.find-followup__back:hover { text-decoration: underline; }
+
+.find-followup__form {
+  display: flex;
+  gap: 8px;
+}
+
+.find-followup__form input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--surface2);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+}
+
+.find-followup__form input:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+
+.find-followup__form button {
+  height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.find-followup__form button:disabled { opacity: 0.5; cursor: default; }
+
 /* "Why this result" */
 .find-reasons {
   margin: 0;

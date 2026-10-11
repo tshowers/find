@@ -470,6 +470,80 @@ describe('FindHomeComponent', () => {
     expect(root().querySelector('.find-reasons')?.textContent?.trim()).toBe('Verified business · 2 locations · Top pick of 8');
   }));
 
+  function askFollowup(question: string): void {
+    const input = root().querySelector('.find-followup__form input') as HTMLInputElement;
+    input.value = question;
+    input.dispatchEvent(new Event('input'));
+    harness.detectChanges();
+    (root().querySelector('.find-followup__form button') as HTMLButtonElement).click();
+    tick();
+  }
+
+  it('answers a follow-up from the result\'s own sources, with a way back', fakeAsync(() => {
+    runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle', {
+      results: [makeResult({ title: 'Bonhomie Coffee Bar', url: 'https://www.bonhomiecoffee.co/' })],
+    }));
+    drainSummarize();
+    harness.detectChanges();
+
+    askFollowup('open sunday?');
+    const req = http.expectOne(r => r.url.endsWith('/find/followup'));
+    expect(req.request.body).toEqual(jasmine.objectContaining({ query: 'bonhomie seattle', followup: 'open sunday?', url: 'https://www.bonhomiecoffee.co/', title: 'Bonhomie Coffee Bar' }));
+    req.flush({ success: true, mode: 'answer', answered: true, answer: 'It opens at 8am on Sunday.', sources: [{ title: 'Bonhomie', url: 'https://www.bonhomiecoffee.co/', displayUrl: 'bonhomiecoffee.co' }], searchQuery: 'bonhomie sunday hours' });
+    tick();
+    harness.detectChanges();
+
+    expect(root().querySelector('.find-followup__question')?.textContent?.trim()).toBe('open sunday?');
+    expect(root().querySelector('.find-followup__text')?.textContent?.trim()).toBe('It opens at 8am on Sunday.');
+    expect(root().querySelector('.find-followup__sources a')?.textContent?.trim()).toBe('bonhomiecoffee.co');
+
+    (root().querySelector('.find-followup__back') as HTMLButtonElement).click();
+    harness.detectChanges();
+    expect(root().querySelector('.find-followup__answer')).toBeNull();
+  }));
+
+  it('says when the sources don\'t cover a follow-up and offers that search', fakeAsync(() => {
+    runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle', {
+      results: [makeResult({ title: 'Bonhomie Coffee Bar', url: 'https://www.bonhomiecoffee.co/' })],
+    }));
+    drainSummarize();
+    harness.detectChanges();
+
+    askFollowup('oat milk?');
+    http.expectOne(r => r.url.endsWith('/find/followup'))
+      .flush({ success: true, mode: 'answer', answered: false, answer: '', sources: [], searchQuery: 'bonhomie coffee oat milk' });
+    tick();
+    harness.detectChanges();
+
+    expect(root().querySelector('.find-followup__text')?.textContent).toContain('don’t say');
+    (root().querySelector('.find-followup__search') as HTMLButtonElement).click();
+    tick();
+    const req = http.expectOne(r => r.url.endsWith('/find/search'));
+    expect(req.request.body.query).toBe('bonhomie coffee oat milk');
+    req.flush(makeEntityResponse('bonhomie coffee oat milk'));
+    tick();
+    drainSummarize();
+  }));
+
+  it('runs a new search when a follow-up asks for something else', fakeAsync(() => {
+    runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle', {
+      results: [makeResult({ title: 'Bonhomie Coffee Bar', url: 'https://www.bonhomiecoffee.co/' })],
+    }));
+    drainSummarize();
+    harness.detectChanges();
+
+    askFollowup('anything cheaper nearby?');
+    http.expectOne(r => r.url.endsWith('/find/followup'))
+      .flush({ success: true, mode: 'search', answered: false, answer: '', sources: [], searchQuery: 'cheap coffee near me' });
+    tick();
+    const req = http.expectOne(r => r.url.endsWith('/find/search'));
+    expect(req.request.body.query).toBe('cheap coffee near me');
+    req.flush(makeLocalResponse('cheap coffee near me'));
+    tick();
+    drainSummarize();
+    expect(component.currentFollowup).toBeNull();
+  }));
+
   it('lists every location of a business inside its one result', fakeAsync(() => {
     runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle', {
       results: [makeResult({

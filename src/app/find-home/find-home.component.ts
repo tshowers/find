@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { FindSwipeDirective } from '../directives/find-swipe.directive';
 import { FindAward, FindAwardView, FindAwardsProgress, FindAwardsService } from '../services/find-awards.service';
-import { FindBusinessHours, FindBusinessHoursDay, FindBusinessLocation, FindInstantAnswer, FindConversionCategory, FindConversionResult, FindExperienceService, FindFeedbackRating, FindMovieRatings, FindRankedResult, FindSearchResponse, FindSourceType, FindWeatherForecastDay } from '../services/find-experience.service';
+import { FindBusinessHours, FindBusinessHoursDay, FindBusinessLocation, FindFollowupResponse, FindInstantAnswer, FindConversionCategory, FindConversionResult, FindExperienceService, FindFeedbackRating, FindMovieRatings, FindRankedResult, FindSearchResponse, FindSourceType, FindWeatherForecastDay } from '../services/find-experience.service';
 import { FindGyroscopeService, GyroTilt } from '../services/find-gyroscope.service';
 import { environment } from '../../environments/environment';
 import { AwardBadgeComponent } from '../shared/award-badge/award-badge.component';
@@ -143,6 +143,10 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   private readonly LOCATION_SETTING_KEY = 'find.useLocation';
   useLocationEverywhere = this.readLocationSetting();
   locationSettingNote = '';
+  // "Ask about this result": one follow-up at a time, tied to the card it was asked on.
+  followupText = '';
+  followupLoading = false;
+  private followup: { question: string; response: FindFollowupResponse; cardKey: string } | null = null;
   private readonly OPEN_NOW_PATTERN = /\b(?:open\s+(?:right\s+)?now|currently\s+open)\b/i;
   private readonly NEAR_ME_PATTERN = /\b(?:near me|nearby|near here|close(?:st)? to me|close by|around here|by me|in my area|in my neighborhood|in my zip\s*code|in my zipcode|in my zip)\b/i;
   private readonly LOCATIONLESS_WEATHER_PATTERN = /^(?:(?:what'?s|what is|how'?s|how is|the)\s+)?(?:weather|forecast|temperature)(?:\s+(?:like|today|tomorrow|tonight|right now|currently|this week|this weekend|now))?[?.!]*$/i;
@@ -248,6 +252,64 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     this.resultIndex = 0;
     this.selectedResultIndex = 0;
     this.navigate( q, null );
+  }
+
+  private get followupCardKey (): string {
+    return this.isGroundedAnswerSlide ? 'answer' : String( this.currentCard?.url || '' );
+  }
+
+  get currentFollowup (): { question: string; response: FindFollowupResponse } | null {
+    return this.followup && this.followup.cardKey === this.followupCardKey ? this.followup : null;
+  }
+
+  submitFollowup (): void {
+    const question = this.followupText.trim();
+    if ( !question || this.followupLoading ) return;
+    const grounded = this.isGroundedAnswerSlide;
+    const references = this.questionReferences.map( ref => ref.url );
+    const query = String( this.result?.query || this.query || '' ).trim();
+    const cardKey = this.followupCardKey;
+    this.followupLoading = true;
+    this.findExperienceService.followup( {
+      query,
+      followup: question,
+      url: grounded ? references[0] || '' : String( this.currentCard?.url || '' ),
+      title: grounded ? this.currentQuestionTitle : String( this.currentCard?.title || '' ),
+      sourceUrls: grounded ? references.slice( 1 ) : [],
+    } ).subscribe( {
+      next: ( response ) => {
+        this.followupLoading = false;
+        this.followupText = '';
+        // Asking for something other than this result runs that search instead.
+        if ( response.mode === 'search' && response.searchQuery ) {
+          this.runFollowupSearch( response.searchQuery );
+          return;
+        }
+        this.followup = { question, response, cardKey };
+      },
+      error: () => {
+        this.followupLoading = false;
+        this.followup = {
+          question, cardKey,
+          response: { success: false, mode: 'answer', answered: false, answer: '', sources: [], searchQuery: `${ query } ${ question }`.trim() },
+        };
+      },
+    } );
+  }
+
+  searchFollowup (): void {
+    const searchQuery = this.currentFollowup?.response.searchQuery;
+    if ( searchQuery ) this.runFollowupSearch( searchQuery );
+  }
+
+  clearFollowup (): void {
+    this.followup = null;
+  }
+
+  private runFollowupSearch ( searchQuery: string ): void {
+    this.followup = null;
+    this.query = searchQuery;
+    this.onSubmit();
   }
 
   /** Nearby results: re-run the search for places open right now, or back. */
@@ -1500,6 +1562,8 @@ export class FindHomeComponent implements OnInit, OnDestroy {
           this.isLoading = false;
           this.stopLoadingTimer( response?.timings?.totalMs );
           this.result = response || null;
+          this.followup = null;
+          this.followupText = '';
           this.syncConversionState( response?.conversion || null );
           this.selectedResultIndex = Math.max( 0, Math.min( response.selectedIndex || 0, ( response.results?.length || 1 ) - 1 ) );
           this.resultIndex = this.selectedResultIndex;
