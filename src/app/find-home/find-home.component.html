@@ -253,6 +253,7 @@
               </ng-template>
               <ng-template #standardView>
                 <ng-container *ngIf="!isQuestionMode; else questionAnswerView">
+                  <button type="button" class="find-open-now" *ngIf="isLocalMode" [class.find-open-now--on]="isOpenNowSearch" [attr.aria-pressed]="isOpenNowSearch" (click)="toggleOpenNow()">Open now</button>
                   <a class="find-card-source" [href]="currentCard?.url" target="_blank" rel="noopener">
                     <span class="find-tag find-tag--blue" *ngIf="currentCard?.isFirstParty">Official Taliferro result</span>
                     <span class="find-tag find-tag--blue" *ngIf="!currentCard?.isFirstParty && sourceTrustLabel(currentCard?.sourceType)">✓ {{ sourceTrustLabel(currentCard?.sourceType) }}</span>
@@ -442,6 +443,7 @@
           </span>
         </button>
         <span class="find-grid-count"><b>{{ totalResultCount }} found</b><span class="find-grid-count__query"> for {{ result.query || query }}</span></span>
+        <button type="button" class="find-open-now" *ngIf="isLocalMode" [class.find-open-now--on]="isOpenNowSearch" [attr.aria-pressed]="isOpenNowSearch" (click)="toggleOpenNow()">Open now</button>
         <span class="find-pager__spacer" aria-hidden="true"></span>
       </nav>
       <div class="find-grid">
@@ -535,6 +537,17 @@
       </div>
     </div>
 
+
+    <div class="find-info-card find-info-setting">
+      <label class="find-info-setting__row">
+        <span>
+          <strong>Use my location</strong>
+          <small>Shows how far away places are on every search, not just "near me". Your location is sent with each search and never stored.</small>
+        </span>
+        <input type="checkbox" role="switch" class="find-switch" [checked]="useLocationEverywhere" (change)="setUseLocationEverywhere($any($event.target).checked)" />
+      </label>
+      <p class="find-info-setting__note" *ngIf="locationSettingNote">{{ locationSettingNote }}</p>
+    </div>
 
     <div class="find-info-built">
       <p class="find-info-built__label">Built by</p>

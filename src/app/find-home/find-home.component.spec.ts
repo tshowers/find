@@ -143,6 +143,7 @@ describe('FindHomeComponent', () => {
     localStorage.removeItem('find-history');
     localStorage.removeItem('find-awards-count');
     localStorage.removeItem('find-awards-unlocked');
+    localStorage.removeItem('find.useLocation');
 
     TestBed.configureTestingModule({
       providers: [
@@ -333,6 +334,76 @@ describe('FindHomeComponent', () => {
     component.onConversionUnitChange();
     expect(component.conversionOutputAmount!).toBeCloseTo(26.85, 2);
     expect(component.conversionUnitShort('K')).toBe('K');
+  }));
+
+  it('sends the position only on "near me" searches until Use my location is on', fakeAsync(() => {
+    component.query = 'bonhomie seattle';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    let req = http.expectOne(r => r.url.endsWith('/find/search'));
+    expect(req.request.body.latitude).toBeUndefined();
+    req.flush(makeEntityResponse('bonhomie seattle'));
+    tick();
+    drainSummarize();
+
+    component.setUseLocationEverywhere(true);
+    tick();
+    expect(component.useLocationEverywhere).toBeTrue();
+    expect(localStorage.getItem('find.useLocation')).toBe('on');
+
+    component.resetToSearch();
+    harness.detectChanges();
+    component.query = 'bonhomie coffee';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    req = http.expectOne(r => r.url.endsWith('/find/search'));
+    expect(req.request.body.latitude).toBe(47.6);
+    expect(req.request.body.longitude).toBe(-122.3);
+    req.flush(makeEntityResponse('bonhomie coffee'));
+    tick();
+    drainSummarize();
+
+    component.setUseLocationEverywhere(false);
+    tick();
+    expect(localStorage.getItem('find.useLocation')).toBeNull();
+  }));
+
+  it('leaves Use my location off and explains when the browser blocks it', fakeAsync(() => {
+    (navigator.geolocation.getCurrentPosition as jasmine.Spy).and.callFake((_: PositionCallback, error?: PositionErrorCallback | null) => {
+      error?.({ code: 1, message: 'denied' } as GeolocationPositionError);
+    });
+    component.setUseLocationEverywhere(true);
+    tick();
+    expect(component.useLocationEverywhere).toBeFalse();
+    expect(component.locationSettingNote).toContain('blocked');
+  }));
+
+  it('re-runs a nearby search for places open now, and back', fakeAsync(() => {
+    runSearch('coffee near me', makeLocalResponse('coffee near me'));
+    drainSummarize();
+    harness.detectChanges();
+
+    const button = root().querySelector('.find-open-now') as HTMLButtonElement;
+    expect(button.getAttribute('aria-pressed')).toBe('false');
+    button.click();
+    tick();
+    let req = http.expectOne(r => r.url.endsWith('/find/search'));
+    expect(req.request.body.query).toBe('coffee near me open now');
+    req.flush(makeLocalResponse('coffee near me open now'));
+    tick();
+    drainSummarize();
+    harness.detectChanges();
+
+    expect(component.isOpenNowSearch).toBeTrue();
+    component.toggleOpenNow();
+    tick();
+    req = http.expectOne(r => r.url.endsWith('/find/search'));
+    expect(req.request.body.query).toBe('coffee near me');
+    req.flush(makeLocalResponse('coffee near me'));
+    tick();
+    drainSummarize();
   }));
 
   it('requests geolocation and returns local results from the Restaurants quick action', fakeAsync(() => {
