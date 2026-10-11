@@ -158,12 +158,6 @@
   gap: 16px;
 }
 
-/* The search stays centred between the top and the footer, which runs edge to
-   edge at the bottom of the screen (the 40px undoes the screen's padding). */
-.find-search-screen { padding-bottom: 0; }
-.find-search-screen > .find-brand { margin-top: auto; }
-.find-search-screen > app-site-footer { align-self: stretch; margin: auto -40px 0; }
-
 .find-brand__logo {
   height: 84px;
   width: auto;
@@ -390,12 +384,9 @@
 @media (max-width: 600px) {
   .find-search-screen {
     justify-content: flex-start;
-    padding: 110px 20px 0;
+    padding: 110px 20px 24px;
     gap: 24px;
   }
-
-  .find-search-screen > .find-brand { margin-top: 0; }
-  .find-search-screen > app-site-footer { margin: auto -20px 0; }
 
   .find-brand { gap: 12px; }
   .find-brand__logo { height: 64px; }
@@ -2064,81 +2055,20 @@
   color: var(--todd-panel-subtext);
 }
 
-.find-info-built__contact {
-  display: inline-block;
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--tl-blue);
-  text-decoration: none;
-  border-bottom: 1px solid var(--tl-blue-border);
-  padding-bottom: 1px;
-}
 
-.find-info-built__website {
-  display: inline-block;
-  margin-left: 12px;
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--todd-panel-subtext);
-  text-decoration: none;
-  border-bottom: 1px solid var(--todd-panel-border);
-  padding-bottom: 1px;
-}
 
-.find-info-built__website:hover {
-  color: var(--tl-blue);
-}
 
-.find-info-copyright {
-  margin: 16px 0 0;
-  padding-top: 16px;
-  border-top: 1px solid var(--todd-panel-border);
-  font-size: 0.72rem;
-  line-height: 1.6;
-  color: var(--todd-panel-subtext);
-}
 
-.find-info-copyright a {
-  color: var(--tl-blue);
-  text-decoration: none;
-}
 
-.find-info-copyright a:hover {
-  text-decoration: underline;
-}
 
-.find-info-legal {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px 16px;
-  margin: 16px 0 0;
-  font-size: 0.78rem;
-}
 
-.find-info-legal a {
-  color: var(--todd-panel-subtext);
-  text-decoration: none;
-}
 
-.find-info-legal a:hover {
-  color: var(--tl-blue);
-  text-decoration: underline;
-}
 
 .find-info-version {
   margin: 8px 0 0;
   font-size: 0.68rem;
   color: var(--todd-panel-subtext);
   opacity: 0.7;
-}
-
-@media (max-width: 420px) {
-  .find-info-built__website {
-    display: block;
-    width: fit-content;
-    margin: 10px auto 0;
-  }
 }
 
 .find-gyro-section {
