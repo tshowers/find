@@ -137,6 +137,13 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   };
 
   private lastKnownPosition: { latitude: number; longitude: number } | null = null;
+  // "Use my location" on the Info tab: off by default. When on, every search
+  // sends the position (distances for named businesses, sunrise/sunset);
+  // when off, only "near me" and bare weather searches ask for it.
+  private readonly LOCATION_SETTING_KEY = 'find.useLocation';
+  useLocationEverywhere = this.readLocationSetting();
+  locationSettingNote = '';
+  private readonly OPEN_NOW_PATTERN = /\b(?:open\s+(?:right\s+)?now|currently\s+open)\b/i;
   private readonly NEAR_ME_PATTERN = /\b(?:near me|nearby|near here|close(?:st)? to me|close by|around here|by me|in my area|in my neighborhood|in my zip\s*code|in my zipcode|in my zip)\b/i;
   private readonly LOCATIONLESS_WEATHER_PATTERN = /^(?:(?:what'?s|what is|how'?s|how is|the)\s+)?(?:weather|forecast|temperature)(?:\s+(?:like|today|tomorrow|tonight|right now|currently|this week|this weekend|now))?[?.!]*$/i;
 
@@ -241,6 +248,50 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     this.resultIndex = 0;
     this.selectedResultIndex = 0;
     this.navigate( q, null );
+  }
+
+  /** Nearby results: re-run the search for places open right now, or back. */
+  get isOpenNowSearch (): boolean {
+    return this.OPEN_NOW_PATTERN.test( String( this.result?.query || '' ) );
+  }
+
+  toggleOpenNow (): void {
+    const current = String( this.result?.query || this.query || '' ).trim();
+    if ( !current ) return;
+    const next = this.isOpenNowSearch
+      ? current.replace( this.OPEN_NOW_PATTERN, '' ).replace( /\s+/g, ' ' ).trim()
+      : `${ current } open now`;
+    this.query = next;
+    this.onSubmit();
+  }
+
+  async setUseLocationEverywhere ( enabled: boolean ): Promise<void> {
+    this.locationSettingNote = '';
+    if ( !enabled ) {
+      this.useLocationEverywhere = false;
+      this.writeLocationSetting( false );
+      return;
+    }
+    // Ask now, so the browser's prompt follows the tap rather than a later search.
+    const position = await this.requestPosition();
+    this.useLocationEverywhere = !!position;
+    this.writeLocationSetting( !!position );
+    if ( !position ) this.locationSettingNote = 'Location is blocked or unavailable. Allow it for this site in your browser settings, then try again.';
+  }
+
+  private readLocationSetting (): boolean {
+    try {
+      return typeof localStorage !== 'undefined' && localStorage.getItem( this.LOCATION_SETTING_KEY ) === 'on';
+    } catch {
+      return false;
+    }
+  }
+
+  private writeLocationSetting ( enabled: boolean ): void {
+    try {
+      if ( enabled ) localStorage.setItem( this.LOCATION_SETTING_KEY, 'on' );
+      else localStorage.removeItem( this.LOCATION_SETTING_KEY );
+    } catch { /* private window: the setting lasts for this visit only */ }
   }
 
   onQuickActionClick ( action: FindQuickAction ): void {
@@ -1487,7 +1538,11 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   // blocking — the backend falls back to normal search if location is absent and the
   // search falls through to a normal result.
   private resolveCoordinatesForQuery ( query: string ): Promise<{ latitude: number; longitude: number } | null> {
-    if ( !this.NEAR_ME_PATTERN.test( query ) && !this.LOCATIONLESS_WEATHER_PATTERN.test( query ) ) return Promise.resolve( null );
+    if ( !this.useLocationEverywhere && !this.NEAR_ME_PATTERN.test( query ) && !this.LOCATIONLESS_WEATHER_PATTERN.test( query ) ) return Promise.resolve( null );
+    return this.requestPosition();
+  }
+
+  private requestPosition (): Promise<{ latitude: number; longitude: number } | null> {
     if ( this.lastKnownPosition ) return Promise.resolve( this.lastKnownPosition );
     if ( typeof navigator === 'undefined' || !navigator.geolocation ) return Promise.resolve( null );
 
