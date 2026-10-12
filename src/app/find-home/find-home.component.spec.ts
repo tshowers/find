@@ -1,4 +1,4 @@
-import { fakeAsync, tick, TestBed } from '@angular/core/testing';
+import { fakeAsync, flushMicrotasks, tick, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
@@ -661,6 +661,33 @@ describe('FindHomeComponent', () => {
     expect(root().querySelector('.find-locations h3')?.textContent?.trim()).toBe('2 locations');
     expect(root().querySelector('.find-locations__distance')?.textContent?.trim()).toBe('0.3 mi');
     expect(root().querySelector('.find-business-address')).toBeNull();
+  }));
+
+  it('works out how far each location is on the device when the search sent no position', fakeAsync(() => {
+    runSearch('bonhomie coffee', makeEntityResponse('bonhomie coffee', {
+      results: [makeResult({
+        title: 'Bonhomie Coffee Bar',
+        url: 'https://www.bonhomiecoffee.co/',
+        locations: [
+          { name: 'Bonhomie Coffee Bar (at Labour Temple)', address: '2800 1st Ave, Seattle, WA 98121', latitude: 47.6175, longitude: -122.3530 },
+          { name: 'Bonhomie Coffee Bar (at Tower 1201)', address: '1201 3rd Ave, Seattle, WA 98101', latitude: 47.6075, longitude: -122.3365 },
+        ],
+      })],
+    }));
+    drainSummarize();
+    harness.detectChanges();
+
+    expect(root().querySelector('.find-locations__distance')).toBeNull();
+    (root().querySelector('.find-locations__how-far') as HTMLButtonElement).click();
+    flushMicrotasks();
+    harness.detectChanges();
+
+    const rows = Array.from(root().querySelectorAll('.find-locations__item')).map(row => [
+      row.querySelector('.find-locations__place strong')?.textContent?.trim(),
+      row.querySelector('.find-locations__distance')?.textContent?.trim(),
+    ]);
+    expect(rows).toEqual([['Tower 1201', '1.8 mi'], ['Labour Temple', '2.7 mi']]);
+    expect(root().querySelector('.find-locations__how-far')).toBeNull();
   }));
 
   it('shows a past search in the History tab', fakeAsync(() => {
