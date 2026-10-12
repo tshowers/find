@@ -121,6 +121,7 @@ export class HelpComponent implements OnInit, AfterViewInit, OnDestroy {
         'A short line under the title says why Find picked the result, such as a verified business or the nearest location.',
         'Ask about this result to get a short answer from that result’s own sources, such as "open Sunday?". Asking for something else, like "anything cheaper nearby?", runs that search.',
         'Tap Watch on a result and Find keeps checking it: a price, a place’s hours, or new results for a topic. Changes show in History, and on iPhone as a notification. You can watch up to 10 finds for 30 days each.',
+        'Tap Save to Knowledge to keep a result in Docs. Docs asks you to sign in if needed, then saves it to your Knowledge, marked “via Find”. Saving is free; editing or deleting it there needs Docs.',
         'Dates, tips, percentages, unit conversions and sunrise or sunset are worked out by Find itself, so the answer is exact.',
       ],
       action: 'Open the search screen',

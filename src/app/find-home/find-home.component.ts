@@ -968,6 +968,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       return [
         { key: 'read', label: source ? `Read on ${ source }` : 'Read article', shortLabel: 'Read', icon: 'fa-arrow-up-right-from-square', href: url },
         { key: 'copy-link', label: 'Copy link', shortLabel: 'Copy', icon: 'fa-copy', copyText: url },
+        this.saveToKnowledgeAction,
       ];
     }
     if ( this.isQuestionMode || this.isMovieMode || this.isWeatherMode || !this.currentCard ) return [];
@@ -988,7 +989,37 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       actions.push( { key: 'site', label: 'Visit site', shortLabel: 'Site', icon: 'fa-globe', href: url } );
       actions.push( { key: 'copy-link', label: 'Copy link', shortLabel: 'Copy', icon: 'fa-copy', copyText: url } );
     }
+    actions.push( this.saveToKnowledgeAction );
     return actions;
+  }
+
+  /**
+   * "Save to Knowledge": opens Docs' /knowledge/save with this result filled
+   * in (web-products/docs find-save.component.ts). Docs signs the person in
+   * if needed and saves it to their Knowledge, free; editing it needs Docs.
+   * Find itself stays account-free.
+   */
+  private get saveToKnowledgeAction (): FindAction {
+    const card = this.currentCard;
+    const answer = String( this.currentAnswerText || card?.answer || card?.summary || '' )
+      .replace( /<[^>]+>/g, ' ' ).replace( /\s+/g, ' ' ).trim().slice( 0, 1500 );
+    const query = String( this.result?.query || this.query || '' ).trim();
+    // Refinements and pills, minus the search itself (that's the question)
+    // and distance/rating pills.
+    const keywords = [ ...new Set( [ ...this.breadcrumb, ...this.currentPills ] ) ]
+      .filter( word => word && word.toLowerCase() !== query.toLowerCase() && !/^\d+(\.\d+)?\s*mi$|^★/.test( word ) )
+      .slice( 0, 8 );
+    const params = new URLSearchParams( {
+      q: query,
+      title: this.currentBusinessName || String( card?.title || '' ),
+      answer,
+      url: String( card?.url || '' ).trim(),
+      keywords: keywords.join( ',' ),
+    } );
+    return {
+      key: 'knowledge', label: 'Save to Knowledge', shortLabel: 'Save', icon: 'fa-book-bookmark',
+      href: `https://docs.taliferro.tech/knowledge/save?${ params.toString() }`,
+    };
   }
 
   private get isPlaceResult (): boolean {
