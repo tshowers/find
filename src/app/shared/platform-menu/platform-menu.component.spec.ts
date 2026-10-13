@@ -53,10 +53,20 @@ describe('PlatformMenuComponent', () => {
     expect(panel()).toBeNull();
   });
 
-  it('toggles with Command-K and closes with Escape', () => {
+  it('opens the search with Command-K and closes it with Escape', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
     fixture.detectChanges();
-    expect(component.isOpen).toBeTrue();
+    expect(component.searchOpen).toBeTrue();
+    expect(component.isOpen).toBeFalse();
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(component.searchOpen).toBeFalse();
+  });
+
+  it('closes the menu with Escape', () => {
+    component.open();
+    fixture.detectChanges();
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     fixture.detectChanges();
