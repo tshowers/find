@@ -122,6 +122,9 @@ export interface FindBusinessLocation {
   phone?: string;
   mapsUrl?: string;
   distance?: string;
+  /** The location's own (public) position, for working out distance on the device. */
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface FindWeatherResult {

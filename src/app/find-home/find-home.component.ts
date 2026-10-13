@@ -43,6 +43,15 @@ interface FindPagerTarget {
 
 type FindImageState = 'own' | 'fallback' | 'none';
 
+// Great-circle distance in meters (same as the backend's distanceMeters).
+function distanceMeters ( from: { latitude: number; longitude: number }, latitude: number, longitude: number ): number {
+  const toRadians = ( degrees: number ) => degrees * Math.PI / 180;
+  const dLat = toRadians( latitude - from.latitude );
+  const dLon = toRadians( longitude - from.longitude );
+  const a = Math.sin( dLat / 2 ) ** 2 + Math.cos( toRadians( from.latitude ) ) * Math.cos( toRadians( latitude ) ) * Math.sin( dLon / 2 ) ** 2;
+  return 6371000 * 2 * Math.atan2( Math.sqrt( a ), Math.sqrt( 1 - a ) );
+}
+
 @Component( {
   selector: 'app-find-home',
   standalone: true,
@@ -143,6 +152,8 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   private readonly LOCATION_SETTING_KEY = 'find.useLocation';
   useLocationEverywhere = this.readLocationSetting();
   locationSettingNote = '';
+  locationDistancesLoading = false;
+  locationDistancesNote = '';
   // "Ask about this result": one follow-up at a time, tied to the card it was asked on.
   followupText = '';
   followupLoading = false;
@@ -737,6 +748,33 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   get currentLocations (): FindBusinessLocation[] {
     const locations = this.currentCard?.locations || [];
     return locations.length > 1 ? locations : [];
+  }
+
+  /** A search that didn't send a position has no distances; "How far?" works them out on the device. */
+  get canShowLocationDistances (): boolean {
+    const locations = this.currentLocations;
+    return locations.length > 0
+      && !locations.some( location => location.distance )
+      && locations.some( location => Number.isFinite( location.latitude ) && Number.isFinite( location.longitude ) );
+  }
+
+  /** The position stays in the browser: each location's distance, nearest first (like the backend's addLocationDistances). */
+  async showLocationDistances (): Promise<void> {
+    const card = this.currentCard;
+    if ( !card?.locations?.length ) return;
+    this.locationDistancesNote = '';
+    this.locationDistancesLoading = true;
+    const position = await this.requestPosition();
+    this.locationDistancesLoading = false;
+    if ( !position ) {
+      this.locationDistancesNote = 'Location is blocked or unavailable. Allow it for this site in your browser settings, then try again.';
+      return;
+    }
+    card.locations = card.locations
+      .map( location => Number.isFinite( location.latitude ) && Number.isFinite( location.longitude )
+        ? { ...location, distance: `${ ( distanceMeters( position, location.latitude!, location.longitude! ) / 1609.34 ).toFixed( 1 ) } mi` }
+        : location )
+      .sort( ( a, b ) => parseFloat( a.distance || 'Infinity' ) - parseFloat( b.distance || 'Infinity' ) );
   }
 
   /** "Bonhomie Coffee Bar (at Labour Temple)" reads as "Labour Temple" under the business name. */
