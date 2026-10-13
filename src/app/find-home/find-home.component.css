@@ -338,7 +338,8 @@
   font-size: 13px;
 }
 
-.made-by strong { color: var(--text); }
+/* ::ng-deep: "Also from us" renders its name and logo in its own component. */
+.made-by ::ng-deep strong { color: var(--text); }
 
 .made-by a {
   display: inline-flex;
@@ -348,7 +349,9 @@
   text-decoration: none;
 }
 
-.made-by a:hover strong { text-decoration: underline; }
+.made-by a:hover ::ng-deep strong { text-decoration: underline; }
+
+.made-by ::ng-deep .um-logo { width: 22px; height: 22px; border-radius: 5px; }
 
 /* TODD's mark sits in a small white circle. */
 .made-by__todd {
@@ -1995,6 +1998,24 @@
   font-size: 1.3rem;
   font-weight: 800;
   color: var(--tl-blue);
+}
+
+.find-info-built__mission {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--todd-panel-text);
+}
+
+.find-info-built__mission small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 400;
+  color: var(--todd-panel-subtext);
 }
 
 .find-info-built__tagline {

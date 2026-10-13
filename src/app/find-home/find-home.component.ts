@@ -14,6 +14,7 @@ import { SeoService } from '../shared/seo.service';
 import { Title, Meta } from '@angular/platform-browser';
 import { SiteFooterComponent } from '../shared/site-footer/site-footer.component';
 import { MENU_COMPANY } from '@taliferro/ui/platform/universal-menu.model';
+import { AlsoFromUsComponent } from '../shared/also-from-us/also-from-us.component';
 
 type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info' | 'awards';
 
@@ -46,7 +47,7 @@ type FindImageState = 'own' | 'fallback' | 'none';
 @Component( {
   selector: 'app-find-home',
   standalone: true,
-  imports: [SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
+  imports: [ AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
   templateUrl: './find-home.component.html',
   styleUrls: ['./find-home.component.css', './find-home.grid.css', './find-home.features.css'],
   // The prerendered "/" always contains the home screen, but a `?query=` or
