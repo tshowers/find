@@ -46,6 +46,28 @@
   white-space: nowrap;
 }
 
+.find-locations__how-far {
+  align-self: flex-start;
+  margin: 2px 0 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--surface2);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--blue-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.find-locations__how-far:disabled { cursor: default; opacity: 0.7; }
+
+.find-locations__note {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
 .find-locations__phone {
   grid-column: 1;
   font-size: 14px;

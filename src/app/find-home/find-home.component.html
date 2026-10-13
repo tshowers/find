@@ -268,6 +268,8 @@
                   <a class="find-business-phone" *ngIf="currentBusinessPhone && !currentLocations.length" [href]="currentBusinessPhoneHref">{{ currentBusinessPhone }}</a>
                   <section class="find-locations" *ngIf="currentLocations.length" aria-label="Locations">
                     <h3>{{ currentLocations.length }} locations</h3>
+                    <button type="button" class="find-locations__how-far" *ngIf="canShowLocationDistances" [disabled]="locationDistancesLoading" (click)="showLocationDistances()">{{ locationDistancesLoading ? 'Finding you…' : 'How far?' }}</button>
+                    <p class="find-locations__note" *ngIf="canShowLocationDistances && locationDistancesNote">{{ locationDistancesNote }}</p>
                     <div class="find-locations__item" *ngFor="let location of currentLocations">
                       <a class="find-locations__place" [href]="location.mapsUrl || currentCard?.url" target="_blank" rel="noopener">
                         <strong>{{ locationLabel(location) }}</strong>
