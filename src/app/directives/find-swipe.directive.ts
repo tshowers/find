@@ -13,11 +13,13 @@ export class FindSwipeDirective implements OnInit, OnDestroy {
   private startX = 0;
   private startY = 0;
   private mouseDown = false;
+  private startedInField = false;
   private readonly MIN_DISTANCE = 48;
 
   private readonly onTouchStart = ( e: TouchEvent ): void => {
     this.startX = e.touches[0].clientX;
     this.startY = e.touches[0].clientY;
+    this.startedInField = isTextField( e.target );
   };
 
   private readonly onTouchEnd = ( e: TouchEvent ): void => {
@@ -28,6 +30,7 @@ export class FindSwipeDirective implements OnInit, OnDestroy {
     this.startX = e.clientX;
     this.startY = e.clientY;
     this.mouseDown = true;
+    this.startedInField = isTextField( e.target );
   };
 
   private readonly onMouseUp = ( e: MouseEvent ): void => {
@@ -37,6 +40,10 @@ export class FindSwipeDirective implements OnInit, OnDestroy {
   };
 
   private emit ( dx: number, dy: number ): void {
+    // Dragging to select text (or inside the search box) is not a swipe:
+    // selecting left to right used to read as "swipe right" and go back,
+    // which on the first result meant back to Home.
+    if ( this.startedInField || hasTextSelection() ) return;
     const absDx = Math.abs( dx );
     const absDy = Math.abs( dy );
     if ( absDx < this.MIN_DISTANCE && absDy < this.MIN_DISTANCE ) return;
@@ -66,4 +73,12 @@ export class FindSwipeDirective implements OnInit, OnDestroy {
     this.el.nativeElement.removeEventListener( 'mousedown', this.onMouseDown );
     this.el.nativeElement.removeEventListener( 'mouseup', this.onMouseUp );
   }
+}
+
+function isTextField ( target: EventTarget | null ): boolean {
+  return target instanceof HTMLElement && !!target.closest( 'input, textarea, [contenteditable]:not([contenteditable="false"])' );
+}
+
+function hasTextSelection (): boolean {
+  return typeof window !== 'undefined' && !!window.getSelection()?.toString().trim();
 }
