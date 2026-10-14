@@ -29,6 +29,8 @@ const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_HEADLINES = 20;
 // ESPN posts so often it would fill all 20; each added source gets its 6 newest.
 const MAX_PER_ADDED_SOURCE = 6;
+// Added stories without a photo go last, and take at most 6 of the 20.
+const MAX_WITHOUT_PHOTO = 6;
 
 /**
  * News/Sports headlines from feeds the backend can't reach, fetched in the
@@ -88,7 +90,7 @@ export class HeadlineFeedsService {
     const newestFirst = ( list: FindRankedResult[] ) => list
       .filter( result => !result.publishedAt || new Date( result.publishedAt ).getTime() >= cutoff )
       .sort( ( a, b ) => String( b.publishedAt || '' ).localeCompare( String( a.publishedAt || '' ) ) );
-    const last = newestFirst( added.filter( result => !result.imageUrl ) );
+    const last = newestFirst( added.filter( result => !result.imageUrl ) ).slice( 0, MAX_WITHOUT_PHOTO );
     const first = newestFirst( [...( response.results || [] ), ...added.filter( result => !!result.imageUrl )] )
       .slice( 0, MAX_HEADLINES - last.length );
     const results = [...first, ...last]
