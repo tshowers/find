@@ -90,6 +90,16 @@ describe('HeadlineFeedsService', () => {
     expect(merged.results.map(r => r.title)).toEqual(['ESPN 0', 'ESPN 1', 'ESPN 2', 'ESPN 3', 'ESPN 4', 'ESPN 5', 'Backend']);
   });
 
+  it('drops duplicate stories before taking the 6 newest from a source', () => {
+    const story = (i: number) => ({ ...headline(`ESPN ${i}`, i + 1), rssSource: 'ESPN' });
+    // The top and NFL feeds both carry stories 0-2.
+    const espn = [0, 1, 2, 0, 1, 2, 3, 4, 5, 6].map(story);
+
+    const merged = service.merge(response([headline('Backend', 48)]), espn);
+
+    expect(merged.results.filter(r => r.rssSource === 'ESPN').length).toBe(6);
+  });
+
   it('leaves the response alone when there is nothing to add', () => {
     const original = response([headline('Only', 1)]);
     expect(service.merge(original, [])).toBe(original);

@@ -66,21 +66,22 @@ export class HeadlineFeedsService {
   merge ( response: FindSearchResponse, extra: FindRankedResult[] ): FindSearchResponse {
     if ( !extra.length ) return response;
     const cutoff = Date.now() - MAX_AGE_MS;
+    // Drop duplicates first: ESPN's top and NFL feeds share stories.
+    const seen = new Set( ( response.results || [] ).map( result => result.url ) );
     const perSource = new Map<string, number>();
-    const added = [...extra]
+    const added = extra
+      .filter( result => {
+        if ( seen.has( result.url ) ) return false;
+        seen.add( result.url );
+        return true;
+      } )
       .sort( ( a, b ) => String( b.publishedAt || '' ).localeCompare( String( a.publishedAt || '' ) ) )
       .filter( result => {
         const count = perSource.get( result.rssSource || '' ) || 0;
         perSource.set( result.rssSource || '', count + 1 );
         return count < MAX_PER_ADDED_SOURCE;
       } );
-    const seen = new Set<string>();
     const results = [...( response.results || [] ), ...added]
-      .filter( result => {
-        if ( seen.has( result.url ) ) return false;
-        seen.add( result.url );
-        return true;
-      } )
       .filter( result => !result.publishedAt || new Date( result.publishedAt ).getTime() >= cutoff )
       .sort( ( a, b ) => String( b.publishedAt || '' ).localeCompare( String( a.publishedAt || '' ) ) )
       .slice( 0, MAX_HEADLINES )
