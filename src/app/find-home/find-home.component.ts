@@ -7,6 +7,7 @@ import { FindSwipeDirective } from '../directives/find-swipe.directive';
 import { FindAward, FindAwardView, FindAwardsProgress, FindAwardsService } from '../services/find-awards.service';
 import { FindBusinessHours, FindBusinessHoursDay, FindBusinessLocation, FindFollowupResponse, FindInstantAnswer, FindWatch, FindConversionCategory, FindConversionResult, FindExperienceService, FindFeedbackRating, FindMovieRatings, FindRankedResult, FindSearchResponse, FindSourceType, FindWeatherForecastDay } from '../services/find-experience.service';
 import { FindGyroscopeService, GyroTilt } from '../services/find-gyroscope.service';
+import { HeadlineFeedsService } from '../services/headline-feeds.service';
 import { environment } from '../../environments/environment';
 import { AwardBadgeComponent } from '../shared/award-badge/award-badge.component';
 import { PlatformMenuComponent } from '../shared/platform-menu/platform-menu.component';
@@ -178,6 +179,8 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   private routeSub?: Subscription;
   private gyroSub?: Subscription;
   private summarySub?: Subscription;
+  // Bumped on each search, so a slow headline merge never shows an older search.
+  private searchId = 0;
 
   constructor (
     private readonly findExperienceService: FindExperienceService,
@@ -187,7 +190,8 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     private readonly awardsService: FindAwardsService,
     private readonly title: Title,
     private readonly meta: Meta,
-    private readonly seo: SeoService
+    private readonly seo: SeoService,
+    private readonly headlineFeeds: HeadlineFeedsService
   ) { }
 
   ngOnInit (): void {
@@ -1792,6 +1796,11 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       this.updateCards();
     }
 
+    // Headlines from feeds the backend can't reach (ESPN) load in the
+    // browser alongside the search, and are merged into an RSS response.
+    const extraHeadlines = this.headlineFeeds.extraHeadlines( this.headlineFeeds.sectionForQuery( query ) );
+    const searchId = ++this.searchId;
+
     this.resolveCoordinatesForQuery( query ).then( ( coords ) => {
       this.findExperienceService.search( {
         query,
@@ -1801,27 +1810,15 @@ export class FindHomeComponent implements OnInit, OnDestroy {
         longitude: coords?.longitude ?? null
       } ).subscribe( {
         next: ( response ) => {
-          this.isLoading = false;
-          this.stopLoadingTimer( response?.timings?.totalMs );
-          this.result = response || null;
-          this.watchMessage = '';
-          this.followup = null;
-          this.followupText = '';
-          this.syncConversionState( response?.conversion || null );
-          this.selectedResultIndex = Math.max( 0, Math.min( response.selectedIndex || 0, ( response.results?.length || 1 ) - 1 ) );
-          this.resultIndex = this.selectedResultIndex;
-          this.updateCards();
-          this.highlightedPill = '';
-          this.activeView = 'result';
-          this.saveToHistory( query );
-          const newlyUnlocked = this.awardsService.recordSearch();
-          if ( newlyUnlocked ) this.pendingAwardUnlock = newlyUnlocked;
-          const isLocalResult = response?.queryType === 'local';
-          const localHasRealWebsite = isLocalResult && !this.isGoogleMapsUrl( response.results?.[0]?.url );
-          // RSS headlines already carry the publisher's own summary.
-          if ( response?.queryType !== 'question' && response?.queryType !== 'weather' && response?.queryType !== 'conversion' && response?.queryType !== 'movie' && !this.isHeadlineMode && ( !isLocalResult || localHasRealWebsite ) ) {
-            this.loadSummary();
+          if ( !response?.rssBacked ) {
+            this.applySearchResponse( response, query );
+            return;
           }
+          extraHeadlines.then( ( extra ) => {
+            // A newer search started while the feeds loaded.
+            if ( searchId !== this.searchId ) return;
+            this.applySearchResponse( this.headlineFeeds.merge( response, extra ), query );
+          } );
         },
         error: ( err ) => {
           this.isLoading = false;
@@ -1835,6 +1832,30 @@ export class FindHomeComponent implements OnInit, OnDestroy {
         }
       } );
     } );
+  }
+
+  private applySearchResponse ( response: FindSearchResponse, query: string ): void {
+    this.isLoading = false;
+    this.stopLoadingTimer( response?.timings?.totalMs );
+    this.result = response || null;
+    this.watchMessage = '';
+    this.followup = null;
+    this.followupText = '';
+    this.syncConversionState( response?.conversion || null );
+    this.selectedResultIndex = Math.max( 0, Math.min( response.selectedIndex || 0, ( response.results?.length || 1 ) - 1 ) );
+    this.resultIndex = this.selectedResultIndex;
+    this.updateCards();
+    this.highlightedPill = '';
+    this.activeView = 'result';
+    this.saveToHistory( query );
+    const newlyUnlocked = this.awardsService.recordSearch();
+    if ( newlyUnlocked ) this.pendingAwardUnlock = newlyUnlocked;
+    const isLocalResult = response?.queryType === 'local';
+    const localHasRealWebsite = isLocalResult && !this.isGoogleMapsUrl( response.results?.[0]?.url );
+    // RSS headlines already carry the publisher's own summary.
+    if ( response?.queryType !== 'question' && response?.queryType !== 'weather' && response?.queryType !== 'conversion' && response?.queryType !== 'movie' && !this.isHeadlineMode && ( !isLocalResult || localHasRealWebsite ) ) {
+      this.loadSummary();
+    }
   }
 
   // Geolocation is requested only for location-shaped queries (including the
