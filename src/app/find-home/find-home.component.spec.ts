@@ -102,6 +102,7 @@ describe('FindHomeComponent', () => {
   let harness: RouterTestingHarness;
   let component: FindHomeComponent;
   let http: HttpTestingController;
+  let fetchSpy: jasmine.Spy;
 
   function root(): HTMLElement {
     return harness.routeNativeElement as HTMLElement;
@@ -155,6 +156,9 @@ describe('FindHomeComponent', () => {
     });
 
     http = TestBed.inject(HttpTestingController);
+
+    // Browser-fetched headline feeds (ESPN): none unless a test says so.
+    fetchSpy = spyOn(window, 'fetch').and.callFake(async () => ({ ok: false, status: 404, text: async () => '' }) as Response);
 
     spyOn(navigator.geolocation, 'getCurrentPosition').and.callFake((success: PositionCallback) => {
       success({ coords: { latitude: 47.6, longitude: -122.3 } } as GeolocationPosition);
@@ -818,6 +822,36 @@ describe('FindHomeComponent', () => {
     expect(root().querySelector('.find-action--primary')?.textContent).toContain('Read on CBS Sports');
     expect(component.pagerNext?.label).toBe('Next · BBC Sport · 2h ago');
     expect(root().querySelector('.find-footer__meta')?.textContent).toContain('From CBS Sports and BBC Sport · updated hourly');
+  }));
+
+  it('merges ESPN headlines fetched in the browser into the sports headlines, newest first', fakeAsync(() => {
+    const now = Date.now();
+    const espnXml = `<?xml version="1.0"?><rss version="2.0"><channel><item>
+      <title><![CDATA[Rams lineman suspended two games]]></title>
+      <description><![CDATA[The NFL suspended Alaric Jackson.]]></description>
+      <link><![CDATA[https://www.espn.com/nfl/story/_/id/1]]></link>
+      <pubDate>${new Date(now - 1 * 3600000).toUTCString()}</pubDate>
+    </item></channel></rss>`;
+    fetchSpy.and.callFake(async (url: string) => url === 'https://www.espn.com/espn/rss/nfl/news'
+      // A plain object: a real Response reads its body outside fakeAsync.
+      ? { ok: true, status: 200, text: async () => espnXml } as Response
+      : { ok: false, status: 404, text: async () => '' } as Response);
+
+    runSearch('sports news', makeHeadlineResponse('sports news', [
+      makeResult({ title: 'Chiefs rally late', url: 'https://www.cbssports.com/a', rssSource: 'CBS Sports', publishedAt: new Date(now - 4 * 3600000).toISOString() }),
+      makeResult({ title: 'Arsenal go top', url: 'https://www.bbc.co.uk/sport/b', rssSource: 'BBC Sport', publishedAt: new Date(now - 2 * 3600000).toISOString(), rank: 2 }),
+    ]));
+
+    expect(fetchSpy).toHaveBeenCalledWith('https://www.espn.com/espn/rss/news', jasmine.anything());
+    expect(component.allResults.map(card => card.rssSource)).toEqual(['ESPN', 'BBC Sport', 'CBS Sports']);
+    expect(component.allResults[0].title).toBe('Rams lineman suspended two games');
+    expect(component.allResults.map(card => card.rank)).toEqual([1, 2, 3]);
+    expect(root().querySelector('.find-footer__meta')?.textContent).toContain('ESPN');
+  }));
+
+  it('does not fetch browser headlines for other searches', fakeAsync(() => {
+    runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle'));
+    expect(fetchSpy).not.toHaveBeenCalled();
   }));
 
   it('adds the TODD summary under a place without replacing its hours or text', fakeAsync(() => {
