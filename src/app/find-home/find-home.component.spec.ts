@@ -824,7 +824,7 @@ describe('FindHomeComponent', () => {
     expect(root().querySelector('.find-footer__meta')?.textContent).toContain('From CBS Sports and BBC Sport · updated hourly');
   }));
 
-  it('merges ESPN headlines fetched in the browser into the sports headlines, newest first', fakeAsync(() => {
+  it('merges ESPN headlines fetched in the browser into the sports headlines, after the ones with photos', fakeAsync(() => {
     const now = Date.now();
     const espnXml = `<?xml version="1.0"?><rss version="2.0"><channel><item>
       <title><![CDATA[Rams lineman suspended two games]]></title>
@@ -843,8 +843,9 @@ describe('FindHomeComponent', () => {
     ]));
 
     expect(fetchSpy).toHaveBeenCalledWith('https://www.espn.com/espn/rss/news', jasmine.anything());
-    expect(component.allResults.map(card => card.rssSource)).toEqual(['ESPN', 'BBC Sport', 'CBS Sports']);
-    expect(component.allResults[0].title).toBe('Rams lineman suspended two games');
+    // ESPN's feeds have no photos, so its stories come after the others.
+    expect(component.allResults.map(card => card.rssSource)).toEqual(['BBC Sport', 'CBS Sports', 'ESPN']);
+    expect(component.allResults[2].title).toBe('Rams lineman suspended two games');
     expect(component.allResults.map(card => card.rank)).toEqual([1, 2, 3]);
     expect(root().querySelector('.find-footer__meta')?.textContent).toContain('ESPN');
   }));

@@ -64,13 +64,14 @@ describe('HeadlineFeedsService', () => {
   });
 
   it('merges newest first, drops duplicate links and old stories, and keeps 20', () => {
-    const backend = Array.from({ length: 19 }, (_, i) => headline(`Backend ${i}`, i + 2));
+    const withPhoto = (result: FindRankedResult) => ({ ...result, imageUrl: 'https://img/x.jpg' });
+    const backend = Array.from({ length: 19 }, (_, i) => withPhoto(headline(`Backend ${i}`, i + 2)));
     const extra = [
       headline('ESPN newest', 1),
       headline('Duplicate', 3, backend[0].url),
       headline('Too old', 24 * 8),
       headline('ESPN later', 30),
-    ];
+    ].map(withPhoto);
 
     const merged = service.merge(response(backend), extra);
 
@@ -87,7 +88,7 @@ describe('HeadlineFeedsService', () => {
 
     const merged = service.merge(response(backend), espn);
 
-    expect(merged.results.map(r => r.title)).toEqual(['ESPN 0', 'ESPN 1', 'ESPN 2', 'ESPN 3', 'ESPN 4', 'ESPN 5', 'Backend']);
+    expect(merged.results.map(r => r.title)).toEqual(['Backend', 'ESPN 0', 'ESPN 1', 'ESPN 2', 'ESPN 3', 'ESPN 4', 'ESPN 5']);
   });
 
   it('drops duplicate stories before taking the 6 newest from a source', () => {
@@ -98,6 +99,19 @@ describe('HeadlineFeedsService', () => {
     const merged = service.merge(response([headline('Backend', 48)]), espn);
 
     expect(merged.results.filter(r => r.rssSource === 'ESPN').length).toBe(6);
+  });
+
+  it('puts added stories without a photo after the ones with photos, still within 20', () => {
+    const backend = Array.from({ length: 20 }, (_, i) => ({ ...headline(`Backend ${i}`, i + 2), imageUrl: 'https://img/b.jpg' }));
+    const espn = [{ ...headline('ESPN newest', 1), rssSource: 'ESPN' }, { ...headline('ESPN older', 5), rssSource: 'ESPN' }];
+    const npr = { ...headline('NPR with photo', 1.5), rssSource: 'NPR', imageUrl: 'https://img/n.jpg' };
+
+    const merged = service.merge(response(backend), [...espn, npr]);
+
+    expect(merged.results.length).toBe(20);
+    expect(merged.results[0].title).toBe('NPR with photo');
+    expect(merged.results.slice(-2).map(r => r.title)).toEqual(['ESPN newest', 'ESPN older']);
+    expect(merged.results.map(r => r.rank)).toEqual(Array.from({ length: 20 }, (_, i) => i + 1));
   });
 
   it('leaves the response alone when there is nothing to add', () => {

@@ -62,7 +62,11 @@ export class HeadlineFeedsService {
     return items;
   }
 
-  /** Backend headlines plus extra ones (6 newest per source): no duplicate links, newest first, 20 at most. */
+  /**
+   * Backend headlines plus extra ones (6 newest per source): no duplicate
+   * links, newest first, 20 at most. Added stories without a photo (ESPN's
+   * feeds have none) go after the ones with photos.
+   */
   merge ( response: FindSearchResponse, extra: FindRankedResult[] ): FindSearchResponse {
     if ( !extra.length ) return response;
     const cutoff = Date.now() - MAX_AGE_MS;
@@ -81,9 +85,13 @@ export class HeadlineFeedsService {
         perSource.set( result.rssSource || '', count + 1 );
         return count < MAX_PER_ADDED_SOURCE;
       } );
-    const results = [...( response.results || [] ), ...added]
+    const newestFirst = ( list: FindRankedResult[] ) => list
       .filter( result => !result.publishedAt || new Date( result.publishedAt ).getTime() >= cutoff )
-      .sort( ( a, b ) => String( b.publishedAt || '' ).localeCompare( String( a.publishedAt || '' ) ) )
+      .sort( ( a, b ) => String( b.publishedAt || '' ).localeCompare( String( a.publishedAt || '' ) ) );
+    const last = newestFirst( added.filter( result => !result.imageUrl ) );
+    const first = newestFirst( [...( response.results || [] ), ...added.filter( result => !!result.imageUrl )] )
+      .slice( 0, MAX_HEADLINES - last.length );
+    const results = [...first, ...last]
       .slice( 0, MAX_HEADLINES )
       .map( ( result, index ) => ( { ...result, rank: index + 1 } ) );
     return { ...response, results, selectedIndex: 0 };
