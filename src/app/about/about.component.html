@@ -23,6 +23,24 @@
       <div class="about-principles__copy"><p>Find gives you the strongest result first, keeps the source close, and lets you refine without losing the question that started the search.</p><p>When a query needs a different shape—forecast, conversion, ratings, nearby places, or a grounded summary of results—Find changes the experience around the task.</p></div>
     </section>
 
+    <!-- Plain HTML on purpose: Google ignores Review markup on testimonials a
+         site picks about itself, so these carry no structured data. -->
+    <section class="about-voices" aria-labelledby="about-voices-title">
+      <div class="about-voices__head">
+        <p class="about-principles__label">In their words</p>
+        <h2 id="about-voices-title">What people are saying about Find.</h2>
+      </div>
+      <figure class="about-voice about-voice--featured">
+        <blockquote>Idk about yall but Im sick of Google. Find takes a few seconds longer cos its goal is to find you the best result rather than all that sponsored crap Google gives you.</blockquote>
+      </figure>
+      <div class="about-voices__grid">
+        <figure class="about-voice"><blockquote>I been in Seattle 16 year and have never even heard of these businesses until Find</blockquote></figure>
+        <figure class="about-voice"><blockquote>I found something I have never seen on Google</blockquote></figure>
+        <figure class="about-voice"><blockquote>Where has find been hiding</blockquote></figure>
+      </div>
+      <p class="about-voices__note">Shared with us by people using Find.</p>
+    </section>
+
     <section class="about-actions">
       <a class="about-button about-button--primary" routerLink="/">Try Find <span aria-hidden="true">→</span></a>
       <a class="about-button" routerLink="/help">Read Find Help <span aria-hidden="true">→</span></a>

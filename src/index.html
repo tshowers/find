@@ -30,6 +30,32 @@
   <link rel="icon" type="image/png" sizes="128x157" href="/assets/seo/find-icon.png">
   <link rel="apple-touch-icon" href="/assets/seo/find-icon.png">
 
+  <!-- Site-wide structured data. The Organization @id matches the one in the
+       About page's graph so Google treats them as the same entity. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://find.taliferro.tech/#website",
+        "url": "https://find.taliferro.tech/",
+        "name": "Find",
+        "description": "Search that ends with the right result: the best-weighted result first, not ten blue links.",
+        "inLanguage": "en",
+        "publisher": { "@id": "https://taliferro.tech/#organization" }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://taliferro.tech/#organization",
+        "name": "Taliferro Tech, LLC",
+        "url": "https://taliferro.tech",
+        "logo": "https://find.taliferro.tech/assets/find/entities/taliferro-tech/logo.png"
+      }
+    ]
+  }
+  </script>
+
   <!-- Google Analytics 4 / Find web stream -->
   <script>
     window.dataLayer = window.dataLayer || [];
