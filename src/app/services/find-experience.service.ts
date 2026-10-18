@@ -197,6 +197,8 @@ export interface FindSearchResponse {
   query: string;
   normalizedQuery: string;
   queryType: FindQueryType;
+  /** The search is for something to buy (TODD Market's strip shows only then). */
+  shoppingIntent?: boolean;
   handoff?: {
     route: string;
     query: string;

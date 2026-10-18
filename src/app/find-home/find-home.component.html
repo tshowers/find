@@ -83,8 +83,6 @@
         <ng-template #pagerSpacer><span class="find-pager__spacer" aria-hidden="true"></span></ng-template>
       </nav>
 
-      <app-market-strip *ngIf="!isWeatherMode" [query]="result.query || query"></app-market-strip>
-
       <div class="find-body">
         <!-- ── WEATHER ── -->
         <ng-container *ngIf="isWeatherMode; else nonWeatherView">
@@ -341,6 +339,9 @@
           </div>
         </ng-template>
       </div>
+
+      <!-- TODD Market's "From local stores": shopping searches only, under the result. -->
+      <app-market-strip *ngIf="result?.shoppingIntent === true" [query]="result.query || query"></app-market-strip>
 
       <div class="find-lead-vault-cta" *ngIf="isPersonSearch">
         <p>Looking for contact details or prospects?</p>
