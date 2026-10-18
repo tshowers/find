@@ -1,0 +1,85 @@
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, PLATFORM_ID, inject } from '@angular/core';
+
+/** TODD Market's public network search (functions/market, shop.routes.js); it allows this origin. */
+const MARKET = 'https://market.taliferro.tech';
+
+interface MarketItem {
+  id: string; title: string; priceCents: number; image: string | null; storeName: string; storeSlug: string; storeTint: string | null; storeTintFg: string | null;
+}
+
+/**
+ * "From local stores on TODD Market": items independent stores in the
+ * Market network sell that match the search. Shows only when something
+ * matches; uses Market's ranking-only search (no AI call per Find search).
+ */
+@Component( {
+  selector: 'app-market-strip',
+  standalone: true,
+  imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <section class="market-strip" *ngIf="items.length" aria-label="From local stores on TODD Market">
+      <div class="market-strip__head">
+        <span class="market-strip__label"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i> From local stores on TODD Market</span>
+        <a [href]="searchUrl" target="_blank" rel="noopener">See all {{ total }} →</a>
+      </div>
+      <div class="market-strip__items">
+        <a *ngFor="let item of items" class="market-strip__item" [href]="itemUrl(item)" target="_blank" rel="noopener">
+          <span class="market-strip__img" [style.background]="item.storeTint || 'var(--surface2)'"><img *ngIf="item.image" [src]="item.image" alt=""></span>
+          <span class="market-strip__store">{{ item.storeName }}</span>
+          <strong>{{ item.title }}</strong>
+          <span class="market-strip__price">{{ price(item.priceCents) }}</span>
+        </a>
+      </div>
+    </section>`,
+  styles: [`
+    .market-strip { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; padding: 16px; border-radius: 20px; background: var(--surface); }
+    .market-strip__head { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; }
+    .market-strip__label { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .market-strip__head a { font-weight: 600; }
+    .market-strip__items { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+    .market-strip__item { display: flex; flex-direction: column; gap: 4px; padding: 8px; border-radius: 16px; background: var(--bg); color: var(--text); text-decoration: none; }
+    .market-strip__img { height: 96px; border-radius: 12px; overflow: hidden; }
+    .market-strip__img img { width: 100%; height: 100%; object-fit: cover; }
+    .market-strip__store { font-size: 12px; font-weight: 700; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .market-strip__item strong { font-size: 14px; line-height: 1.3; }
+    .market-strip__price { font-size: 14px; font-weight: 700; }
+  `],
+} )
+export class MarketStripComponent implements OnChanges {
+  @Input() query = '';
+  items: MarketItem[] = [];
+  total = 0;
+  searchUrl = MARKET;
+  private readonly cdr = inject( ChangeDetectorRef );
+  private readonly isBrowser = isPlatformBrowser( inject( PLATFORM_ID ) );
+  private lastQuery = '';
+
+  async ngOnChanges (): Promise<void> {
+    const q = String( this.query || '' ).trim();
+    if ( !this.isBrowser || !q || q === this.lastQuery ) return;
+    this.lastQuery = q;
+    this.items = [];
+    this.searchUrl = `${ MARKET }/?q=${ encodeURIComponent( q ) }`;
+    try {
+      const res = await fetch( `${ MARKET }/api/network/search`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify( { query: q, lite: true } ) } );
+      if ( !res.ok || q !== this.lastQuery ) return;
+      const body = await res.json() as { items?: MarketItem[] };
+      this.total = ( body.items || [] ).length;
+      this.items = ( body.items || [] ).slice( 0, 4 );
+    } catch {
+      this.items = [];
+    }
+    this.cdr.markForCheck();
+  }
+
+  itemUrl ( item: MarketItem ): string {
+    return `${ MARKET }/${ item.storeSlug }?q=${ encodeURIComponent( this.lastQuery ) }`;
+  }
+
+  price ( cents: number ): string {
+    const d = cents / 100;
+    return '$' + ( Number.isInteger( d ) ? d.toLocaleString( 'en-US' ) : d.toFixed( 2 ) );
+  }
+}

@@ -102,7 +102,7 @@ export class HelpComponent implements OnInit, AfterViewInit, OnDestroy {
         'Conversion handles currency and unit conversions, including an interactive keypad.',
         'Restaurants searches for places to eat near you when location context is available. Tap Open now to see only places open right now.',
         'Turn on Use my location on the Info tab to see how far away places are on every search. Your location is sent with each search and never stored.',
-        'Events is marked coming soon in the current product.',
+        'Shop opens TODD Market, where you can search every independent store in the network at once or browse them one by one. Matching items from those stores also appear on your Find results.',
       ],
       action: 'Try a quick search',
       actionQueryParams: { query: 'weather' },

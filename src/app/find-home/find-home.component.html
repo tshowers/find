@@ -22,7 +22,7 @@
         type="button"
         [class]="'find-quick-action find-quick-action--' + action.color"
         [disabled]="action.disabled || isLoading"
-        [attr.aria-label]="action.disabled ? action.label + ' coming soon' : 'Search ' + action.label"
+        [attr.aria-label]="action.disabled ? action.label + ' coming soon' : action.href ? action.label + ' on TODD Market' : 'Search ' + action.label"
         (click)="onQuickActionClick(action)"
       >
         <i [class]="'fa-solid ' + action.icon" aria-hidden="true"></i>
@@ -82,6 +82,8 @@
         </ng-container>
         <ng-template #pagerSpacer><span class="find-pager__spacer" aria-hidden="true"></span></ng-template>
       </nav>
+
+      <app-market-strip *ngIf="!isWeatherMode" [query]="result.query || query"></app-market-strip>
 
       <div class="find-body">
         <!-- ── WEATHER ── -->

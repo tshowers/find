@@ -300,6 +300,7 @@
 .find-quick-action--conversion { background: var(--t-violet); color: var(--t-violet-fg); }
 .find-quick-action--restaurants { background: var(--t-yellow); color: var(--t-yellow-fg); }
 .find-quick-action--events { background: var(--surface); color: var(--muted); }
+.find-quick-action--shop { background: var(--t-green); color: var(--t-green-fg); }
 /* "Coming soon" tiles sit back at 0.6; also applies while a search is loading. */
 .find-quick-action:disabled { opacity: .6; }
 

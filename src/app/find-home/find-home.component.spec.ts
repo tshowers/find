@@ -426,11 +426,12 @@ describe('FindHomeComponent', () => {
     expect(component.isLocalMode).toBeTrue();
   }));
 
-  it('does nothing when the disabled Events quick action is activated', fakeAsync(() => {
-    // A native <button disabled> never dispatches a click event even via
-    // .click(), so the guard clause is exercised directly instead.
-    component.onQuickActionClick(component.quickActions.find(a => a.label === 'Events')!);
+  it('opens TODD Market from the Shop quick action instead of searching', fakeAsync(() => {
+    // Shop replaced the disabled "Events, coming soon" tile.
+    const open = spyOn(component, 'openExternal');
+    component.onQuickActionClick(component.quickActions.find(a => a.label === 'Shop')!);
     tick();
+    expect(open).toHaveBeenCalledWith('https://market.taliferro.tech');
     http.expectNone(r => r.url.endsWith('/find/search'));
     expect(component.query).toBe('');
   }));
@@ -852,7 +853,9 @@ describe('FindHomeComponent', () => {
 
   it('does not fetch browser headlines for other searches', fakeAsync(() => {
     runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle'));
-    expect(fetchSpy).not.toHaveBeenCalled();
+    // The only fetch allowed is the TODD Market strip ("From local stores").
+    const urls = fetchSpy.calls.allArgs().map(([url]) => String(url));
+    expect(urls.filter(url => !url.startsWith('https://market.taliferro.tech/'))).toEqual([]);
   }));
 
   it('adds the TODD summary under a place without replacing its hours or text', fakeAsync(() => {

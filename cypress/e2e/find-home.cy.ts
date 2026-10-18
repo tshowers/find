@@ -197,9 +197,10 @@ describe( 'Find home - buttons and navigation', () => {
     cy.contains( '.find-card-title', 'Corner Cafe' ).should( 'be.visible' );
   } );
 
-  it( 'shows the Events quick action as disabled rather than searchable', () => {
+  it( 'shows a Shop quick action for TODD Market (it replaced Events, coming soon)', () => {
     cy.visit( '/' );
-    cy.get( '[aria-label="Events coming soon"]' ).should( 'be.disabled' );
+    cy.get( '[aria-label="Shop on TODD Market"]' ).should( 'be.visible' ).and( 'not.be.disabled' );
+    cy.get( '[aria-label="Events coming soon"]' ).should( 'not.exist' );
   } );
 
   // --- 7-11. The five bottom tab-bar buttons ---

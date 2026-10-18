@@ -16,6 +16,7 @@ import { Title, Meta } from '@angular/platform-browser';
 import { SiteFooterComponent } from '../shared/site-footer/site-footer.component';
 import { MENU_COMPANY } from '@taliferro/ui/platform/universal-menu.model';
 import { AlsoFromUsComponent } from '../shared/also-from-us/also-from-us.component';
+import { MarketStripComponent } from '../shared/market-strip/market-strip.component';
 
 type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info' | 'awards';
 
@@ -25,6 +26,8 @@ interface FindQuickAction {
   color: string;
   query: string;
   disabled?: boolean;
+  /** Opens another site instead of searching (Shop → TODD Market). */
+  href?: string;
 }
 
 // One quick action on a result (Read, Copy link, ...). Desktop shows `label`
@@ -57,7 +60,7 @@ function distanceMeters ( from: { latitude: number; longitude: number }, latitud
 @Component( {
   selector: 'app-find-home',
   standalone: true,
-  imports: [ AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
+  imports: [ MarketStripComponent, AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
   templateUrl: './find-home.component.html',
   styleUrls: ['./find-home.component.css', './find-home.grid.css', './find-home.features.css'],
   // The prerendered "/" always contains the home screen, but a `?query=` or
@@ -114,7 +117,8 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     { label: 'Sports', icon: 'fa-trophy', color: 'sports', query: 'sports news' },
     { label: 'Conversion', icon: 'fa-arrow-right-arrow-left', color: 'conversion', query: '100 USD to EUR' },
     { label: 'Restaurants', icon: 'fa-utensils', color: 'restaurants', query: 'restaurants near me' },
-    { label: 'Events', icon: 'fa-calendar', color: 'events', query: 'events near me', disabled: true },
+    // Shop independent stores on TODD Market (replaced the "Events, coming soon" tile).
+    { label: 'Shop', icon: 'fa-bag-shopping', color: 'shop', query: '', href: 'https://market.taliferro.tech' },
   ];
 
   gyroEnabled = false;
@@ -383,12 +387,21 @@ export class FindHomeComponent implements OnInit, OnDestroy {
 
   onQuickActionClick ( action: FindQuickAction ): void {
     if ( action.disabled ) return;
+    if ( action.href ) {
+      this.openExternal( action.href );
+      return;
+    }
     this.query = action.query;
     this.activeContext = '';
     this.syncBreadcrumb();
     this.resultIndex = 0;
     this.selectedResultIndex = 0;
     this.navigate( action.query, null );
+  }
+
+  /** Leaves Find for another Taliferro site (a seam for tests). */
+  openExternal ( url: string ): void {
+    window.location.href = url;
   }
 
   onQueryInput (): void {
