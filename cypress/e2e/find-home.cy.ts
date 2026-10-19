@@ -124,10 +124,12 @@ function runSearch ( query: string, response: Record<string, unknown> ): void {
   cy.get( '#findQuery' ).type( query );
   cy.get( '.find-search-screen .find-submit' ).click();
   cy.wait( '@search' );
-  // The response can land before Angular renders it. The result screen and the
-  // award overlay are set in the same pass, so once the result is visible the
-  // overlay check below can't miss it.
+  // The result screen opens with a loading spinner before the response is
+  // applied, so its being visible isn't enough. The spinner clears in the same
+  // pass that sets the award overlay, so once it's gone the overlay check
+  // below can't miss it.
   cy.get( '[data-cy="find-result-shell"]' ).should( 'be.visible' );
+  cy.get( '.find-result-loading' ).should( 'not.exist' );
   dismissAwardOverlayIfPresent();
 }
 

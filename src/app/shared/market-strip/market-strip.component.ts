@@ -10,8 +10,9 @@ interface MarketItem {
 
 /**
  * "From local stores on TODD Market": items independent stores in the
- * Market network sell that match the search. Shows only when something
- * matches; uses Market's ranking-only search (no AI call per Find search).
+ * Market network sell that match the search. Find shows it only for
+ * shopping searches (the response's shoppingIntent), under the result, and
+ * only items with a photo. Uses Market's ranking-only search (no AI call).
  */
 @Component( {
   selector: 'app-market-strip',
@@ -26,7 +27,7 @@ interface MarketItem {
       </div>
       <div class="market-strip__items">
         <a *ngFor="let item of items" class="market-strip__item" [href]="itemUrl(item)" target="_blank" rel="noopener">
-          <span class="market-strip__img" [style.background]="item.storeTint || 'var(--surface2)'"><img *ngIf="item.image" [src]="item.image" alt=""></span>
+          <span class="market-strip__img"><img [src]="item.image" alt="" (error)="dropItem(item)"></span>
           <span class="market-strip__store">{{ item.storeName }}</span>
           <strong>{{ item.title }}</strong>
           <span class="market-strip__price">{{ price(item.priceCents) }}</span>
@@ -37,10 +38,10 @@ interface MarketItem {
     .market-strip { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; padding: 16px; border-radius: 20px; background: var(--surface); }
     .market-strip__head { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; }
     .market-strip__label { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
-    .market-strip__head a { font-weight: 600; }
+    .market-strip__head a { font-weight: 600; color: var(--blue); text-decoration: none; }
     .market-strip__items { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
     .market-strip__item { display: flex; flex-direction: column; gap: 4px; padding: 8px; border-radius: 16px; background: var(--bg); color: var(--text); text-decoration: none; }
-    .market-strip__img { height: 96px; border-radius: 12px; overflow: hidden; }
+    .market-strip__img { height: 96px; border-radius: 12px; overflow: hidden; background: var(--surface2); }
     .market-strip__img img { width: 100%; height: 100%; object-fit: cover; }
     .market-strip__store { font-size: 12px; font-weight: 700; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .market-strip__item strong { font-size: 14px; line-height: 1.3; }
@@ -65,12 +66,19 @@ export class MarketStripComponent implements OnChanges {
     try {
       const res = await fetch( `${ MARKET }/api/network/search`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify( { query: q, lite: true } ) } );
       if ( !res.ok || q !== this.lastQuery ) return;
-      const body = await res.json() as { items?: MarketItem[] };
-      this.total = ( body.items || [] ).length;
-      this.items = ( body.items || [] ).slice( 0, 4 );
+      // No photo, no card (Market's lite search already leaves those out).
+      const withImages = ( ( await res.json() as { items?: MarketItem[] } ).items || [] ).filter( ( i ) => !!i.image );
+      this.total = withImages.length;
+      this.items = withImages.slice( 0, 4 );
     } catch {
       this.items = [];
     }
+    this.cdr.markForCheck();
+  }
+
+  /** A photo that doesn't load takes its card with it. */
+  dropItem ( item: MarketItem ): void {
+    this.items = this.items.filter( ( i ) => i !== item );
     this.cdr.markForCheck();
   }
 

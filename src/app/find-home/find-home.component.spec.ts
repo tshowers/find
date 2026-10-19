@@ -858,6 +858,21 @@ describe('FindHomeComponent', () => {
     expect(urls.filter(url => !url.startsWith('https://market.taliferro.tech/'))).toEqual([]);
   }));
 
+  it('leaves TODD Market\'s strip off searches that aren\'t shopping', fakeAsync(() => {
+    runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle'));
+    expect(root().querySelector('app-market-strip')).toBeNull();
+    expect(fetchSpy.calls.allArgs().map(([url]) => String(url)).filter(url => url.startsWith('https://market.taliferro.tech/'))).toEqual([]);
+  }));
+
+  it('puts TODD Market\'s strip under the result for a shopping search', fakeAsync(() => {
+    runSearch('linen dress', { ...makeEntityResponse('linen dress'), shoppingIntent: true });
+    const strip = root().querySelector('app-market-strip');
+    const body = root().querySelector('.find-body');
+    expect(strip).not.toBeNull();
+    // eslint-disable-next-line no-bitwise
+    expect(body!.compareDocumentPosition(strip!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  }));
+
   it('adds the TODD summary under a place without replacing its hours or text', fakeAsync(() => {
     const week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
       .map(day => ({ day, periods: [{ open: '8am', close: '3pm' }] }));
