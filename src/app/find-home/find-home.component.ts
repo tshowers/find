@@ -204,12 +204,12 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     // SeoService when visited — restore the defaults here so a client-side
     // navigation back to Home (no full page reload) doesn't leave those
     // pages' metadata stuck in place.
-    this.title.setTitle( 'Find — Search that ends with the right result | Taliferro Tech' );
+    this.title.setTitle( 'Find — Search that starts with the right result | Taliferro Tech' );
     this.meta.updateTag( { name: 'description', content: 'Find is TODD\'s visual search experience: the best-weighted result first, not ten blue links, backed by authoritative sources, curated Taliferro knowledge, and the web. Free, no account required.' } );
-    this.meta.updateTag( { property: 'og:title', content: 'Find — Search that ends with the right result' } );
+    this.meta.updateTag( { property: 'og:title', content: 'Find — Search that starts with the right result' } );
     this.meta.updateTag( { property: 'og:description', content: 'The best-weighted result first, not ten blue links. Find combines authoritative sources, curated Taliferro knowledge, and web results — free, no account required.' } );
     this.meta.updateTag( { property: 'og:url', content: 'https://find.taliferro.tech/' } );
-    this.meta.updateTag( { name: 'twitter:title', content: 'Find — Search that ends with the right result' } );
+    this.meta.updateTag( { name: 'twitter:title', content: 'Find — Search that starts with the right result' } );
     this.meta.updateTag( { name: 'twitter:description', content: 'The best-weighted result first, not ten blue links. Find combines authoritative sources, curated Taliferro knowledge, and web results — free, no account required.' } );
     this.seo.setCanonical( 'https://find.taliferro.tech/' );
 

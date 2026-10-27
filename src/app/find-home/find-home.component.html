@@ -17,14 +17,7 @@
       </button>
     </form>
     <div class="find-quick-actions" aria-label="Quick searches">
-      <button
-        *ngFor="let action of quickActions"
-        type="button"
-        [class]="'find-quick-action find-quick-action--' + action.color"
-        [disabled]="action.disabled || isLoading"
-        [attr.aria-label]="action.disabled ? action.label + ' coming soon' : action.href ? action.label + ' on TODD Market' : 'Search ' + action.label"
-        (click)="onQuickActionClick(action)"
-      >
+      <button *ngFor="let action of quickActions" type="button" [class]="'find-quick-action find-quick-action--' + action.color" [disabled]="action.disabled || isLoading" [attr.aria-label]="action.disabled ? action.label + ' coming soon' : action.href ? action.label + ' on TODD Market' : 'Search ' + action.label" (click)="onQuickActionClick(action)">
         <i [class]="'fa-solid ' + action.icon" aria-hidden="true"></i>
         <span>{{ action.label }}</span>
         <small *ngIf="action.disabled">Coming soon</small>
@@ -82,7 +75,6 @@
         </ng-container>
         <ng-template #pagerSpacer><span class="find-pager__spacer" aria-hidden="true"></span></ng-template>
       </nav>
-
       <div class="find-body">
         <!-- ── WEATHER ── -->
         <ng-container *ngIf="isWeatherMode; else nonWeatherView">
@@ -177,7 +169,6 @@
             </div>
           </ng-container>
         </ng-template>
-
         <!-- ── INSTANT: an exact answer Find works out itself ── -->
         <ng-template #instantOrMedia>
           <ng-container *ngIf="isInstantMode && instant as answer; else mediaView">
@@ -192,7 +183,6 @@
             </div>
           </ng-container>
         </ng-template>
-
         <!-- ── EVERY OTHER TYPE, laid out by the image rule ──
              own image -> hero · Find default art -> thumbnail · none -> text only -->
         <ng-template #mediaView>
@@ -302,8 +292,7 @@
                   <div class="find-card-summary find-rich-text" *ngIf="!currentHoursFromSummary" [innerHTML]="formatRichText(currentAnswerText)"></div>
                   <ng-container *ngTemplateOutlet="aiSummaryBox"></ng-container>
                   <ng-container *ngTemplateOutlet="followupBox"></ng-container>
-                  <p class="find-local-attribution" *ngIf="isLocalMode">
-                    Business details powered by <a href="https://www.google.com/" target="_blank" rel="noopener">Google</a>
+                  <p class="find-local-attribution" *ngIf="isLocalMode"> Business details powered by <a href="https://www.google.com/" target="_blank" rel="noopener">Google</a>
                   </p>
                 </ng-container>
                 <ng-template #questionAnswerView>
@@ -322,7 +311,6 @@
                     <ng-container *ngIf="!isGroundedAnswerSlide"><ng-container *ngTemplateOutlet="aiSummaryBox"></ng-container></ng-container>
                     <ng-container *ngTemplateOutlet="followupBox"></ng-container>
                   </div>
-
                   <div class="find-question-sources" *ngIf="isGroundedAnswerSlide && questionReferences.length > 0">
                     <div class="find-question-sources__header">
                       <h3>References</h3>
@@ -339,15 +327,12 @@
           </div>
         </ng-template>
       </div>
-
       <!-- TODD Market's "From local stores": shopping searches only, under the result. -->
       <app-market-strip *ngIf="result?.shoppingIntent === true" [query]="result.query || query"></app-market-strip>
-
       <div class="find-lead-vault-cta" *ngIf="isPersonSearch">
         <p>Looking for contact details or prospects?</p>
         <a [href]="leadVaultSearchUrl">Search “{{ result.query || query }}” in Lead Vault</a>
       </div>
-
       <!-- Footer: one-row feedback + source/timing meta -->
       <footer class="find-footer">
         <ng-container *ngIf="!isDetailView">
@@ -376,7 +361,7 @@
           </ng-template>
           <ng-template #timingMeta>
             <ng-container *ngIf="result.timings as timings">
-              {{ responseSeconds }}s total<ng-container *ngIf="timings.candidateCount > 0"> · {{ timings.candidateCount }} candidates</ng-container>
+              {{ responseSeconds }}s total<ng-container *ngIf="timings.candidateCount > 0"> · {{ timings.candidateCount }} sources</ng-container>
               <ng-container *ngIf="timings.enrichedCount > 0"> · {{ timings.enrichedCount }} pages checked</ng-container>
               <ng-container *ngIf="currentCard?.isFirstParty"> · official Taliferro knowledge</ng-container>
               <ng-container *ngIf="(currentCard?.answer || currentCard?.aiSummary) && !currentCard?.isFirstParty && !isQuestionMode"> · TODD summary</ng-container>
@@ -387,7 +372,6 @@
       </footer>
     </ng-container>
   </div>
-
   <!-- TODD summary: added under the result's own details, never in place of them. -->
   <!-- "Ask about this result": answered from this result's own sources. -->
   <ng-template #followupBox>
@@ -396,8 +380,7 @@
         <p class="find-followup__question">{{ followup.question }}</p>
         <ng-container *ngIf="followup.response.answered; else followupNotCovered">
           <p class="find-followup__text">{{ followup.response.answer }}</p>
-          <p class="find-followup__sources" *ngIf="followup.response.sources.length">
-            From <ng-container *ngFor="let source of followup.response.sources; let last = last"><a [href]="source.url" target="_blank" rel="noopener">{{ source.displayUrl }}</a><ng-container *ngIf="!last">, </ng-container></ng-container>
+          <p class="find-followup__sources" *ngIf="followup.response.sources.length"> From <ng-container *ngFor="let source of followup.response.sources; let last = last"><a [href]="source.url" target="_blank" rel="noopener">{{ source.displayUrl }}</a><ng-container *ngIf="!last">, </ng-container></ng-container>
           </p>
         </ng-container>
         <ng-template #followupNotCovered>
@@ -412,7 +395,6 @@
       </form>
     </section>
   </ng-template>
-
   <ng-template #aiSummaryBox>
     <aside class="find-ai-summary" *ngIf="currentCard?.aiSummary as aiSummary" aria-label="TODD summary">
       <span class="find-ai-summary__label"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> TODD summary</span>
@@ -484,9 +466,7 @@
         <span class="find-pager__spacer" aria-hidden="true"></span>
       </nav>
       <div class="find-grid">
-        <a *ngFor="let card of gridCards; let i = index" [href]="card.url" target="_blank" rel="noopener noreferrer" class="find-grid-card"
-           [class.find-grid-card--current]="i === resultIndex"
-           [class.find-grid-card--image]="card.imageUrl && !isImageBroken(card.imageUrl)">
+        <a *ngFor="let card of gridCards; let i = index" [href]="card.url" target="_blank" rel="noopener noreferrer" class="find-grid-card" [class.find-grid-card--current]="i === resultIndex" [class.find-grid-card--image]="card.imageUrl && !isImageBroken(card.imageUrl)">
           <div class="find-grid-card__media">
             <img *ngIf="card.imageUrl && !isImageBroken(card.imageUrl); else sourcePlate" [src]="card.imageUrl" alt="" loading="lazy" (error)="onImageError(card.imageUrl)" />
             <ng-template #sourcePlate>
@@ -589,8 +569,6 @@
         <p><a routerLink="/help">Read the full walkthrough</a> or <a routerLink="/about">learn more about Find</a>.</p>
       </div>
     </div>
-
-
     <div class="find-info-card find-info-setting">
       <label class="find-info-setting__row">
         <span>
@@ -601,7 +579,6 @@
       </label>
       <p class="find-info-setting__note" *ngIf="locationSettingNote">{{ locationSettingNote }}</p>
     </div>
-
     <div class="find-info-built">
       <p class="find-info-built__label">Built by</p>
       <a class="find-info-built__company" [href]="company.url" target="_blank" rel="noopener noreferrer">{{ company.name }}</a>
@@ -609,12 +586,10 @@
       <p class="find-info-built__tagline">Find is part of TODD — the Momentum System designed for teams that move fast and need information faster.</p>
       <p class="find-info-version" *ngIf="appVersion">Version {{ appVersion }}</p>
     </div>
-
     <div class="find-gyro-section" *ngIf="gyroSupported">
       <button class="find-gyro-btn" type="button" *ngIf="!gyroEnabled" (click)="enableGyroscope()">Enable tilt navigation</button>
       <p class="find-gyro-on" *ngIf="gyroEnabled">Tilt navigation is active. Tilt left / right to move between results. Hold for 1.5 s to open automatically.</p>
     </div>
-
     <!-- Company, products and policy links. Kept off the search screen,
          where it competed with the search. -->
     <app-site-footer><a routerLink="/help">Help</a><a routerLink="/about">About</a></app-site-footer>
@@ -626,20 +601,16 @@
       <h2>Awards</h2>
       <span class="find-screen-header__spacer" aria-hidden="true"></span>
     </div>
-
     <div class="find-awards-progress">
       <div class="find-awards-progress__track">
         <div class="find-awards-progress__fill" [style.width.%]="awardsProgress.percent"></div>
       </div>
       <span class="find-awards-progress__label">{{ awardsProgress.unlockedCount }} of {{ awardsProgress.totalCount }} unlocked</span>
     </div>
-
     <div class="find-awards-grid">
       <div class="find-awards-grid__item" *ngFor="let award of awards">
         <app-award-badge [icon]="award.icon" [state]="award.state"></app-award-badge>
-        <span class="find-awards-grid__title"
-              [class.find-awards-grid__title--dim]="award.state === 'locked'"
-              [class.find-awards-grid__title--mystery]="award.state === 'mystery'">
+        <span class="find-awards-grid__title" [class.find-awards-grid__title--dim]="award.state === 'locked'" [class.find-awards-grid__title--mystery]="award.state === 'mystery'">
           {{ award.state === 'mystery' ? '— — —' : award.title }}
         </span>
       </div>
