@@ -354,19 +354,11 @@
 
 .made-by ::ng-deep .um-logo { width: 22px; height: 22px; border-radius: 5px; }
 
-/* TODD's mark sits in a small white circle. */
-.made-by__todd {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  margin-right: 4px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 0 1px var(--surface2);
+/* The 16Ahead dial, as a light/dark pair (see styles.css). */
+.made-by__mark {
+  display: inline-flex;
+  margin-right: 2px;
 }
-
-.made-by__todd img { border-radius: 50%; }
 
 .made-by > i {
   width: 3px;
