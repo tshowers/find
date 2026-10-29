@@ -24,16 +24,16 @@ export class AboutComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit (): void {
-    const pageTitle = 'About Find | Taliferro Tech';
+    const pageTitle = 'About Find | 16Ahead';
     const description = 'Find is Taliferro Tech\'s search and results application: the strongest result first, with context when you need it.';
     this.title.setTitle( pageTitle );
     this.meta.updateTag( { name: 'description', content: description } );
     this.meta.updateTag( { property: 'og:title', content: pageTitle } );
     this.meta.updateTag( { property: 'og:description', content: description } );
-    this.meta.updateTag( { property: 'og:url', content: 'https://find.taliferro.tech/about' } );
+    this.meta.updateTag( { property: 'og:url', content: 'https://find.16ahead.com/about' } );
     this.meta.updateTag( { name: 'twitter:title', content: pageTitle } );
     this.meta.updateTag( { name: 'twitter:description', content: description } );
-    this.seo.setCanonical( 'https://find.taliferro.tech/about' );
+    this.seo.setCanonical( 'https://find.16ahead.com/about' );
     this.addStructuredData();
   }
 
@@ -53,20 +53,20 @@ export class AboutComponent implements OnInit, OnDestroy {
           '@id': 'https://taliferro.tech/#organization',
           name: 'Taliferro Tech, LLC',
           url: 'https://taliferro.tech',
-          logo: 'https://find.taliferro.tech/assets/find/entities/taliferro-tech/logo.png',
+          logo: 'https://find.16ahead.com/assets/find/entities/taliferro-tech/logo.png',
           description: 'Taliferro Tech creates software products that help people find information, build momentum, and act on useful context.',
         },
         {
           '@type': 'SoftwareApplication',
-          '@id': 'https://find.taliferro.tech/#software',
+          '@id': 'https://find.16ahead.com/#software',
           name: 'Find',
-          url: 'https://find.taliferro.tech/',
+          url: 'https://find.16ahead.com/',
           description: 'Find is a search and results application that puts the strongest result first, with context, alternatives, and source material when you need it.',
           applicationCategory: 'SearchApplication',
           applicationSubCategory: 'Search engine',
           operatingSystem: 'Web, iOS',
           isAccessibleForFree: true,
-          image: 'https://find.taliferro.tech/assets/seo/find-card.webp',
+          image: 'https://find.16ahead.com/assets/seo/find-card.webp',
           downloadUrl: 'https://apps.apple.com/us/app/taliferro-find/id6806954591',
           creator: { '@id': 'https://taliferro.tech/#organization' },
           publisher: { '@id': 'https://taliferro.tech/#organization' },

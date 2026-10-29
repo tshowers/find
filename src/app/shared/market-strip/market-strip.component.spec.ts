@@ -31,16 +31,16 @@ describe( 'MarketStripComponent', () => {
 
   it( 'shows member stores, and not listed shops, when a member store has it', fakeAsync( () => {
     const el = search( 'hoodie', { items: [member], listingItems: [listing( 1 )] } );
-    expect( el.textContent ).toContain( 'From local stores on TODD Market' );
+    expect( el.textContent ).toContain( 'From local stores on 16Ahead Store' );
     expect( el.textContent ).toContain( 'Find Unisex Hoodie' );
-    expect( el.textContent ).not.toContain( 'Not on TODD Market yet' );
+    expect( el.textContent ).not.toContain( 'Not on 16Ahead Store yet' );
   } ) );
 
-  it( 'falls back to listed shops, marked not on TODD Market yet, with their site and Buy it here', fakeAsync( () => {
+  it( 'falls back to listed shops, marked not on 16Ahead Store yet, with their site and Buy it here', fakeAsync( () => {
     const el = search( 'heels', { items: [], listingItems: [listing( 1 ), listing( 2, { image: 'http://shop.test/heel-2.jpg', priceCents: null } ), listing( 3, { image: null } ), listing( 4 ), listing( 5 ), listing( 6 )] } );
     expect( el.textContent ).toContain( 'From independent shops' );
-    expect( el.textContent ).toContain( 'Not on TODD Market yet' );
-    expect( el.textContent ).not.toContain( 'From local stores on TODD Market' );
+    expect( el.textContent ).toContain( 'Not on 16Ahead Store yet' );
+    expect( el.textContent ).not.toContain( 'From local stores on 16Ahead Store' );
     const cards = el.querySelectorAll( '.market-strip--listed article' );
     // No photo, no card; at most four.
     expect( cards.length ).toBe( 4 );

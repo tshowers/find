@@ -3,8 +3,8 @@
   <!-- ── SEARCH VIEW ──────────────────────────────────────────── -->
   <div class="find-search-screen" data-cy="find-search-shell" *ngIf="activeView === 'search' && !isForwardedQuery">
     <div class="find-brand">
-      <img class="find-brand__logo" src="assets/find-logo.png" alt="" />
-      <span class="find-brand__word">Find</span>
+      <img class="find-brand__logo brand-mark--light" src="assets/brand/products/svg/light/11-find.svg" alt="" /><img class="find-brand__logo brand-mark--dark" src="assets/brand/products/svg/dark/11-find.svg" alt="" />
+      <span class="find-brand__word">16Ahead <span class="brand-product">Find</span></span>
     </div>
     <form class="find-home-search" [class.find-home-search--loading]="isLoading" (ngSubmit)="onSubmit()">
       <label class="find-home-search__field">
@@ -17,7 +17,7 @@
       </button>
     </form>
     <div class="find-quick-actions" aria-label="Quick searches">
-      <button *ngFor="let action of quickActions" type="button" [class]="'find-quick-action find-quick-action--' + action.color" [disabled]="action.disabled || isLoading" [attr.aria-label]="action.disabled ? action.label + ' coming soon' : action.href ? action.label + ' on TODD Market' : 'Search ' + action.label" (click)="onQuickActionClick(action)">
+      <button *ngFor="let action of quickActions" type="button" [class]="'find-quick-action find-quick-action--' + action.color" [disabled]="action.disabled || isLoading" [attr.aria-label]="action.disabled ? action.label + ' coming soon' : action.href ? action.label + ' on 16Ahead Store' : 'Search ' + action.label" (click)="onQuickActionClick(action)">
         <i [class]="'fa-solid ' + action.icon" aria-hidden="true"></i>
         <span>{{ action.label }}</span>
         <small *ngIf="action.disabled">Coming soon</small>
@@ -30,7 +30,7 @@
       <i class="fa-brands fa-apple" aria-hidden="true"></i>
       <span><small>Download on the</small><strong>App Store</strong></span>
     </a>
-    <p class="made-by"><a href="https://todd.taliferro.tech" target="_blank" rel="noopener"><span class="made-by__todd"><img src="assets/find/entities/todd/logo-bw-icon.png" alt="" width="20" height="20"></span>Powered by <strong>TODD</strong></a><i aria-hidden="true"></i><a appAlsoFromUs></a></p>
+    <p class="made-by"><a href="https://app.16ahead.com" target="_blank" rel="noopener"><span class="made-by__todd"><img src="assets/find/entities/todd/logo-bw-icon.png" alt="" width="20" height="20"></span>Powered by <strong>16Ahead</strong></a><i aria-hidden="true"></i><a appAlsoFromUs></a></p>
   </div>
   <!-- ── RESULT VIEW ──────────────────────────────────────────── -->
   <div class="find-result-screen" data-cy="find-result-shell" *ngIf="activeView === 'result' || activeView === 'detail'">
@@ -364,7 +364,7 @@
               {{ responseSeconds }}s total<ng-container *ngIf="timings.candidateCount > 0"> · {{ timings.candidateCount }} sources</ng-container>
               <ng-container *ngIf="timings.enrichedCount > 0"> · {{ timings.enrichedCount }} pages checked</ng-container>
               <ng-container *ngIf="currentCard?.isFirstParty"> · official Taliferro knowledge</ng-container>
-              <ng-container *ngIf="(currentCard?.answer || currentCard?.aiSummary) && !currentCard?.isFirstParty && !isQuestionMode"> · TODD summary</ng-container>
+              <ng-container *ngIf="(currentCard?.answer || currentCard?.aiSummary) && !currentCard?.isFirstParty && !isQuestionMode"> · 16Ahead summary</ng-container>
               <ng-container *ngIf="isQuestionMode"> · {{ isGroundedAnswerSlide ? 'results summary' : 'supporting result' }}</ng-container>
             </ng-container>
           </ng-template>
@@ -396,8 +396,8 @@
     </section>
   </ng-template>
   <ng-template #aiSummaryBox>
-    <aside class="find-ai-summary" *ngIf="currentCard?.aiSummary as aiSummary" aria-label="TODD summary">
-      <span class="find-ai-summary__label"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> TODD summary</span>
+    <aside class="find-ai-summary" *ngIf="currentCard?.aiSummary as aiSummary" aria-label="16Ahead summary">
+      <span class="find-ai-summary__label"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> 16Ahead summary</span>
       <div class="find-rich-text" [innerHTML]="formatRichText(aiSummary)"></div>
     </aside>
   </ng-template>
@@ -405,8 +405,8 @@
   <ng-template #resultHeader>
     <header class="find-header">
       <button type="button" class="find-header__brand" (click)="resetToSearch()" aria-label="Find home">
-        <img src="assets/find-logo.png" alt="" />
-        <span>Find</span>
+        <img class="brand-mark--light" src="assets/brand/products/svg/light/11-find.svg" alt="" /><img class="brand-mark--dark" src="assets/brand/products/svg/dark/11-find.svg" alt="" />
+        <span>16Ahead <span class="brand-product">Find</span></span>
       </button>
       <form class="find-header__form" (ngSubmit)="onSubmit()">
         <label class="find-header__field" [class.find-header__field--loading]="isLoading">
@@ -583,7 +583,7 @@
       <p class="find-info-built__label">Built by</p>
       <a class="find-info-built__company" [href]="company.url" target="_blank" rel="noopener noreferrer">{{ company.name }}</a>
       <p class="find-info-built__mission">“Our mission is to make search obsolete.”<small>Written in 2010. Still the plan.</small></p>
-      <p class="find-info-built__tagline">Find is part of TODD — the Momentum System designed for teams that move fast and need information faster.</p>
+      <p class="find-info-built__tagline">Find is part of 16Ahead — the Momentum System designed for teams that move fast and need information faster.</p>
       <p class="find-info-version" *ngIf="appVersion">Version {{ appVersion }}</p>
     </div>
     <div class="find-gyro-section" *ngIf="gyroSupported">

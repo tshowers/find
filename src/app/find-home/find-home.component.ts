@@ -204,14 +204,14 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     // SeoService when visited — restore the defaults here so a client-side
     // navigation back to Home (no full page reload) doesn't leave those
     // pages' metadata stuck in place.
-    this.title.setTitle( 'Find — Search that starts with the right result | Taliferro Tech' );
-    this.meta.updateTag( { name: 'description', content: 'Find is TODD\'s visual search experience: the best-weighted result first, not ten blue links, backed by authoritative sources, curated Taliferro knowledge, and the web. Free, no account required.' } );
-    this.meta.updateTag( { property: 'og:title', content: 'Find — Search that starts with the right result' } );
-    this.meta.updateTag( { property: 'og:description', content: 'The best-weighted result first, not ten blue links. Find combines authoritative sources, curated Taliferro knowledge, and web results — free, no account required.' } );
-    this.meta.updateTag( { property: 'og:url', content: 'https://find.taliferro.tech/' } );
-    this.meta.updateTag( { name: 'twitter:title', content: 'Find — Search that starts with the right result' } );
-    this.meta.updateTag( { name: 'twitter:description', content: 'The best-weighted result first, not ten blue links. Find combines authoritative sources, curated Taliferro knowledge, and web results — free, no account required.' } );
-    this.seo.setCanonical( 'https://find.taliferro.tech/' );
+    this.title.setTitle( 'Find — Search that starts with the right result | 16Ahead' );
+    this.meta.updateTag( { name: 'description', content: 'Find is 16Ahead\'s visual search experience: the best-weighted result first, not ten blue links, backed by authoritative sources, curated Taliferro knowledge, and the web. Free, no account required.' } );
+    this.meta.updateTag( { property: 'og:title', content: '16Ahead Find' } );
+    this.meta.updateTag( { property: 'og:description', content: 'One strong result, not a list of 30,000 links.' } );
+    this.meta.updateTag( { property: 'og:url', content: 'https://find.16ahead.com/' } );
+    this.meta.updateTag( { name: 'twitter:title', content: '16Ahead Find' } );
+    this.meta.updateTag( { name: 'twitter:description', content: 'One strong result, not a list of 30,000 links.' } );
+    this.seo.setCanonical( 'https://find.16ahead.com/' );
 
     this.gyroSupported = this.gyroscope.isSupported;
     this.loadHistory();
@@ -465,7 +465,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       : this.isConversionMode ? ''
       : String( this.currentAnswerText || card?.summary || '' ).replace( /<[^>]+>/g, '' ).slice( 0, 300 );
     // Until the short link is ready, sharing still works with a plain link.
-    const fallbackUrl = `https://find.taliferro.tech/?query=${ encodeURIComponent( query ) }`;
+    const fallbackUrl = `https://find.16ahead.com/?query=${ encodeURIComponent( query ) }`;
     this.sharePanel = { title, url: fallbackUrl, loading: true, copied: false };
     this.findExperienceService.createShare( {
       query, title, summary,
@@ -714,7 +714,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
 
   get leadVaultSearchUrl (): string {
     const query = String( this.result?.query || this.query || '' ).trim();
-    return `https://todd.taliferro.tech/lead-vault?query=${encodeURIComponent( query )}`;
+    return `https://app.16ahead.com/lead-vault?query=${encodeURIComponent( query )}`;
   }
 
   get isDetailView (): boolean {
@@ -903,9 +903,9 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   private isFindFallbackUrl ( image: string ): boolean {
     if ( !image ) return false;
     try {
-      const url = new URL( image, typeof window === 'undefined' ? 'https://find.taliferro.tech' : window.location.origin );
+      const url = new URL( image, typeof window === 'undefined' ? 'https://find.16ahead.com' : window.location.origin );
       const sameOrigin = typeof window !== 'undefined' && url.origin === window.location.origin;
-      return url.pathname.startsWith( '/fallback/' ) && ( sameOrigin || url.hostname === 'find.taliferro.tech' );
+      return url.pathname.startsWith( '/fallback/' ) && ( sameOrigin || [ 'find.taliferro.tech', 'find.16ahead.com' ].includes( url.hostname ) );
     } catch {
       return false;
     }
@@ -1074,7 +1074,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     } );
     return {
       key: 'knowledge', label: 'Save to Knowledge', shortLabel: 'Save', icon: 'fa-book-bookmark',
-      href: `https://docs.taliferro.tech/knowledge/save?${ params.toString() }`,
+      href: `https://docs.16ahead.com/knowledge/save?${ params.toString() }`,
     };
   }
 

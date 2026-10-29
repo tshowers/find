@@ -14,8 +14,8 @@ import { PlatformMenuComponent } from '../platform-menu/platform-menu.component'
   template: `
     <header class="site-header">
       <a class="site-header__brand" routerLink="/" aria-label="Find home">
-        <img src="assets/find-logo.png" alt="" />
-        <span>Find</span>
+        <img class="brand-mark--light" src="assets/brand/products/svg/light/11-find.svg" alt="" /><img class="brand-mark--dark" src="assets/brand/products/svg/dark/11-find.svg" alt="" />
+        <span>16Ahead <span class="brand-product">Find</span></span>
       </a>
       <nav class="site-header__nav" aria-label="Find pages">
         <a routerLink="/">Search</a>

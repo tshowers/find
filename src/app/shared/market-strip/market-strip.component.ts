@@ -28,9 +28,9 @@ interface ListingItem {
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="market-strip" *ngIf="items.length" aria-label="From local stores on TODD Market">
+    <section class="market-strip" *ngIf="items.length" aria-label="From local stores on 16Ahead Store">
       <div class="market-strip__head">
-        <span class="market-strip__label"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i> From local stores on TODD Market</span>
+        <span class="market-strip__label"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i> From local stores on 16Ahead Store</span>
         <a [href]="searchUrl" target="_blank" rel="noopener">See all {{ total }} →</a>
       </div>
       <div class="market-strip__items">
@@ -42,10 +42,10 @@ interface ListingItem {
         </a>
       </div>
     </section>
-    <section class="market-strip market-strip--listed" *ngIf="!items.length && listings.length" aria-label="From independent shops, not on TODD Market yet">
+    <section class="market-strip market-strip--listed" *ngIf="!items.length && listings.length" aria-label="From independent shops, not on 16Ahead Store yet">
       <div class="market-strip__head">
         <span class="market-strip__label"><i class="fa-solid fa-store" aria-hidden="true"></i> From independent shops</span>
-        <span class="market-strip__tag">Not on TODD Market yet</span>
+        <span class="market-strip__tag">Not on 16Ahead Store yet</span>
       </div>
       <div class="market-strip__items">
         <article *ngFor="let item of listings" class="market-strip__item">
