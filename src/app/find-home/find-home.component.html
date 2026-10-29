@@ -49,14 +49,17 @@
         <div class="find-pager__center"><span class="find-pager__label">{{ entity.label }}</span></div>
         <span class="find-pager__spacer" aria-hidden="true"></span>
       </nav>
-      <app-find-entity-card [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()"></app-find-entity-card>
+      <app-find-entity-card *ngIf="entity.type === 'sports'; else businessCard" [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()"></app-find-entity-card>
+      <ng-template #businessCard>
+        <app-find-business-card [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" [position]="entityPosition" (moreResults)="showAllResults()"></app-find-business-card>
+      </ng-template>
       <footer class="find-footer">
         <ng-container *ngIf="!feedbackSent; else entityFeedbackThanks">
           <span class="find-footer__prompt">Right find?</span>
           <button type="button" class="find-footer__pill" *ngFor="let rating of feedbackRatings" (click)="sendFeedback(rating.value)">{{ rating.label }}</button>
         </ng-container>
         <ng-template #entityFeedbackThanks><span class="find-footer__prompt">Thanks for the feedback.</span></ng-template>
-        <span class="find-footer__meta">Scores and stats from ESPN</span>
+        <span class="find-footer__meta">{{ entity.type === 'sports' ? 'Scores and stats from ESPN' : 'Hours, locations and ratings from Google' }}</span>
       </footer>
     </ng-container>
     <div class="find-result-loading" *ngIf="isLoading && !showEntityCard">

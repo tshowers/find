@@ -1,0 +1,229 @@
+<!-- ── LAYOUT A: dashboard (above 900px) ── -->
+<section class="ec-a" data-cy="find-entity-card" [attr.aria-label]="name">
+  <div class="ec-identity">
+    <span class="ec-logo ec-logo--initial">
+      <img *ngIf="entity.logoUrl && !logoFailed; else initialA" [src]="entity.logoUrl" alt="" (error)="logoFailed = true" />
+      <ng-template #initialA>{{ name.charAt(0) }}</ng-template>
+    </span>
+    <div class="ec-identity__text">
+      <div class="ec-chips">
+        <span class="ec-chip" [ngClass]="'ec-chip--' + tint">{{ entity.label }}</span>
+        <span class="ec-chip" *ngIf="status as open" [ngClass]="'ec-chip--' + open.tone">{{ open.short }}</span>
+      </div>
+      <h1 class="ec-name">{{ name }}</h1>
+      <p class="ec-meta" *ngIf="metaItems.length; else metaSkeleton">
+        <span *ngFor="let item of metaItems" [class.ec-meta__rating]="item.startsWith('★')">{{ item }}</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="ec-grid">
+    <div class="ec-col">
+      <div class="ec-skel ec-hero" *ngIf="place === undefined"></div>
+      <img class="ec-hero" *ngIf="heroImage as image" [src]="image" [alt]="name" (error)="imageFailed = true" />
+
+      <div class="ec-skel ec-now ec-now--short" *ngIf="place === undefined"></div>
+      <div class="ec-now" [ngClass]="'ec-now--' + tint" *ngIf="nearest as location">
+        <span class="ec-now__label">{{ nowLabel }}</span>
+        <div class="ec-next">
+          <strong class="ec-next__opponent">{{ street(location) }}</strong>
+          <span>{{ location.city }}<ng-container *ngIf="location.distanceMi !== null"> · {{ miles(location) }} away</ng-container></span>
+          <span *ngIf="status as open">{{ open.text }}</span>
+        </div>
+        <div class="ec-subtiles">
+          <div class="ec-subtile" *ngIf="todayHours">
+            <span>Today</span>
+            <strong>{{ todayHours }}</strong>
+          </div>
+          <div class="ec-subtile" *ngIf="location.distanceMi !== null">
+            <span>Distance</span>
+            <strong>{{ miles(location) }}</strong>
+          </div>
+          <div class="ec-subtile" *ngIf="entity.type === 'restaurant' && place?.priceLevel">
+            <span>Price</span>
+            <strong>{{ place?.priceLevel }}</strong>
+          </div>
+          <div class="ec-subtile" *ngIf="location.phone && entity.type !== 'restaurant'">
+            <span>Phone</span>
+            <strong>{{ location.phone }}</strong>
+          </div>
+        </div>
+        <p class="ec-now__line" *ngIf="place?.others?.length">Also nearby: <ng-container *ngFor="let other of place?.others?.slice(0, 2); let last = last">{{ street(other) }}, {{ other.city }} ({{ distanceText(other) }})<ng-container *ngIf="!last"> · </ng-container></ng-container></p>
+      </div>
+    </div>
+
+    <div class="ec-col">
+      <ng-container *ngTemplateOutlet="summaryBlock"></ng-container>
+      <div class="ec-serves" *ngIf="place?.serves?.length">
+        <h3 class="ec-list-title">Serves</h3>
+        <div class="ec-chips">
+          <span class="ec-chip ec-chip--plain" *ngFor="let item of place?.serves">{{ item }}</span>
+        </div>
+      </div>
+      <div class="ec-skel ec-skel--list" *ngIf="details === undefined"></div>
+      <div *ngIf="detailRows.length">
+        <ng-container *ngTemplateOutlet="detailList"></ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="ec-expanded" *ngIf="expanded" id="ec-business-expanded">
+    <div *ngIf="place?.hoursWeek?.length">
+      <ng-container *ngTemplateOutlet="hoursList"></ng-container>
+    </div>
+    <div *ngIf="place?.others?.length">
+      <ng-container *ngTemplateOutlet="locationsList"></ng-container>
+    </div>
+    <div *ngIf="place?.about">
+      <h3 class="ec-list-title">Good to know</h3>
+      <p class="ec-about">{{ place?.about }}</p>
+    </div>
+  </div>
+
+  <div class="ec-action-row">
+    <ng-container *ngTemplateOutlet="actionButtons"></ng-container>
+    <button type="button" class="ec-toggle" *ngIf="place" (click)="expanded = !expanded" [attr.aria-expanded]="expanded" aria-controls="ec-business-expanded">
+      {{ expanded ? 'Show less' : 'Show more' }}
+      <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="expanded" aria-hidden="true"></i>
+    </button>
+  </div>
+  <ng-container *ngTemplateOutlet="moreLink"></ng-container>
+</section>
+
+<!-- ── LAYOUT B: stacked, live-first (900px and below) ── -->
+<section class="ec-b" [attr.aria-label]="name">
+  <span class="ec-status" *ngIf="status as open" [ngClass]="'ec-status--' + open.tone"><span class="ec-status__dot" aria-hidden="true"></span>{{ open.text }}</span>
+  <div class="ec-skel ec-hero" *ngIf="place === undefined"></div>
+  <img class="ec-hero" *ngIf="heroImage as image" [src]="image" [alt]="name" (error)="imageFailed = true" />
+
+  <div class="ec-identity">
+    <span class="ec-logo ec-logo--initial">
+      <img *ngIf="entity.logoUrl && !logoFailed; else initialB" [src]="entity.logoUrl" alt="" (error)="logoFailed = true" />
+      <ng-template #initialB>{{ name.charAt(0) }}</ng-template>
+    </span>
+    <div class="ec-identity__text">
+      <h1 class="ec-name">{{ name }}</h1>
+      <p class="ec-meta"><span>{{ place?.category || entity.label }}</span><span *ngIf="nearest">{{ street(nearest) }}, {{ nearest.city }}</span></p>
+    </div>
+  </div>
+
+  <div class="ec-skel ec-skel--facts" *ngIf="place === undefined"></div>
+  <div class="ec-facts" *ngIf="keyFacts.length">
+    <span class="ec-fact" *ngFor="let fact of keyFacts"><strong>{{ fact.value }}</strong> {{ fact.label }}</span>
+  </div>
+
+  <ng-container *ngTemplateOutlet="summaryBlock"></ng-container>
+
+  <div class="ec-sections">
+    <div class="ec-skel ec-skel--section" *ngIf="details === undefined"></div>
+    <div class="ec-section" *ngIf="detailRows.length || place?.serves?.length">
+      <button type="button" class="ec-section__head" (click)="toggleSection('details')" [attr.aria-expanded]="openSections.has('details')">
+        <strong>{{ entity.type === 'store' ? 'On sale' : entity.type === 'restaurant' ? 'Menu' : 'Services' }}</strong>
+        <span class="ec-section__preview">{{ detailsPreview || place?.serves?.join(' · ') }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('details')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('details')">
+        <div class="ec-chips ec-chips--spaced" *ngIf="place?.serves?.length">
+          <span class="ec-chip ec-chip--plain" *ngFor="let item of place?.serves">{{ item }}</span>
+        </div>
+        <ng-container *ngIf="detailRows.length"><ng-container *ngTemplateOutlet="detailList; context: { hideTitle: true }"></ng-container></ng-container>
+      </div>
+    </div>
+
+    <div class="ec-skel ec-skel--section" *ngIf="place === undefined"></div>
+    <div class="ec-section" *ngIf="place?.hoursWeek?.length">
+      <button type="button" class="ec-section__head" (click)="toggleSection('hours')" [attr.aria-expanded]="openSections.has('hours')">
+        <strong>Hours</strong>
+        <span class="ec-section__preview">{{ todayHours ? 'Today ' + todayHours : '' }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('hours')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('hours')">
+        <ng-container *ngTemplateOutlet="hoursList; context: { hideTitle: true }"></ng-container>
+      </div>
+    </div>
+
+    <div class="ec-section" *ngIf="nearest as location">
+      <button type="button" class="ec-section__head" (click)="toggleSection('location')" [attr.aria-expanded]="openSections.has('location')">
+        <strong>Location</strong>
+        <span class="ec-section__preview">{{ street(location) }}<ng-container *ngIf="location.distanceMi !== null"> · {{ miles(location) }}</ng-container></span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('location')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('location')">
+        <div class="ec-row ec-row--stacked"><span class="ec-row__left">Address</span><span class="ec-row__right">{{ location.address }}</span></div>
+        <div class="ec-row" *ngIf="location.phone"><span class="ec-row__left">Phone</span><span class="ec-row__right"><a [href]="'tel:' + location.phone">{{ location.phone }}</a></span></div>
+        <div class="ec-row" *ngIf="location.distanceMi !== null"><span class="ec-row__left">Distance</span><span class="ec-row__right">{{ miles(location) }}</span></div>
+        <p class="ec-section__note" *ngIf="place?.about">{{ place?.about }}</p>
+      </div>
+    </div>
+
+    <div class="ec-section" *ngIf="place?.others?.length">
+      <button type="button" class="ec-section__head" (click)="toggleSection('locations')" [attr.aria-expanded]="openSections.has('locations')">
+        <strong>Other locations</strong>
+        <span class="ec-section__preview">{{ othersPreview }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('locations')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('locations')">
+        <ng-container *ngTemplateOutlet="locationsList; context: { hideTitle: true }"></ng-container>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngTemplateOutlet="actionButtons"></ng-container>
+  <ng-container *ngTemplateOutlet="moreLink"></ng-container>
+</section>
+
+<!-- ── Shared pieces ── -->
+<ng-template #metaSkeleton><span class="ec-skel ec-skel--meta" *ngIf="place === undefined"></span></ng-template>
+
+<ng-template #summaryBlock>
+  <div class="ec-skel ec-skel--summary" *ngIf="summary === undefined"></div>
+  <aside class="ec-summary" *ngIf="summary" aria-label="16Ahead summary">
+    <span class="ec-summary__head">
+      <img class="brand-mark--light" src="assets/brand/products/svg/light/01-16ahead.svg" alt="" width="22" height="22" /><img class="brand-mark--dark" src="assets/brand/products/svg/dark/01-16ahead.svg" alt="" width="22" height="22" />
+      <strong>16Ahead summary</strong>
+      <span *ngIf="summary.sources.length">· {{ summary.sources.join(', ') }}</span>
+    </span>
+    <p class="ec-summary__text">{{ summary.text }}</p>
+  </aside>
+</ng-template>
+
+<ng-template #detailList let-hideTitle="hideTitle">
+  <h3 class="ec-list-title" *ngIf="!hideTitle">{{ detailsTitle }}</h3>
+  <div class="ec-row" *ngFor="let row of detailRows">
+    <span class="ec-row__left">{{ row.left }}<small *ngIf="row.sub">{{ row.sub }}</small></span>
+    <span class="ec-row__right">{{ row.right }}</span>
+  </div>
+</ng-template>
+
+<ng-template #hoursList let-hideTitle="hideTitle">
+  <h3 class="ec-list-title" *ngIf="!hideTitle">Hours this week</h3>
+  <div class="ec-row" *ngFor="let day of place?.hoursWeek; let i = index" [class.ec-row--today]="isToday(i)">
+    <span class="ec-row__left">{{ day.day }}</span>
+    <span class="ec-row__right">{{ shortHours(day.hours) }}</span>
+  </div>
+</ng-template>
+
+<ng-template #locationsList let-hideTitle="hideTitle">
+  <h3 class="ec-list-title" *ngIf="!hideTitle">Other locations</h3>
+  <div class="ec-row" *ngFor="let other of place?.others">
+    <span class="ec-row__left">{{ street(other) }}, {{ other.city }}<small *ngIf="openText(other)">{{ openText(other) }}</small></span>
+    <span class="ec-row__right">{{ distanceText(other) }}</span>
+  </div>
+</ng-template>
+
+<ng-template #actionButtons>
+  <div class="ec-actions" *ngIf="actions.length">
+    <a *ngFor="let action of actions; let first = first" class="ec-action" [class.ec-action--primary]="first" [href]="action.href" [attr.target]="action.external ? '_blank' : null" [attr.rel]="action.external ? 'noopener' : null">
+      <i class="fa-solid" [ngClass]="action.icon" aria-hidden="true"></i>
+      <span class="ec-action__label">{{ action.label }}</span>
+      <span class="ec-action__short" aria-hidden="true">{{ action.shortLabel }}</span>
+    </a>
+  </div>
+</ng-template>
+
+<ng-template #moreLink>
+  <button type="button" class="ec-more" data-cy="find-entity-more" (click)="moreResults.emit()">
+    <span class="ec-more__label">More results for “{{ query }}”</span><span class="ec-more__count" *ngIf="moreCount">· {{ moreCount }}</span>
+    <span class="ec-more__circle" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+  </button>
+</ng-template>

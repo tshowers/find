@@ -245,7 +245,7 @@
 
 <ng-template #moreLink>
   <button type="button" class="ec-more" data-cy="find-entity-more" (click)="moreResults.emit()">
-    More results for “{{ query }}”<span class="ec-more__count" *ngIf="moreCount"> · {{ moreCount }}</span>
+    <span class="ec-more__label">More results for “{{ query }}”</span><span class="ec-more__count" *ngIf="moreCount">· {{ moreCount }}</span>
     <span class="ec-more__circle" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
   </button>
 </ng-template>

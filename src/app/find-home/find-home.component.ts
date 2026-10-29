@@ -18,6 +18,7 @@ import { MENU_COMPANY } from '@taliferro/ui/platform/universal-menu.model';
 import { AlsoFromUsComponent } from '../shared/also-from-us/also-from-us.component';
 import { MarketStripComponent } from '../shared/market-strip/market-strip.component';
 import { FindEntityCardComponent } from './entity-card/find-entity-card.component';
+import { FindBusinessCardComponent } from './business-card/find-business-card.component';
 
 type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info' | 'awards';
 
@@ -61,7 +62,7 @@ function distanceMeters ( from: { latitude: number; longitude: number }, latitud
 @Component( {
   selector: 'app-find-home',
   standalone: true,
-  imports: [ FindEntityCardComponent, MarketStripComponent, AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
+  imports: [ FindEntityCardComponent, FindBusinessCardComponent, MarketStripComponent, AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
   templateUrl: './find-home.component.html',
   styleUrls: ['./find-home.component.css', './find-home.grid.css', './find-home.features.css'],
   // The prerendered "/" always contains the home screen, but a `?query=` or
@@ -184,11 +185,14 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   private routeSub?: Subscription;
   private gyroSub?: Subscription;
   private summarySub?: Subscription;
-  // Single-item results: when the query names one thing (an NFL team, for
-  // now), one rich card shows instead of the list, as soon as the backend
-  // recognizes it, while the normal search keeps running behind it.
+  // Single-item results: when the query names one thing (an NFL team, a
+  // store, a restaurant, a local service), one rich card shows instead of
+  // the list, as soon as the backend recognizes it, while the normal search
+  // keeps running behind it.
   entity: FindEntity | null = null;
   entityDismissed = false;
+  /** Where the visitor is, for a business card's nearest location (null: not shared). */
+  entityPosition: { latitude: number; longitude: number } | null = null;
   private entitySub?: Subscription;
   // Bumped on each search, so a slow headline merge never shows an older search.
   private searchId = 0;
@@ -1829,7 +1833,20 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     if ( !normalizedContext ) {
       this.entitySub = this.findExperienceService.detectEntity( query ).subscribe( {
         next: ( response ) => {
-          if ( searchId === this.searchId ) this.entity = response?.entity ?? null;
+          const entity = response?.entity ?? null;
+          if ( searchId !== this.searchId || !entity ) return;
+          if ( entity.type === 'sports' ) {
+            this.entity = entity;
+            return;
+          }
+          // A store or restaurant card is about the nearest location, so this
+          // is when Find asks for the position (once: the browser remembers
+          // the answer and requestPosition keeps it for the session).
+          this.requestPosition().then( ( position ) => {
+            if ( searchId !== this.searchId ) return;
+            this.entityPosition = position;
+            this.entity = entity;
+          } );
         },
         // No card: the normal results show as before.
         error: () => { },

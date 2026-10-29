@@ -193,21 +193,27 @@ export interface FindMovieRatings {
 }
 
 // Single-item results (docs/design_handoff_find_single_results): a query that
-// clearly names one thing gets one rich card. Only NFL teams so far.
+// clearly names one thing gets one rich card: an NFL team, a store, a
+// restaurant or a local service.
+export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service';
+
 export interface FindEntity {
-  type: 'sports';
-  league: 'nfl';
+  type: FindEntityType;
   label: string;
   id: string;
-  abbr: string;
   name: string;
-  shortName: string;
-  color: string | null;
   logoUrl: string | null;
-  links: { espn: string; schedule: string; stats: string; tickets: string };
+  // NFL teams
+  league?: 'nfl';
+  abbr?: string;
+  shortName?: string;
+  color?: string | null;
+  links?: { espn: string; schedule: string; stats: string; tickets: string };
+  // Businesses
+  website?: string;
 }
 
-export type FindEntitySection = 'team' | 'games' | 'leaders' | 'summary';
+export type FindEntitySection = 'team' | 'games' | 'leaders' | 'summary' | 'place' | 'details';
 
 export interface FindStatTile { label: string; value: string; sub: string }
 export interface FindKeyFact { value: string; label: string }
@@ -258,6 +264,43 @@ export interface FindSportsGamesSection {
 export interface FindLeaderRow { label: string; name: string; position: string; stat: string; detail: string }
 export interface FindSportsLeadersSection { offense: FindLeaderRow[]; defense: FindLeaderRow[] }
 export interface FindEntitySummary { text: string; sources: string[] }
+
+export interface FindPlaceLocation {
+  name: string;
+  address: string;
+  shortAddress: string;
+  city: string;
+  phone: string;
+  distanceMi: number | null;
+  openNow: boolean | null;
+  open24Hours: boolean;
+  nextCloseTime: string | null;
+  nextOpenTime: string | null;
+  utcOffsetMinutes: number | null;
+  mapsUrl: string;
+  directionsUrl: string;
+}
+
+export interface FindPlaceSection {
+  nearest: FindPlaceLocation;
+  others: FindPlaceLocation[];
+  /** False when the visitor's position wasn't available: "nearest" is Google's pick. */
+  usedPosition: boolean;
+  rating: { value: number; count: number } | null;
+  priceLevel: string;
+  category: string;
+  website: string;
+  hoursWeek: Array<{ day: string; hours: string }>;
+  serves: string[];
+  about: string;
+  photoUrl: string | null;
+}
+
+export interface FindPlaceDetails {
+  sales?: Array<{ title: string; discount: string; detail: string; endsAt: string }>;
+  popular?: Array<{ name: string; price: string }>;
+  services?: Array<{ name: string; price: string; duration: string }>;
+}
 
 export interface FindSearchResponse {
   success: boolean;
@@ -323,16 +366,17 @@ export class FindExperienceService {
       .pipe( map( response => this.applyLocalConversionFallback( response, body.query ) ) );
   }
 
-  /** Is this query one thing (an NFL team, for now)? Answers fast, before the search finishes. */
+  /** Is this query one thing (an NFL team, a store, a restaurant, a local service)? Answers before the search finishes. */
   detectEntity ( query: string ): Observable<{ entity: FindEntity | null }> {
     const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
     return this.postWithLocalFallback<{ entity: FindEntity | null }>( '/find/entity', { query }, { headers } );
   }
 
   /** One section of a single-item card; each loads on its own so the card fills in as they arrive. */
-  entitySection<T> ( entity: FindEntity, section: FindEntitySection ): Observable<{ data: T | null }> {
+  entitySection<T> ( entity: FindEntity, section: FindEntitySection, position?: { latitude: number; longitude: number } | null ): Observable<{ data: T | null }> {
     const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
-    return this.postWithLocalFallback<{ data: T | null }>( '/find/entity/section', { type: entity.type, league: entity.league, id: entity.id, section }, { headers } );
+    const body = { type: entity.type, league: entity.league, id: entity.id, section, ...( position ? { latitude: position.latitude, longitude: position.longitude } : {} ) };
+    return this.postWithLocalFallback<{ data: T | null }>( '/find/entity/section', body, { headers } );
   }
 
   summarize ( payload: { query: string; url: string; title: string } ): Observable<{ answer: string; hours?: FindBusinessHours | null }> {

@@ -218,6 +218,32 @@ describe('FindHomeComponent', () => {
     expect(root().querySelector('.find-pager')).not.toBeNull();
   }));
 
+  it('asks for the position before a business card, and sends it with each section', fakeAsync(() => {
+    component.query = "Macy's";
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: { type: 'store', label: 'Department Store', id: "Macy's", name: "Macy's", logoUrl: null, website: 'https://www.macys.com/' },
+    });
+    tick();
+    harness.detectChanges();
+
+    expect(navigator.geolocation.getCurrentPosition).toHaveBeenCalled();
+    const card = root().querySelector('[data-cy="find-entity-card"]');
+    expect(card?.textContent).toContain("Macy's");
+
+    const sections = http.match(r => r.url.endsWith('/find/entity/section'));
+    expect(sections.map(req => req.request.body.section).sort()).toEqual([ 'details', 'place', 'summary' ]);
+    expect(sections[0].request.body).toEqual(jasmine.objectContaining({ type: 'store', id: "Macy's", latitude: 47.6, longitude: -122.3 }));
+    sections.forEach(req => req.flush({ data: null }));
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse("Macy's"));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+  }));
+
   // --- 1. The "Find" search button ---
 
   it('submits the typed query, runs a search, and saves it to history', fakeAsync(() => {

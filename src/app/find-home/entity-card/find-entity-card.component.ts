@@ -125,6 +125,7 @@ export class FindEntityCardComponent implements OnChanges, OnDestroy {
 
   get actions (): EntityAction[] {
     const links = this.entity.links;
+    if ( !links ) return [];
     const live = this.live;
     return [
       live

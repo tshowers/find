@@ -413,8 +413,16 @@ h1, h3, p {
   background: var(--surface2);
 }
 
+.ec-more__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .ec-more__count {
-  margin-left: -6px;
+  flex: none;
+  margin-left: -4px;
   color: var(--muted);
 }
 
@@ -717,7 +725,6 @@ h1, h3, p {
   }
 
   .ec-more__count {
-    margin-left: 0;
     margin-right: auto;
   }
 }
