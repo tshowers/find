@@ -8,9 +8,17 @@ interface MarketItem {
   id: string; title: string; priceCents: number; image: string | null; storeName: string; storeSlug: string; storeTint: string | null; storeTintFg: string | null;
 }
 
+/** A product from a shop Market has listed but that hasn't joined (Market's "Not on TODD Market yet"). */
+interface ListingItem {
+  id: string; title: string; priceCents: number | null; image: string | null; url: string; storeName: string; storeDomain: string;
+}
+
 /**
  * "From local stores on TODD Market": items independent stores in the
- * Market network sell that match the search. Find shows it only for
+ * Market network sell that match the search. When no member store has it,
+ * the same strip shows products from shops Market has listed, marked "Not
+ * on TODD Market yet", with their own site and "Buy it here" (Market's
+ * search, where "Want to buy it here?" lives). Find shows it only for
  * shopping searches (the response's shoppingIntent), under the result, and
  * only items with a photo. Uses Market's ranking-only search (no AI call).
  */
@@ -20,9 +28,9 @@ interface MarketItem {
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="market-strip" *ngIf="items.length" aria-label="From local stores on TODD Market">
+    <section class="market-strip" *ngIf="items.length" aria-label="From local stores on 16Ahead Store">
       <div class="market-strip__head">
-        <span class="market-strip__label"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i> From local stores on TODD Market</span>
+        <span class="market-strip__label"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i> From local stores on 16Ahead Store</span>
         <a [href]="searchUrl" target="_blank" rel="noopener">See all {{ total }} →</a>
       </div>
       <div class="market-strip__items">
@@ -32,6 +40,24 @@ interface MarketItem {
           <strong>{{ item.title }}</strong>
           <span class="market-strip__price">{{ price(item.priceCents) }}</span>
         </a>
+      </div>
+    </section>
+    <section class="market-strip market-strip--listed" *ngIf="!items.length && listings.length" aria-label="From independent shops, not on 16Ahead Store yet">
+      <div class="market-strip__head">
+        <span class="market-strip__label"><i class="fa-solid fa-store" aria-hidden="true"></i> From independent shops</span>
+        <span class="market-strip__tag">Not on 16Ahead Store yet</span>
+      </div>
+      <div class="market-strip__items">
+        <article *ngFor="let item of listings" class="market-strip__item">
+          <a class="market-strip__img" [href]="item.url" target="_blank" rel="noopener nofollow" [attr.aria-label]="item.title + ' at ' + item.storeName"><img [src]="item.image" alt="" (error)="dropListing(item)"></a>
+          <span class="market-strip__store">{{ item.storeName }}</span>
+          <strong>{{ item.title }}</strong>
+          <span class="market-strip__price" *ngIf="item.priceCents">{{ price(item.priceCents) }}</span>
+          <span class="market-strip__actions">
+            <a [href]="item.url" target="_blank" rel="noopener nofollow">Shop on their site ↗</a>
+            <a [href]="searchUrl" target="_blank" rel="noopener">Buy it here</a>
+          </span>
+        </article>
       </div>
     </section>`,
   styles: [`
@@ -46,11 +72,16 @@ interface MarketItem {
     .market-strip__store { font-size: 12px; font-weight: 700; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .market-strip__item strong { font-size: 14px; line-height: 1.3; }
     .market-strip__price { font-size: 14px; font-weight: 700; }
+    .market-strip__tag { padding: 4px 10px; border-radius: 999px; background: var(--bg); font-size: 12px; font-weight: 600; color: var(--muted); }
+    .market-strip--listed .market-strip__img { display: block; }
+    .market-strip__actions { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: auto; padding-top: 4px; font-size: 13px; font-weight: 600; }
+    .market-strip__actions a { color: var(--blue); text-decoration: none; }
   `],
 } )
 export class MarketStripComponent implements OnChanges {
   @Input() query = '';
   items: MarketItem[] = [];
+  listings: ListingItem[] = [];
   total = 0;
   searchUrl = MARKET;
   private readonly cdr = inject( ChangeDetectorRef );
@@ -62,16 +93,24 @@ export class MarketStripComponent implements OnChanges {
     if ( !this.isBrowser || !q || q === this.lastQuery ) return;
     this.lastQuery = q;
     this.items = [];
+    this.listings = [];
     this.searchUrl = `${ MARKET }/?q=${ encodeURIComponent( q ) }`;
     try {
       const res = await fetch( `${ MARKET }/api/network/search`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify( { query: q, lite: true } ) } );
       if ( !res.ok || q !== this.lastQuery ) return;
+      const body = await res.json() as { items?: MarketItem[]; listingItems?: ListingItem[] };
       // No photo, no card (Market's lite search already leaves those out).
-      const withImages = ( ( await res.json() as { items?: MarketItem[] } ).items || [] ).filter( ( i ) => !!i.image );
+      const withImages = ( body.items || [] ).filter( ( i ) => !!i.image );
       this.total = withImages.length;
       this.items = withImages.slice( 0, 4 );
+      // Listed shops' photos are sometimes http://, which this https page would block.
+      this.listings = withImages.length ? [] : ( body.listingItems || [] )
+        .filter( ( i ) => !!i.image && /^https?:\/\//.test( i.url ) )
+        .map( ( i ) => ( { ...i, image: String( i.image ).replace( /^http:\/\//, 'https://' ) } ) )
+        .slice( 0, 4 );
     } catch {
       this.items = [];
+      this.listings = [];
     }
     this.cdr.markForCheck();
   }
@@ -79,6 +118,11 @@ export class MarketStripComponent implements OnChanges {
   /** A photo that doesn't load takes its card with it. */
   dropItem ( item: MarketItem ): void {
     this.items = this.items.filter( ( i ) => i !== item );
+    this.cdr.markForCheck();
+  }
+
+  dropListing ( item: ListingItem ): void {
+    this.listings = this.listings.filter( ( i ) => i !== item );
     this.cdr.markForCheck();
   }
 

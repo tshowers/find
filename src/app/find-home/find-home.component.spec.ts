@@ -638,7 +638,7 @@ describe('FindHomeComponent', () => {
     const save = component.currentActions.find(action => action.key === 'knowledge')!;
     expect(save.label).toBe('Save to Knowledge');
     const link = new URL(save.href!);
-    expect(link.origin + link.pathname).toBe('https://docs.taliferro.tech/knowledge/save');
+    expect(link.origin + link.pathname).toBe('https://docs.16ahead.com/knowledge/save');
     expect(link.searchParams.get('q')).toBe('bonhomie seattle');
     expect(link.searchParams.get('title')).toBe('Bonhomie Coffee Bar');
     expect(link.searchParams.get('url')).toBe('https://www.bonhomiecoffee.co/');
@@ -722,7 +722,7 @@ describe('FindHomeComponent', () => {
 
     const footer = root().querySelector('.find-info-screen app-site-footer');
     expect(footer).not.toBeNull();
-    expect(footer!.textContent).toContain('support@taliferro.tech');
+    expect(footer!.textContent).toContain('support@16ahead.com');
     expect(footer!.textContent).toContain('Privacy Policy');
   }));
 
@@ -745,14 +745,14 @@ describe('FindHomeComponent', () => {
     tick();
     const req = http.expectOne(r => r.url.endsWith('/find/share'));
     expect(req.request.body).toEqual(jasmine.objectContaining({ query: 'sushi in seattle', title: 'Example Result', url: 'https://example.com/result' }));
-    req.flush({ success: true, id: 'AbCdEfGhIj', url: 'https://find.taliferro.tech/s/AbCdEfGhIj' });
+    req.flush({ success: true, id: 'AbCdEfGhIj', url: 'https://find.16ahead.com/s/AbCdEfGhIj' });
     tick();
     harness.detectChanges();
 
-    expect((root().querySelector('.find-share-panel__link') as HTMLInputElement).value).toBe('https://find.taliferro.tech/s/AbCdEfGhIj');
+    expect((root().querySelector('.find-share-panel__link') as HTMLInputElement).value).toBe('https://find.16ahead.com/s/AbCdEfGhIj');
     (root().querySelector('.find-share-panel__primary') as HTMLButtonElement).click();
     tick();
-    expect(shareSpy).toHaveBeenCalledWith({ title: 'Example Result', url: 'https://find.taliferro.tech/s/AbCdEfGhIj' });
+    expect(shareSpy).toHaveBeenCalledWith({ title: 'Example Result', url: 'https://find.16ahead.com/s/AbCdEfGhIj' });
     harness.detectChanges();
     expect(root().querySelector('.find-share-panel')).toBeNull();
   }));
@@ -770,7 +770,7 @@ describe('FindHomeComponent', () => {
     harness.detectChanges();
 
     expect(component.sharePanel?.loading).toBeFalse();
-    expect(component.sharePanel?.url).toBe('https://find.taliferro.tech/?query=sushi%20in%20seattle');
+    expect(component.sharePanel?.url).toBe('https://find.16ahead.com/?query=sushi%20in%20seattle');
     component.closeSharePanel();
   }));
 
