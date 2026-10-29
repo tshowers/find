@@ -581,7 +581,8 @@
     </div>
     <div class="find-info-built">
       <p class="find-info-built__label">Built by</p>
-      <a class="find-info-built__company" [href]="company.url" target="_blank" rel="noopener noreferrer">{{ company.name }}</a>
+      <a class="find-info-built__company" href="https://taliferro.tech" target="_blank" rel="noopener noreferrer">Taliferro Tech</a>
+      <p class="find-info-built__powered">Powered by <a [href]="company.url" target="_blank" rel="noopener noreferrer">{{ company.name }}</a></p>
       <p class="find-info-built__mission">“Our mission is to make search obsolete.”<small>Written in 2010. Still the plan.</small></p>
       <p class="find-info-built__tagline">Find is part of 16Ahead — the Momentum System designed for teams that move fast and need information faster.</p>
       <p class="find-info-version" *ngIf="appVersion">Version {{ appVersion }}</p>

@@ -1986,10 +1986,22 @@
 
 .find-info-built__company {
   display: block;
-  margin: 0 0 10px;
+  margin: 0 0 2px;
   text-decoration: none;
   font-size: 1.3rem;
   font-weight: 800;
+  color: var(--tl-blue);
+}
+
+.find-info-built__powered {
+  margin: 0 0 12px;
+  font-size: 0.8rem;
+  color: var(--todd-panel-subtext);
+}
+
+.find-info-built__powered a {
+  font-weight: 700;
+  text-decoration: none;
   color: var(--tl-blue);
 }
 

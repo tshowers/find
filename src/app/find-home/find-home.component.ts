@@ -91,7 +91,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   // as a replacement for the top-ranked source card.
   viewingGroundedAnswer = false;
   allCards: FindRankedResult[] = [];
-  // The full mapped/filtered result set (up to 20), independent of allCards
+  // The full mapped/filtered result set (up to 16), independent of allCards
   // (which stays capped at 10 for the swipeable single-card carousel — a
   // one-at-a-time swipe is a poor fit for "load more"). Only the booklet
   // grid view reveals past the first 10, via gridCards/gridVisibleCount.
@@ -1364,7 +1364,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       return;
     }
     this.allResults = this.result.results
-      .slice( 0, 20 )
+      .slice( 0, 16 )
       .map( ( item, index ) => ( {
         ...item,
         rank: index + 1,
@@ -1818,7 +1818,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       this.findExperienceService.search( {
         query,
         context: normalizedContext || null,
-        maxResults: 20,
+        maxResults: 16,
         latitude: coords?.latitude ?? null,
         longitude: coords?.longitude ?? null
       } ).subscribe( {
