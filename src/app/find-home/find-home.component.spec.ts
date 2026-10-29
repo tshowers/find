@@ -170,8 +170,53 @@ describe('FindHomeComponent', () => {
   });
 
   afterEach(() => {
+    // Every search also asks whether the query names one thing (an NFL
+    // team); unless a test answers it, the answer is "no". A newer search
+    // cancels the older question.
+    for (const pending of http.match(r => r.url.endsWith('/find/entity'))) {
+      if (!pending.cancelled) pending.flush({ entity: null });
+    }
     http.verify();
   });
+
+  // --- Single-item results ---
+
+  it('shows one team card while the search runs, and "More results" swaps in the list', fakeAsync(() => {
+    component.query = 'Chicago Bears';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: {
+        type: 'sports', league: 'nfl', label: 'NFL team', id: '3', abbr: 'CHI', name: 'Chicago Bears', shortName: 'Bears',
+        color: null, logoUrl: null, links: { espn: 'https://www.espn.com/nfl/team/_/name/chi', schedule: '', stats: '', tickets: '' },
+      },
+    });
+    tick();
+    harness.detectChanges();
+
+    const card = root().querySelector('[data-cy="find-entity-card"]');
+    expect(card?.textContent).toContain('Chicago Bears');
+    expect(root().querySelector('.find-result-loading')).toBeNull();
+
+    // Each section is its own request; the team section fills in on its own.
+    const sections = http.match(r => r.url.endsWith('/find/entity/section'));
+    expect(sections.map(req => req.request.body.section).sort()).toEqual([ 'games', 'leaders', 'summary', 'team' ]);
+    sections.find(req => req.request.body.section === 'team')!.flush({ data: { record: '5-2', standing: '2nd in NFC North', division: null, tiles: [], keyFacts: [], imageUrl: null, imageAlt: '' } });
+    sections.filter(req => req.request.body.section !== 'team').forEach(req => req.flush({ data: null }));
+    harness.detectChanges();
+    expect(card?.textContent).toContain('2nd in NFC North');
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('Chicago Bears'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+
+    root().querySelector<HTMLButtonElement>('[data-cy="find-entity-more"]')!.click();
+    harness.detectChanges();
+    expect(root().querySelector('[data-cy="find-entity-card"]')).toBeNull();
+    expect(root().querySelector('.find-pager')).not.toBeNull();
+  }));
 
   // --- 1. The "Find" search button ---
 

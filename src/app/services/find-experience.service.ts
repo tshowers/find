@@ -192,6 +192,73 @@ export interface FindMovieRatings {
   rottenTomatoesScore?: string | null;
 }
 
+// Single-item results (docs/design_handoff_find_single_results): a query that
+// clearly names one thing gets one rich card. Only NFL teams so far.
+export interface FindEntity {
+  type: 'sports';
+  league: 'nfl';
+  label: string;
+  id: string;
+  abbr: string;
+  name: string;
+  shortName: string;
+  color: string | null;
+  logoUrl: string | null;
+  links: { espn: string; schedule: string; stats: string; tickets: string };
+}
+
+export type FindEntitySection = 'team' | 'games' | 'leaders' | 'summary';
+
+export interface FindStatTile { label: string; value: string; sub: string }
+export interface FindKeyFact { value: string; label: string }
+
+export interface FindSportsTeamSection {
+  record: string;
+  standing: string;
+  division: { division: string; place: number; rows: Array<{ abbr: string; name: string; record: string; isTeam: boolean }> } | null;
+  tiles: FindStatTile[];
+  keyFacts: FindKeyFact[];
+  imageUrl: string | null;
+  imageAlt: string;
+}
+
+export interface FindGameSide { abbr: string; name: string; score: string | null; winner: boolean }
+
+export interface FindSportsGame {
+  id: string;
+  date: string;
+  state: 'pre' | 'in' | 'post';
+  homeAway: 'vs' | 'at';
+  opponent: string;
+  opponentAbbr: string;
+  home: FindGameSide;
+  away: FindGameSide;
+  result: 'W' | 'L' | 'T' | '';
+  score: string;
+  network: string;
+  venue: string;
+  recap?: string;
+  line?: string;
+}
+
+export interface FindSportsLiveGame extends FindSportsGame {
+  period: string;
+  clock: string;
+  detail: string;
+  situation: string;
+}
+
+export interface FindSportsGamesSection {
+  live: FindSportsLiveGame | null;
+  last: FindSportsGame | null;
+  next: FindSportsGame | null;
+  recent: Array<{ opponent: string; homeAway: 'vs' | 'at'; result: string; score: string }>;
+}
+
+export interface FindLeaderRow { label: string; name: string; position: string; stat: string; detail: string }
+export interface FindSportsLeadersSection { offense: FindLeaderRow[]; defense: FindLeaderRow[] }
+export interface FindEntitySummary { text: string; sources: string[] }
+
 export interface FindSearchResponse {
   success: boolean;
   query: string;
@@ -254,6 +321,18 @@ export class FindExperienceService {
 
     return this.postWithLocalFallback<FindSearchResponse>( '/find/search', body, { headers } )
       .pipe( map( response => this.applyLocalConversionFallback( response, body.query ) ) );
+  }
+
+  /** Is this query one thing (an NFL team, for now)? Answers fast, before the search finishes. */
+  detectEntity ( query: string ): Observable<{ entity: FindEntity | null }> {
+    const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
+    return this.postWithLocalFallback<{ entity: FindEntity | null }>( '/find/entity', { query }, { headers } );
+  }
+
+  /** One section of a single-item card; each loads on its own so the card fills in as they arrive. */
+  entitySection<T> ( entity: FindEntity, section: FindEntitySection ): Observable<{ data: T | null }> {
+    const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
+    return this.postWithLocalFallback<{ data: T | null }>( '/find/entity/section', { type: entity.type, league: entity.league, id: entity.id, section }, { headers } );
   }
 
   summarize ( payload: { query: string; url: string; title: string } ): Observable<{ answer: string; hours?: FindBusinessHours | null }> {

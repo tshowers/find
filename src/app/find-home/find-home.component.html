@@ -36,12 +36,35 @@
   <div class="find-result-screen" data-cy="find-result-shell" *ngIf="activeView === 'result' || activeView === 'detail'">
     <!-- Header: logo + persistent search, so a new search never needs Home. -->
     <ng-container *ngTemplateOutlet="resultHeader"></ng-container>
-    <div class="find-result-loading" *ngIf="isLoading">
+    <!-- ── SINGLE-ITEM RESULT (docs/design_handoff_find_single_results) ── -->
+    <ng-container *ngIf="showEntityCard && entity">
+      <nav class="find-pager" aria-label="Result">
+        <button type="button" class="find-pager__link find-pager__link--prev" (click)="resetToSearch()" aria-label="Back: New search">
+          <span class="find-pager__circle" aria-hidden="true"><i class="fa-solid fa-chevron-left"></i></span>
+          <span class="find-pager__text">
+            <small>Back</small>
+            <strong>New search</strong>
+          </span>
+        </button>
+        <div class="find-pager__center"><span class="find-pager__label">{{ entity.label }}</span></div>
+        <span class="find-pager__spacer" aria-hidden="true"></span>
+      </nav>
+      <app-find-entity-card [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()"></app-find-entity-card>
+      <footer class="find-footer">
+        <ng-container *ngIf="!feedbackSent; else entityFeedbackThanks">
+          <span class="find-footer__prompt">Right find?</span>
+          <button type="button" class="find-footer__pill" *ngFor="let rating of feedbackRatings" (click)="sendFeedback(rating.value)">{{ rating.label }}</button>
+        </ng-container>
+        <ng-template #entityFeedbackThanks><span class="find-footer__prompt">Thanks for the feedback.</span></ng-template>
+        <span class="find-footer__meta">Scores and stats from ESPN</span>
+      </footer>
+    </ng-container>
+    <div class="find-result-loading" *ngIf="isLoading && !showEntityCard">
       <span class="find-spinner find-spinner--lg" aria-hidden="true"></span>
       <p>Finding the strongest result… {{ liveElapsedSeconds }}s</p>
     </div>
     <!-- Shown once result is available -->
-    <ng-container *ngIf="result && !isLoading">
+    <ng-container *ngIf="result && !isLoading && !showEntityCard">
       <!-- Pager: Back/Previous | progress segments + "N of M · See all" | Next -->
       <nav class="find-pager" aria-label="Results">
         <button type="button" class="find-pager__link find-pager__link--prev" (click)="onPreviousResult()" [attr.aria-label]="pagerPrevious.label + ': ' + pagerPrevious.title">

@@ -1,0 +1,251 @@
+<!-- ── LAYOUT A: dashboard (above 900px) ── -->
+<section class="ec-a" data-cy="find-entity-card" [attr.aria-label]="entity.name">
+  <div class="ec-identity">
+    <span class="ec-logo"><img *ngIf="entity.logoUrl && !logoFailed" [src]="entity.logoUrl" alt="" (error)="logoFailed = true" /></span>
+    <div class="ec-identity__text">
+      <div class="ec-chips">
+        <span class="ec-chip ec-chip--cyan">{{ entity.label }}</span>
+        <span class="ec-chip ec-chip--pink" *ngIf="live">Live</span>
+      </div>
+      <h1 class="ec-name">{{ entity.name }}</h1>
+      <p class="ec-meta" *ngIf="metaItems.length; else metaSkeleton">
+        <span *ngFor="let item of metaItems">{{ item }}</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="ec-grid">
+    <div class="ec-col">
+      <div class="ec-skel ec-hero" *ngIf="team === undefined"></div>
+      <img class="ec-hero" *ngIf="heroImage as image" [src]="image" [alt]="team?.imageAlt || ''" (error)="imageFailed = true" />
+
+      <div class="ec-skel ec-now" *ngIf="games === undefined"></div>
+      <div class="ec-now" *ngIf="games && (live || games.last || games.next)">
+        <ng-container *ngIf="live as game; else lastGameA">
+          <span class="ec-now__label">Live · {{ game.detail }}</span>
+          <ng-container *ngTemplateOutlet="scoreCard; context: { $implicit: game }"></ng-container>
+          <p class="ec-now__line" *ngIf="game.situation">{{ game.situation }}<ng-container *ngIf="game.network"> · {{ game.network }}</ng-container></p>
+        </ng-container>
+        <ng-template #lastGameA>
+          <ng-container *ngIf="games.last as game">
+            <span class="ec-now__label">Last game · Final · {{ game.date | date:'MMM d' }}</span>
+            <ng-container *ngTemplateOutlet="scoreCard; context: { $implicit: game }"></ng-container>
+            <p class="ec-now__line" *ngIf="game.recap">{{ game.recap }}</p>
+          </ng-container>
+        </ng-template>
+        <ng-container *ngIf="games.next as next">
+          <hr class="ec-now__divider" *ngIf="live || games.last" />
+          <div class="ec-next">
+            <span class="ec-now__label">Next game</span>
+            <strong class="ec-next__opponent">{{ next.homeAway }} {{ next.opponent }}</strong>
+            <span>{{ next.date | date:'EEE, MMM d' }} · {{ next.date | date:'h:mm a' }}<ng-container *ngIf="next.network"> · {{ next.network }}</ng-container></span>
+            <span *ngIf="next.venue || next.line">{{ next.venue }}<ng-container *ngIf="next.venue && next.line"> · </ng-container>{{ next.line }}</span>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="ec-col">
+      <ng-container *ngTemplateOutlet="summaryBlock"></ng-container>
+      <div class="ec-skel ec-skel--tiles" *ngIf="team === undefined"></div>
+      <div class="ec-tiles" *ngIf="team?.tiles?.length">
+        <div class="ec-tile" *ngFor="let tile of team?.tiles">
+          <span class="ec-tile__label">{{ tile.label }}</span>
+          <strong class="ec-tile__value">{{ tile.value }}</strong>
+          <span class="ec-tile__sub" *ngIf="tile.sub">{{ tile.sub }}</span>
+        </div>
+      </div>
+      <div class="ec-skel ec-skel--list" *ngIf="leaders === undefined"></div>
+      <ng-container *ngIf="leaders?.offense?.length">
+        <ng-container *ngTemplateOutlet="leaderList; context: { $implicit: leaders?.offense, title: 'Leaders' }"></ng-container>
+      </ng-container>
+    </div>
+  </div>
+
+  <div class="ec-expanded" *ngIf="expanded" id="ec-expanded">
+    <div *ngIf="games?.recent?.length">
+      <h3 class="ec-list-title">Last {{ games?.recent?.length }} games</h3>
+      <div class="ec-row" *ngFor="let game of games?.recent">
+        <span class="ec-row__left">{{ game.homeAway }} {{ game.opponent }}</span>
+        <span class="ec-row__right" [class.ec-row__right--muted]="game.result !== 'W'">{{ game.result }} {{ game.score }}</span>
+      </div>
+    </div>
+    <div *ngIf="team?.division as division">
+      <h3 class="ec-list-title">{{ division.division }}</h3>
+      <div class="ec-row" *ngFor="let row of division.rows">
+        <span class="ec-row__left" [class.ec-row__left--team]="row.isTeam">{{ row.name }}</span>
+        <span class="ec-row__right">{{ row.record }}</span>
+      </div>
+    </div>
+    <div *ngIf="leaders?.defense?.length">
+      <ng-container *ngTemplateOutlet="leaderList; context: { $implicit: leaders?.defense, title: 'Defense leaders' }"></ng-container>
+    </div>
+  </div>
+
+  <div class="ec-action-row">
+    <ng-container *ngTemplateOutlet="actionButtons"></ng-container>
+    <button type="button" class="ec-toggle" (click)="expanded = !expanded" [attr.aria-expanded]="expanded" aria-controls="ec-expanded">
+      {{ expanded ? 'Show less' : 'Show more' }}
+      <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="expanded" aria-hidden="true"></i>
+    </button>
+  </div>
+  <ng-container *ngTemplateOutlet="moreLink"></ng-container>
+</section>
+
+<!-- ── LAYOUT B: stacked, live-first (900px and below) ── -->
+<section class="ec-b" [attr.aria-label]="entity.name">
+  <span class="ec-status" *ngIf="status as pill" [ngClass]="'ec-status--' + pill.tone"><span class="ec-status__dot" aria-hidden="true"></span>{{ pill.text }}</span>
+  <div class="ec-skel ec-hero" *ngIf="team === undefined"></div>
+  <img class="ec-hero" *ngIf="heroImage as image" [src]="image" [alt]="team?.imageAlt || ''" (error)="imageFailed = true" />
+
+  <div class="ec-identity">
+    <span class="ec-logo"><img *ngIf="entity.logoUrl && !logoFailed" [src]="entity.logoUrl" alt="" (error)="logoFailed = true" /></span>
+    <div class="ec-identity__text">
+      <h1 class="ec-name">{{ entity.name }}</h1>
+      <p class="ec-meta" *ngIf="metaItems.length; else metaSkeleton">
+        <span *ngFor="let item of metaItems">{{ item }}</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="ec-scoreboard" *ngIf="live as game">
+    <div class="ec-scoreboard__row">
+      <div class="ec-scoreboard__side" [class.ec-muted]="isBehind(game, 'away')"><span>{{ game.away.abbr }}</span><strong>{{ game.away.score }}</strong></div>
+      <span class="ec-scoreboard__clock">{{ game.period }}<br />{{ game.clock }}</span>
+      <div class="ec-scoreboard__side" [class.ec-muted]="isBehind(game, 'home')"><span>{{ game.home.abbr }}</span><strong>{{ game.home.score }}</strong></div>
+    </div>
+    <p class="ec-scoreboard__footer" *ngIf="game.situation || game.network">{{ game.situation }}<ng-container *ngIf="game.situation && game.network"> · </ng-container>{{ game.network }}</p>
+  </div>
+
+  <div class="ec-skel ec-skel--facts" *ngIf="team === undefined"></div>
+  <div class="ec-facts" *ngIf="team?.keyFacts?.length">
+    <span class="ec-fact" *ngFor="let fact of team?.keyFacts"><strong>{{ fact.value }}</strong> {{ fact.label }}</span>
+  </div>
+
+  <ng-container *ngTemplateOutlet="summaryBlock"></ng-container>
+
+  <div class="ec-sections">
+    <div class="ec-skel ec-skel--section" *ngIf="games === undefined"></div>
+    <div class="ec-section" *ngIf="live || games?.last">
+      <button type="button" class="ec-section__head" (click)="toggleSection('game')" [attr.aria-expanded]="openSections.has('game')">
+        <strong>{{ live ? 'This game' : 'Last game' }}</strong>
+        <span class="ec-section__preview">{{ gamePreview }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('game')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('game')">
+        <ng-container *ngIf="(live || games?.last) as game">
+          <ng-container *ngTemplateOutlet="scoreCard; context: { $implicit: game }"></ng-container>
+          <p class="ec-section__note" *ngIf="!live && games?.last?.recap">{{ games?.last?.recap }}</p>
+          <p class="ec-section__note" *ngIf="game.venue">{{ game.date | date:'EEE, MMM d' }} · {{ game.venue }}</p>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="ec-skel ec-skel--section" *ngIf="team === undefined"></div>
+    <div class="ec-section" *ngIf="team?.tiles?.length">
+      <button type="button" class="ec-section__head" (click)="toggleSection('stats')" [attr.aria-expanded]="openSections.has('stats')">
+        <strong>Season stats</strong>
+        <span class="ec-section__preview">{{ statsPreview }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('stats')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('stats')">
+        <div class="ec-row" *ngFor="let tile of team?.tiles">
+          <span class="ec-row__left">{{ tile.label }}<small *ngIf="tile.sub">{{ tile.sub }}</small></span>
+          <span class="ec-row__right">{{ tile.value }}</span>
+        </div>
+        <ng-container *ngIf="team?.division as division">
+          <h3 class="ec-list-title ec-list-title--spaced">{{ division.division }}</h3>
+          <div class="ec-row" *ngFor="let row of division.rows">
+            <span class="ec-row__left" [class.ec-row__left--team]="row.isTeam">{{ row.name }}</span>
+            <span class="ec-row__right">{{ row.record }}</span>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="ec-skel ec-skel--section" *ngIf="leaders === undefined"></div>
+    <div class="ec-section" *ngIf="leaders">
+      <button type="button" class="ec-section__head" (click)="toggleSection('leaders')" [attr.aria-expanded]="openSections.has('leaders')">
+        <strong>Player leaders</strong>
+        <span class="ec-section__preview">{{ leadersPreview }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('leaders')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('leaders')">
+        <ng-container *ngIf="leaders.offense.length">
+          <ng-container *ngTemplateOutlet="leaderList; context: { $implicit: leaders.offense, title: 'Offense' }"></ng-container>
+        </ng-container>
+        <ng-container *ngIf="leaders.defense.length">
+          <ng-container *ngTemplateOutlet="leaderList; context: { $implicit: leaders.defense, title: 'Defense', spaced: true }"></ng-container>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="ec-section" *ngIf="games?.next as next">
+      <button type="button" class="ec-section__head" (click)="toggleSection('next')" [attr.aria-expanded]="openSections.has('next')">
+        <strong>Next game</strong>
+        <span class="ec-section__preview">{{ nextPreview }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('next')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('next')">
+        <div class="ec-row"><span class="ec-row__left">Opponent</span><span class="ec-row__right">{{ next.homeAway }} {{ next.opponent }}</span></div>
+        <div class="ec-row"><span class="ec-row__left">When</span><span class="ec-row__right">{{ next.date | date:'EEE, MMM d · h:mm a' }}</span></div>
+        <div class="ec-row" *ngIf="next.network"><span class="ec-row__left">TV</span><span class="ec-row__right">{{ next.network }}</span></div>
+        <div class="ec-row" *ngIf="next.venue"><span class="ec-row__left">Venue</span><span class="ec-row__right">{{ next.venue }}</span></div>
+        <div class="ec-row" *ngIf="next.line"><span class="ec-row__left">Line</span><span class="ec-row__right">{{ next.line }}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngTemplateOutlet="actionButtons"></ng-container>
+  <ng-container *ngTemplateOutlet="moreLink"></ng-container>
+</section>
+
+<!-- ── Shared pieces ── -->
+<ng-template #metaSkeleton><span class="ec-skel ec-skel--meta" *ngIf="team === undefined"></span></ng-template>
+
+<ng-template #scoreCard let-game>
+  <div class="ec-score">
+    <div class="ec-score__row" *ngFor="let item of sides(game)" [class.ec-muted]="isBehind(game, item.key)">
+      <span class="ec-score__abbr">{{ item.side.abbr }}</span>
+      <span class="ec-score__name">{{ item.side.name }}</span>
+      <strong class="ec-score__points">{{ item.side.score }}</strong>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #summaryBlock>
+  <div class="ec-skel ec-skel--summary" *ngIf="summary === undefined"></div>
+  <aside class="ec-summary" *ngIf="summary" aria-label="16Ahead summary">
+    <span class="ec-summary__head">
+      <img class="brand-mark--light" src="assets/brand/products/svg/light/01-16ahead.svg" alt="" width="22" height="22" /><img class="brand-mark--dark" src="assets/brand/products/svg/dark/01-16ahead.svg" alt="" width="22" height="22" />
+      <strong>16Ahead summary</strong>
+      <span *ngIf="summary.sources.length">· {{ summary.sources.join(', ') }}</span>
+    </span>
+    <p class="ec-summary__text">{{ summary.text }}</p>
+  </aside>
+</ng-template>
+
+<ng-template #leaderList let-rows let-title="title" let-spaced="spaced">
+  <h3 class="ec-list-title" [class.ec-list-title--spaced]="spaced">{{ title }}</h3>
+  <div class="ec-row" *ngFor="let row of rows">
+    <span class="ec-row__left">{{ row.name }}<small>{{ row.label }}<ng-container *ngIf="row.position"> · {{ row.position }}</ng-container></small></span>
+    <span class="ec-row__right">{{ row.stat }}<small *ngIf="row.detail">{{ row.detail }}</small></span>
+  </div>
+</ng-template>
+
+<ng-template #actionButtons>
+  <div class="ec-actions" *ngIf="actions.length">
+    <a *ngFor="let action of actions; let first = first" class="ec-action" [class.ec-action--primary]="first" [href]="action.href" target="_blank" rel="noopener">
+      <i class="fa-solid" [ngClass]="action.icon" aria-hidden="true"></i>
+      <span class="ec-action__label">{{ action.label }}</span>
+      <span class="ec-action__short" aria-hidden="true">{{ action.shortLabel }}</span>
+    </a>
+  </div>
+</ng-template>
+
+<ng-template #moreLink>
+  <button type="button" class="ec-more" data-cy="find-entity-more" (click)="moreResults.emit()">
+    More results for “{{ query }}”<span class="ec-more__count" *ngIf="moreCount"> · {{ moreCount }}</span>
+    <span class="ec-more__circle" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+  </button>
+</ng-template>
