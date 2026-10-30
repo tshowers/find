@@ -2,9 +2,9 @@
 
 ![Find banner](docs/find-banner.png)
 
-Find is a free, no-account-required search experience: instead of a page of ten blue links, it hands you one strong result, with context to go deeper. Built by [Taliferro Tech](https://taliferro.tech) as part of the [TODD](https://todd.taliferro.tech) product family.
+Find is a free, no-account-required search experience: instead of a page of ten blue links, it hands you one strong result, with context to go deeper. Built by [Taliferro Tech](https://taliferro.tech) as part of the [16Ahead](https://app.16ahead.com) product family.
 
-**Live:** [find.taliferro.tech](https://find.taliferro.tech) · **iPhone/iPad:** [App Store](https://apps.apple.com/us/app/taliferro-find/id6806954591)
+**Live:** [find.16ahead.com](https://find.16ahead.com) · **iPhone/iPad:** [App Store](https://apps.apple.com/us/app/taliferro-find/id6806954591)
 
 This repo is the **web app**. It has no search logic of its own; everything comes from the shared Taliferro Tech backend. Read [How Find is put together](#how-find-is-put-together) before changing anything.
 
@@ -40,7 +40,7 @@ Find is four codebases. Most changes touch two or three of them.
 
 | Repo / folder | What it is | Branch to work from |
 |---|---|---|
-| **`web-products/find`** (this repo) | Angular web app, find.taliferro.tech | `main` |
+| **`web-products/find`** (this repo) | Angular web app, find.16ahead.com | `main` |
 | **`taliferrotech/todd-backend/functions`** (the `taliferro-tech/taliferrotech` repo) | Firebase Functions backend shared by every Taliferro product. Find's code is the `find*.js` files and their helpers (listed under [Backend API](#backend-api)) | **`work-in-progress`** (this is what gets deployed; `main` is far behind) |
 | **`apps/ios/find-native`** | Native SwiftUI iPhone/iPad app, kept in step with this web app | `main` |
 | **`taliferro-ui`** | Shared Taliferro UI: universal menu, site footer, Help/About pages, design tokens, company and legal links | `main` |
@@ -92,7 +92,7 @@ All calls are `POST` to `${backendURL}` with the bearer key above, and are handl
 | Endpoint | Used for | Backend files |
 |---|---|---|
 | `/find/search` | Every search | `findSearch.service.js` (+ the services below) |
-| `/find/summarize` | The TODD summary under a result | `findSearch.service.js` |
+| `/find/summarize` | The 16Ahead summary under a result | `findSearch.service.js` |
 | `/find/followup` | "Ask about this result" | `findSearch.service.js` (`followupFind`) |
 | `/find/feedback` | Excellent/Good/Fair ratings | `findFeedback.service.js` |
 | `/find/share` | Make a share link | `findShare.service.js` |
@@ -109,7 +109,7 @@ All calls are `POST` to `${backendURL}` with the bearer key above, and are handl
 
 The answer is built from these backend helpers: `currency.service.js`, `unitConversion.service.js`, `timeConversion.service.js`, `instantAnswers.service.js`, `placesSearch.service.js` (Google Places), `weather.service.js` (National Weather Service), `geocode.service.js`, `movieRatings.service.js`, `findRss.service.js` (news and sports headlines, refreshed hourly by `scheduledFindRss.js`), `findFirstPartyCatalog.js` (Taliferro's own products). `scheduledFindWatches.js` re-checks watches every 30 minutes.
 
-**Outside the backend:** Save to Knowledge opens `https://docs.taliferro.tech/knowledge/save?q=&title=&answer=&url=&keywords=` (the Docs app, `web-products/docs`, branch `docs-facelift`), which saves through `POST /api/response-flows/from-find`.
+**Outside the backend:** Save to Knowledge opens `https://docs.16ahead.com/knowledge/save?q=&title=&answer=&url=&keywords=` (the Docs app, `web-products/docs`, branch `docs-facelift`), which saves through `POST /api/response-flows/from-find`.
 
 ## Backend settings
 
@@ -124,7 +124,7 @@ Set in `todd-backend/functions/.env` for local runs and in the Firebase project 
 | `GOOGLE_PLACES_API_KEY` | Places, hours, verified businesses and their locations, sunrise/sunset cities, Watch's hours checks |
 | `MOVIE_RATINGS_API_KEY` | Movie ratings (OMDb) |
 | `NWS_USER_AGENT`, `NOMINATIM_USER_AGENT` | Contact strings the weather and geocoding services require |
-| `APNS_AUTH_KEY` (a Firebase secret), `APNS_KEY_ID`, `APNS_TEAM_ID` | Watch notifications to iPhones (one team-wide Apple key, shared with Outreach, Pulse and Maya) |
+| `APNS_AUTH_KEY` (a Firebase secret), `APNS_KEY_ID`, `APNS_TEAM_ID` | Watch notifications to iPhones (one team-wide Apple key, shared with Outreach, Pulse and the Marketing Assistant) |
 | `TALIFERRO_TENANT_ID` | The Taliferro master account, for the admin-only feedback report |
 | `FIND_FETCH_TIMEOUT_MS`, `FIND_OPENAI_TIMEOUT_MS`, `FIND_MAX_ENRICH_CANDIDATES` | Optional tuning |
 

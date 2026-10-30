@@ -192,6 +192,146 @@ export interface FindMovieRatings {
   rottenTomatoesScore?: string | null;
 }
 
+// Single-item results (docs/design_handoff_find_single_results): a query that
+// clearly names one thing gets one rich card: an NFL, NBA or MLB team, a
+// store, a restaurant, a local service, or a 16Ahead Store shop.
+export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service' | 'shop';
+
+export interface FindEntity {
+  type: FindEntityType;
+  label: string;
+  id: string;
+  name: string;
+  logoUrl: string | null;
+  // Teams
+  league?: 'nfl' | 'nba' | 'mlb';
+  abbr?: string;
+  shortName?: string;
+  color?: string | null;
+  links?: { espn: string; schedule: string; stats: string; tickets: string; site?: string; siteName?: string };
+  // Businesses and 16Ahead Store shops
+  website?: string;
+  // 16Ahead Store shops: the shop's own colors
+  tint?: string | null;
+  tintFg?: string | null;
+  tintDark?: string | null;
+  tintFgDark?: string | null;
+}
+
+export type FindEntitySection = 'team' | 'games' | 'leaders' | 'news' | 'summary' | 'place' | 'details' | 'sale' | 'shop';
+
+export interface FindStatTile { label: string; value: string; sub: string }
+export interface FindKeyFact { value: string; label: string }
+
+export interface FindSportsTeamSection {
+  record: string;
+  standing: string;
+  division: { division: string; place: number; rows: Array<{ abbr: string; name: string; record: string; isTeam: boolean }> } | null;
+  tiles: FindStatTile[];
+  keyFacts: FindKeyFact[];
+  imageUrl: string | null;
+  imageAlt: string;
+}
+
+export interface FindGameSide { abbr: string; name: string; score: string | null; winner: boolean }
+
+export interface FindSportsGame {
+  id: string;
+  date: string;
+  state: 'pre' | 'in' | 'post';
+  homeAway: 'vs' | 'at';
+  opponent: string;
+  opponentAbbr: string;
+  home: FindGameSide;
+  away: FindGameSide;
+  result: 'W' | 'L' | 'T' | '';
+  score: string;
+  network: string;
+  venue: string;
+  recap?: string;
+  line?: string;
+}
+
+export interface FindSportsLiveGame extends FindSportsGame {
+  period: string;
+  clock: string;
+  detail: string;
+  situation: string;
+}
+
+export interface FindSportsGamesSection {
+  live: FindSportsLiveGame | null;
+  last: FindSportsGame | null;
+  next: FindSportsGame | null;
+  recent: Array<{ opponent: string; homeAway: 'vs' | 'at'; result: string; score: string }>;
+}
+
+export interface FindLeaderRow { label: string; name: string; position: string; stat: string; detail: string }
+export interface FindSportsLeadersSection { offense: FindLeaderRow[]; defense: FindLeaderRow[]; offenseTitle?: string; defenseTitle?: string }
+export interface FindNewsArticle { headline: string; description: string; published: string | null; url: string; imageUrl: string | null }
+export interface FindSportsNewsSection { articles: FindNewsArticle[] }
+export interface FindEntitySummary { text: string; sources: string[] }
+
+export interface FindPlaceLocation {
+  name: string;
+  address: string;
+  shortAddress: string;
+  city: string;
+  phone: string;
+  distanceMi: number | null;
+  openNow: boolean | null;
+  open24Hours: boolean;
+  nextCloseTime: string | null;
+  nextOpenTime: string | null;
+  utcOffsetMinutes: number | null;
+  mapsUrl: string;
+  directionsUrl: string;
+}
+
+export interface FindPlaceSection {
+  nearest: FindPlaceLocation;
+  others: FindPlaceLocation[];
+  /** False when the visitor's position wasn't available: "nearest" is Google's pick. */
+  usedPosition: boolean;
+  rating: { value: number; count: number } | null;
+  priceLevel: string;
+  category: string;
+  website: string;
+  hoursWeek: Array<{ day: string; hours: string }>;
+  serves: string[];
+  about: string;
+  photoUrl: string | null;
+}
+
+export interface FindPlaceDetails {
+  sales?: Array<{ title: string; discount: string; detail: string; endsAt: string }>;
+  popular?: Array<{ name: string; description?: string; price: string }>;
+  services?: Array<{ name: string; price: string; duration: string }>;
+  menuUrl?: string;
+}
+
+/** A store's own sale pages: "Women's Shoes on Sale", $58–$63, was $69. */
+export interface FindSaleSection {
+  items: Array<{ title: string; url: string; imageUrl: string | null; price: string; was: string }>;
+}
+
+export interface FindShopProduct { id: string; title: string; price: string; imageUrl: string | null; url: string; watchUrl: string }
+
+export interface FindShopSection {
+  description: string;
+  heroLine: string;
+  category: string;
+  location: string;
+  features: string[];
+  productCount: number;
+  collections: Array<{ name: string; count: number }>;
+  shipping: string[];
+  freeShippingOver: string;
+  returns: string;
+  products: FindShopProduct[];
+  url: string;
+}
+
 export interface FindSearchResponse {
   success: boolean;
   query: string;
@@ -246,7 +386,7 @@ export class FindExperienceService {
       context: String( payload?.context || '' ).trim() || null,
       ...( postalCode ? { postalCode } : {} ),
       ...( hasCoordinates ? { latitude: payload!.latitude, longitude: payload!.longitude } : {} ),
-      maxResults: Math.max( 1, Math.min( 20, Number( payload?.maxResults ) || 20 ) ),
+      maxResults: Math.max( 1, Math.min( 16, Number( payload?.maxResults ) || 16 ) ),
       timeZone: this.userTimeZone(),
       // Answer types this app can show; the backend leaves them out for apps that can't.
       features: [ 'instant', 'units' ]
@@ -254,6 +394,19 @@ export class FindExperienceService {
 
     return this.postWithLocalFallback<FindSearchResponse>( '/find/search', body, { headers } )
       .pipe( map( response => this.applyLocalConversionFallback( response, body.query ) ) );
+  }
+
+  /** Is this query one thing (an NFL team, a store, a restaurant, a local service)? Answers before the search finishes. */
+  detectEntity ( query: string ): Observable<{ entity: FindEntity | null }> {
+    const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
+    return this.postWithLocalFallback<{ entity: FindEntity | null }>( '/find/entity', { query }, { headers } );
+  }
+
+  /** One section of a single-item card; each loads on its own so the card fills in as they arrive. */
+  entitySection<T> ( entity: FindEntity, section: FindEntitySection, position?: { latitude: number; longitude: number } | null ): Observable<{ data: T | null }> {
+    const headers = new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
+    const body = { type: entity.type, league: entity.league, id: entity.id, section, ...( position ? { latitude: position.latitude, longitude: position.longitude } : {} ) };
+    return this.postWithLocalFallback<{ data: T | null }>( '/find/entity/section', body, { headers } );
   }
 
   summarize ( payload: { query: string; url: string; title: string } ): Observable<{ answer: string; hours?: FindBusinessHours | null }> {

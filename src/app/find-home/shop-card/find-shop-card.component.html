@@ -1,0 +1,83 @@
+<section class="sc" data-cy="find-entity-card" [attr.aria-label]="entity.name" [ngStyle]="tintStyle">
+  <div class="ec-identity">
+    <span class="ec-logo sc-logo">
+      <img *ngIf="entity.logoUrl && !logoFailed; else initial" [src]="entity.logoUrl" alt="" (error)="logoFailed = true" />
+      <ng-template #initial>{{ entity.name.charAt(0) }}</ng-template>
+    </span>
+    <div class="ec-identity__text">
+      <div class="ec-chips">
+        <span class="ec-chip sc-chip">16Ahead Store shop</span>
+        <span class="ec-chip sc-chip--plain" *ngIf="shop?.category">{{ shop?.category }}</span>
+      </div>
+      <h1 class="ec-name">{{ entity.name }}</h1>
+      <p class="ec-meta" *ngIf="shop; else metaSkeleton">
+        <span *ngIf="shop.location">{{ shop.location }}</span>
+        <span>16ahead.store</span>
+      </p>
+      <ng-template #metaSkeleton><span class="ec-skel ec-skel--meta" *ngIf="shop === undefined"></span></ng-template>
+    </div>
+  </div>
+
+  <div class="sc-top">
+    <div class="ec-skel sc-now sc-now--loading" *ngIf="shop === undefined"></div>
+    <div class="sc-now" *ngIf="shop">
+      <span class="ec-now__label">Shop on 16Ahead Store</span>
+      <strong class="sc-now__line">{{ shop.heroLine || shop.description }}</strong>
+      <div class="sc-facts" *ngIf="facts.length">
+        <span class="sc-fact" *ngFor="let fact of facts"><strong>{{ fact.value }}</strong> {{ fact.label }}</span>
+      </div>
+      <a class="ec-action ec-action--primary sc-visit" [href]="storeUrl" target="_blank" rel="noopener">
+        <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>
+        <span>Visit store</span>
+      </a>
+    </div>
+
+    <div class="sc-about" *ngIf="shop">
+      <aside class="ec-summary" *ngIf="shop.description" aria-label="About this shop">
+        <span class="ec-summary__head"><strong>About this shop</strong><span>· from {{ entity.name }}</span></span>
+        <p class="ec-summary__text">{{ shop.description }}</p>
+      </aside>
+      <div *ngIf="shop.collections.length">
+        <h3 class="ec-list-title">Shop by category</h3>
+        <div class="ec-chips sc-collections">
+          <a class="ec-chip sc-chip--plain" *ngFor="let collection of shop.collections" [href]="storeUrl + '?view=all'" target="_blank" rel="noopener">{{ collection.name }}<span *ngIf="collection.count"> · {{ collection.count }}</span></a>
+        </div>
+      </div>
+      <div class="ec-row" *ngIf="shop.shipping.length"><span class="ec-row__left">Shipping</span><span class="ec-row__right">{{ shop.shipping.join(' · ') }}</span></div>
+      <div class="ec-row" *ngIf="shop.returns"><span class="ec-row__left">Returns</span><span class="ec-row__right">{{ shop.returns }}</span></div>
+    </div>
+  </div>
+
+  <div class="ec-skel sc-products--loading" *ngIf="shop === undefined"></div>
+  <section *ngIf="shop?.products?.length" aria-label="Products">
+    <h3 class="ec-list-title">Products</h3>
+    <div class="sc-products">
+      <div class="sc-product" *ngFor="let product of shop?.products">
+        <a class="sc-product__link" [href]="product.url" target="_blank" rel="noopener">
+          <span class="sc-product__img"><img *ngIf="product.imageUrl" [src]="product.imageUrl" alt="" loading="lazy" /></span>
+          <strong>{{ product.title }}</strong>
+          <span class="sc-product__price">{{ product.price }}</span>
+        </a>
+        <app-find-watch-button [url]="product.watchUrl" [title]="product.title + ' · ' + entity.name" [query]="query" (watched)="watched.emit($event)"></app-find-watch-button>
+      </div>
+    </div>
+  </section>
+
+  <div class="ec-actions sc-actions">
+    <a class="ec-action ec-action--primary" [href]="storeUrl" target="_blank" rel="noopener">
+      <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>
+      <span class="ec-action__label">Visit {{ entity.name }}</span>
+      <span class="ec-action__short" aria-hidden="true">Visit store</span>
+    </a>
+    <a class="ec-action" href="https://16ahead.store/stores" target="_blank" rel="noopener">
+      <i class="fa-solid fa-store" aria-hidden="true"></i>
+      <span class="ec-action__label">More 16Ahead Store shops</span>
+      <span class="ec-action__short" aria-hidden="true">All shops</span>
+    </a>
+  </div>
+
+  <button type="button" class="ec-more" data-cy="find-entity-more" (click)="moreResults.emit()">
+    <span class="ec-more__label">More results for “{{ query }}”</span><span class="ec-more__count" *ngIf="moreCount">· {{ moreCount }}</span>
+    <span class="ec-more__circle" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+  </button>
+</section>

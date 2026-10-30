@@ -170,8 +170,111 @@ describe('FindHomeComponent', () => {
   });
 
   afterEach(() => {
+    // Every search also asks whether the query names one thing (an NFL
+    // team); unless a test answers it, the answer is "no". A newer search
+    // cancels the older question.
+    for (const pending of http.match(r => r.url.endsWith('/find/entity'))) {
+      if (!pending.cancelled) pending.flush({ entity: null });
+    }
     http.verify();
   });
+
+  // --- Single-item results ---
+
+  it('shows one team card while the search runs, and "More results" swaps in the list', fakeAsync(() => {
+    component.query = 'Chicago Bears';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: {
+        type: 'sports', league: 'nfl', label: 'NFL team', id: '3', abbr: 'CHI', name: 'Chicago Bears', shortName: 'Bears',
+        color: null, logoUrl: null, links: { espn: 'https://www.espn.com/nfl/team/_/name/chi', schedule: '', stats: '', tickets: '' },
+      },
+    });
+    tick();
+    harness.detectChanges();
+
+    const card = root().querySelector('[data-cy="find-entity-card"]');
+    expect(card?.textContent).toContain('Chicago Bears');
+    expect(root().querySelector('.find-result-loading')).toBeNull();
+
+    // Each section is its own request; the team section fills in on its own.
+    const sections = http.match(r => r.url.endsWith('/find/entity/section'));
+    expect(sections.map(req => req.request.body.section).sort()).toEqual([ 'games', 'leaders', 'news', 'summary', 'team' ]);
+    sections.find(req => req.request.body.section === 'team')!.flush({ data: { record: '5-2', standing: '2nd in NFC North', division: null, tiles: [], keyFacts: [], imageUrl: null, imageAlt: '' } });
+    sections.filter(req => req.request.body.section !== 'team').forEach(req => req.flush({ data: null }));
+    harness.detectChanges();
+    expect(card?.textContent).toContain('2nd in NFC North');
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('Chicago Bears'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+
+    root().querySelector<HTMLButtonElement>('[data-cy="find-entity-more"]')!.click();
+    harness.detectChanges();
+    expect(root().querySelector('[data-cy="find-entity-card"]')).toBeNull();
+    expect(root().querySelector('.find-pager')).not.toBeNull();
+  }));
+
+  it('asks for the position before a business card, and sends it with each section', fakeAsync(() => {
+    component.query = "Macy's";
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: { type: 'store', label: 'Department Store', id: "Macy's", name: "Macy's", logoUrl: null, website: 'https://www.macys.com/' },
+    });
+    tick();
+    harness.detectChanges();
+
+    expect(navigator.geolocation.getCurrentPosition).toHaveBeenCalled();
+    const card = root().querySelector('[data-cy="find-entity-card"]');
+    expect(card?.textContent).toContain("Macy's");
+
+    const sections = http.match(r => r.url.endsWith('/find/entity/section'));
+    expect(sections.map(req => req.request.body.section).sort()).toEqual([ 'details', 'place', 'sale', 'summary' ]);
+    expect(sections[0].request.body).toEqual(jasmine.objectContaining({ type: 'store', id: "Macy's", latitude: 47.6, longitude: -122.3 }));
+    sections.forEach(req => req.flush({ data: null }));
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse("Macy's"));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+  }));
+
+  it('shows a 16Ahead Store shop card without asking for the position', fakeAsync(() => {
+    (navigator.geolocation.getCurrentPosition as jasmine.Spy).calls.reset();
+    component.query = 'TODD Office';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: { type: 'shop', label: '16Ahead Store shop', id: 'todd-office', name: 'TODD Office', logoUrl: null, website: 'https://16ahead.store/todd-office' },
+    });
+    tick();
+    harness.detectChanges();
+
+    expect(navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
+    http.expectOne(r => r.url.endsWith('/find/entity/section') && r.body.section === 'shop').flush({
+      data: {
+        description: 'Gear to make your day easier.', heroLine: '', category: 'Accessories', location: '', features: [], productCount: 1,
+        collections: [], shipping: [], freeShippingOver: '', returns: '',
+        products: [ { id: 'p1', title: 'Desk mat', price: '$13', imageUrl: null, url: 'https://16ahead.store/todd-office?product=p1', watchUrl: 'https://16ahead.store/p/todd-office/p1' } ],
+        url: 'https://16ahead.store/todd-office',
+      },
+    });
+    harness.detectChanges();
+    const card = root().querySelector('[data-cy="find-entity-card"]');
+    expect(card?.textContent).toContain('Desk mat');
+    expect(root().querySelector<HTMLAnchorElement>('.sc-visit')?.href).toBe('https://16ahead.store/todd-office');
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('TODD Office'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+  }));
 
   // --- 1. The "Find" search button ---
 
@@ -431,7 +534,7 @@ describe('FindHomeComponent', () => {
     const open = spyOn(component, 'openExternal');
     component.onQuickActionClick(component.quickActions.find(a => a.label === 'Shop')!);
     tick();
-    expect(open).toHaveBeenCalledWith('https://market.taliferro.tech');
+    expect(open).toHaveBeenCalledWith('https://16ahead.store');
     http.expectNone(r => r.url.endsWith('/find/search'));
     expect(component.query).toBe('');
   }));
@@ -638,7 +741,7 @@ describe('FindHomeComponent', () => {
     const save = component.currentActions.find(action => action.key === 'knowledge')!;
     expect(save.label).toBe('Save to Knowledge');
     const link = new URL(save.href!);
-    expect(link.origin + link.pathname).toBe('https://docs.taliferro.tech/knowledge/save');
+    expect(link.origin + link.pathname).toBe('https://docs.16ahead.com/knowledge/save');
     expect(link.searchParams.get('q')).toBe('bonhomie seattle');
     expect(link.searchParams.get('title')).toBe('Bonhomie Coffee Bar');
     expect(link.searchParams.get('url')).toBe('https://www.bonhomiecoffee.co/');
@@ -722,7 +825,7 @@ describe('FindHomeComponent', () => {
 
     const footer = root().querySelector('.find-info-screen app-site-footer');
     expect(footer).not.toBeNull();
-    expect(footer!.textContent).toContain('support@taliferro.tech');
+    expect(footer!.textContent).toContain('support@16ahead.com');
     expect(footer!.textContent).toContain('Privacy Policy');
   }));
 
@@ -745,14 +848,14 @@ describe('FindHomeComponent', () => {
     tick();
     const req = http.expectOne(r => r.url.endsWith('/find/share'));
     expect(req.request.body).toEqual(jasmine.objectContaining({ query: 'sushi in seattle', title: 'Example Result', url: 'https://example.com/result' }));
-    req.flush({ success: true, id: 'AbCdEfGhIj', url: 'https://find.taliferro.tech/s/AbCdEfGhIj' });
+    req.flush({ success: true, id: 'AbCdEfGhIj', url: 'https://find.16ahead.com/s/AbCdEfGhIj' });
     tick();
     harness.detectChanges();
 
-    expect((root().querySelector('.find-share-panel__link') as HTMLInputElement).value).toBe('https://find.taliferro.tech/s/AbCdEfGhIj');
+    expect((root().querySelector('.find-share-panel__link') as HTMLInputElement).value).toBe('https://find.16ahead.com/s/AbCdEfGhIj');
     (root().querySelector('.find-share-panel__primary') as HTMLButtonElement).click();
     tick();
-    expect(shareSpy).toHaveBeenCalledWith({ title: 'Example Result', url: 'https://find.taliferro.tech/s/AbCdEfGhIj' });
+    expect(shareSpy).toHaveBeenCalledWith({ title: 'Example Result', url: 'https://find.16ahead.com/s/AbCdEfGhIj' });
     harness.detectChanges();
     expect(root().querySelector('.find-share-panel')).toBeNull();
   }));
@@ -770,7 +873,7 @@ describe('FindHomeComponent', () => {
     harness.detectChanges();
 
     expect(component.sharePanel?.loading).toBeFalse();
-    expect(component.sharePanel?.url).toBe('https://find.taliferro.tech/?query=sushi%20in%20seattle');
+    expect(component.sharePanel?.url).toBe('https://find.16ahead.com/?query=sushi%20in%20seattle');
     component.closeSharePanel();
   }));
 
@@ -855,13 +958,13 @@ describe('FindHomeComponent', () => {
     runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle'));
     // The only fetch allowed is the TODD Market strip ("From local stores").
     const urls = fetchSpy.calls.allArgs().map(([url]) => String(url));
-    expect(urls.filter(url => !url.startsWith('https://market.taliferro.tech/'))).toEqual([]);
+    expect(urls.filter(url => !url.startsWith('https://16ahead.store/'))).toEqual([]);
   }));
 
   it('leaves TODD Market\'s strip off searches that aren\'t shopping', fakeAsync(() => {
     runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle'));
     expect(root().querySelector('app-market-strip')).toBeNull();
-    expect(fetchSpy.calls.allArgs().map(([url]) => String(url)).filter(url => url.startsWith('https://market.taliferro.tech/'))).toEqual([]);
+    expect(fetchSpy.calls.allArgs().map(([url]) => String(url)).filter(url => url.startsWith('https://16ahead.store/'))).toEqual([]);
   }));
 
   it('puts TODD Market\'s strip under the result for a shopping search', fakeAsync(() => {

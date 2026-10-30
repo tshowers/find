@@ -1,24 +1,19 @@
 <main class="find-help-page">
   <app-site-header current="help" />
-
   <div class="help-container">
     <header class="help-hero">
       <p class="help-hero__row"><span class="help-tag">Find Help</span><span>Search · Results · Context · Discovery</span></p>
-      <h1>Search that ends with the right result.</h1>
+      <h1>Search that starts with the right result.</h1>
       <p class="help-hero__lead">Find is a visual search experience that puts the strongest result first, then gives you the context, alternatives, and source material to keep exploring.</p>
     </header>
-
     <section class="help-walkthrough" aria-labelledby="help-start-title">
       <nav class="help-toc" aria-label="Walkthrough steps">
         <p class="help-label">A practical walkthrough</p>
-        <a *ngFor="let step of steps" class="help-toc__item" [class.is-active]="activeStep === step.number"
-           [attr.href]="'/help#step-' + step.number" [attr.aria-current]="activeStep === step.number ? 'step' : null"
-           (click)="scrollToStep(step.number, $event)">
+        <a *ngFor="let step of steps" class="help-toc__item" [class.is-active]="activeStep === step.number" [attr.href]="'/help#step-' + step.number" [attr.aria-current]="activeStep === step.number ? 'step' : null" (click)="scrollToStep(step.number, $event)">
           <span class="help-toc__num">{{ step.number }}</span>
           <span>{{ step.title }}</span>
         </a>
       </nav>
-
       <div class="help-steps">
         <div class="help-steps__heading">
           <h2 id="help-start-title">From a question to a useful result</h2>
@@ -29,7 +24,9 @@
           <div class="help-step__body">
             <h3>{{ step.title }}</h3>
             <p class="help-step__copy">{{ step.copy }}</p>
-            <ul><li *ngFor="let detail of step.details">{{ detail }}</li></ul>
+            <ul>
+              <li *ngFor="let detail of step.details">{{ detail }}</li>
+            </ul>
             <a class="help-try" routerLink="/" [queryParams]="step.actionQueryParams || {}">
               {{ step.action }}
               <span class="help-try__chip" *ngIf="step.actionQueryParams?.query as q">{{ q }}</span>
@@ -39,17 +36,21 @@
         </article>
       </div>
     </section>
-
     <section class="help-tips" aria-labelledby="help-tips-title">
       <p class="help-label">A useful mental model</p>
       <h2 id="help-tips-title">Find is built to reduce the distance between curiosity and clarity.</h2>
       <div class="help-tips__grid">
-        <article class="help-tint--yellow"><strong>Ask naturally</strong><p>Use the words you would actually use. Find is built for questions, not query syntax.</p></article>
-        <article class="help-tint--green"><strong>Read before clicking</strong><p>The first result is meant to give you useful orientation before you open the source.</p></article>
-        <article class="help-tint--violet"><strong>Refine, don’t restart</strong><p>Use context pills, alternatives, and All results when the first result is close but not quite enough.</p></article>
+        <article class="help-tint--yellow"><strong>Ask naturally</strong>
+          <p>Use the words you would actually use. Find is built for questions, not query syntax.</p>
+        </article>
+        <article class="help-tint--green"><strong>Read before clicking</strong>
+          <p>The first result is meant to give you useful orientation before you open the source.</p>
+        </article>
+        <article class="help-tint--violet"><strong>Refine, don’t restart</strong>
+          <p>Use context pills, alternatives, and All results when the first result is close but not quite enough.</p>
+        </article>
       </div>
     </section>
   </div>
-
   <footer class="help-footer"><a routerLink="/">← Back to Find</a><a routerLink="/about">About Find →</a></footer>
 </main>

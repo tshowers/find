@@ -1,0 +1,226 @@
+/* A 16Ahead Store shop card, on top of find-entity-card.component.css. The
+   tinted tile uses the shop's own colors (--shop-tint*, set from the store),
+   falling back to Find's blue tint. One layout that stacks below 900px. */
+.sc {
+  --tint: var(--shop-tint, var(--t-blue));
+  --tint-fg: var(--shop-tint-fg, var(--t-blue-fg));
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px 40px 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :host-context(:root:not(.light):not([data-theme="light"])) .sc {
+    --tint: var(--shop-tint-dark, var(--t-blue));
+    --tint-fg: var(--shop-tint-fg-dark, var(--t-blue-fg));
+  }
+}
+
+:host-context(:root[data-theme="dark"]) .sc,
+:host-context(:root.dark) .sc {
+  --tint: var(--shop-tint-dark, var(--t-blue));
+  --tint-fg: var(--shop-tint-fg-dark, var(--t-blue-fg));
+}
+
+.sc-logo {
+  background: var(--tint);
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--tint-fg);
+}
+
+.sc-logo img {
+  border-radius: 12px;
+}
+
+.sc-chip {
+  background: var(--tint);
+  color: var(--tint-fg);
+}
+
+.sc-chip--plain {
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+}
+
+a.sc-chip--plain:hover {
+  background: var(--surface2);
+}
+
+.sc-top {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.sc-now {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 28px;
+  border-radius: 28px;
+  background: var(--tint);
+  color: var(--tint-fg);
+}
+
+.sc-now--loading {
+  min-height: 240px;
+}
+
+.sc-now__line {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.sc-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sc-fact {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.sc-fact strong {
+  color: var(--text);
+}
+
+.sc-visit span {
+  white-space: nowrap;
+}
+
+.sc-about {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sc-collections {
+  margin-top: 6px;
+}
+
+.sc-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.sc-products--loading {
+  height: 260px;
+  border-radius: 18px;
+}
+
+.sc-product {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 10px 12px;
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.sc-product app-find-watch-button {
+  --wb-bg: var(--bg);
+}
+
+.sc-product__link {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.sc-product__link strong {
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.sc-product__link:hover strong {
+  color: var(--blue-ink);
+}
+
+.sc-product__img {
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.sc-product__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.sc-product__price {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .sc {
+    gap: 18px;
+    padding: 24px 16px 0;
+  }
+
+  .sc-top {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .ec-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+  }
+
+  .ec-name {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 600px) {
+  .sc {
+    gap: 14px;
+    padding-top: 16px;
+  }
+
+  .ec-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+  }
+
+  .ec-name {
+    font-size: 26px;
+  }
+
+  .sc-now {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .sc-now__line {
+    font-size: 20px;
+  }
+
+  .sc-products {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+}
