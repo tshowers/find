@@ -9,7 +9,7 @@ import { Router, RouterModule } from '@angular/router';
 import packageJson from '../../../../package.json';
 
 import {
-  MENU_COMPANY, MENU_TODD_PROFILE_URL, MenuIconName, MenuSection, MenuLink, MenuProduct, menuAccountLinks, menuAdminItems, menuIconSvg, menuInitials, menuMatches, menuProductsFor, menuSectionFor, MENU_PRODUCTS,
+  MENU_COMPANY, MENU_SIGN_IN_URL, MENU_TODD_PROFILE_URL, MenuIconName, MenuSection, MenuLink, MenuProduct, menuAccountLinks, menuAdminItems, menuIconSvg, menuInitials, menuMatches, menuProductsFor, menuSectionFor, MENU_PRODUCTS,
 } from '@taliferro/ui/platform/universal-menu.model';
 import type { SearchEntry } from '@taliferro/ui/platform/search-index.model';
 
@@ -211,7 +211,9 @@ export class PlatformMenuComponent {
     this.close();
     const signInRoute = this.config.signInRoute;
     if ( !signInRoute ) {
-      this.signIn.emit();
+      // An app with no sign-in of its own (nothing bound to (signIn)) uses the 16Ahead one.
+      if ( this.signIn.observed ) this.signIn.emit();
+      else if ( typeof window !== 'undefined' ) window.location.href = MENU_SIGN_IN_URL;
       return;
     }
     // Come back to this page after signing in (not the app's default landing).
