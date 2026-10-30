@@ -502,7 +502,7 @@ describe('FindHomeComponent', () => {
     const open = spyOn(component, 'openExternal');
     component.onQuickActionClick(component.quickActions.find(a => a.label === 'Shop')!);
     tick();
-    expect(open).toHaveBeenCalledWith('https://market.taliferro.tech');
+    expect(open).toHaveBeenCalledWith('https://16ahead.store');
     http.expectNone(r => r.url.endsWith('/find/search'));
     expect(component.query).toBe('');
   }));
@@ -926,13 +926,13 @@ describe('FindHomeComponent', () => {
     runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle'));
     // The only fetch allowed is the TODD Market strip ("From local stores").
     const urls = fetchSpy.calls.allArgs().map(([url]) => String(url));
-    expect(urls.filter(url => !url.startsWith('https://market.taliferro.tech/'))).toEqual([]);
+    expect(urls.filter(url => !url.startsWith('https://16ahead.store/'))).toEqual([]);
   }));
 
   it('leaves TODD Market\'s strip off searches that aren\'t shopping', fakeAsync(() => {
     runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle'));
     expect(root().querySelector('app-market-strip')).toBeNull();
-    expect(fetchSpy.calls.allArgs().map(([url]) => String(url)).filter(url => url.startsWith('https://market.taliferro.tech/'))).toEqual([]);
+    expect(fetchSpy.calls.allArgs().map(([url]) => String(url)).filter(url => url.startsWith('https://16ahead.store/'))).toEqual([]);
   }));
 
   it('puts TODD Market\'s strip under the result for a shopping search', fakeAsync(() => {

@@ -120,7 +120,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     { label: 'Conversion', icon: 'fa-arrow-right-arrow-left', color: 'conversion', query: '100 USD to EUR' },
     { label: 'Restaurants', icon: 'fa-utensils', color: 'restaurants', query: 'restaurants near me' },
     // Shop independent stores on TODD Market (replaced the "Events, coming soon" tile).
-    { label: 'Shop', icon: 'fa-bag-shopping', color: 'shop', query: '', href: 'https://market.taliferro.tech' },
+    { label: 'Shop', icon: 'fa-bag-shopping', color: 'shop', query: '', href: 'https://16ahead.store' },
   ];
 
   gyroEnabled = false;

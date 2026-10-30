@@ -1,8 +1,8 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, PLATFORM_ID, inject } from '@angular/core';
 
-/** TODD Market's public network search (functions/market, shop.routes.js); it allows this origin. */
-const MARKET = 'https://market.taliferro.tech';
+/** 16Ahead Store's public network search (formerly market.taliferro.tech; functions/market, shop.routes.js); it allows this origin. */
+const MARKET = 'https://16ahead.store';
 
 interface MarketItem {
   id: string; title: string; priceCents: number; image: string | null; storeName: string; storeSlug: string; storeTint: string | null; storeTintFg: string | null;
