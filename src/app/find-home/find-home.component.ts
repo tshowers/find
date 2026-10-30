@@ -19,6 +19,7 @@ import { AlsoFromUsComponent } from '../shared/also-from-us/also-from-us.compone
 import { MarketStripComponent } from '../shared/market-strip/market-strip.component';
 import { FindEntityCardComponent } from './entity-card/find-entity-card.component';
 import { FindBusinessCardComponent } from './business-card/find-business-card.component';
+import { FindShopCardComponent } from './shop-card/find-shop-card.component';
 
 type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info' | 'awards';
 
@@ -62,7 +63,7 @@ function distanceMeters ( from: { latitude: number; longitude: number }, latitud
 @Component( {
   selector: 'app-find-home',
   standalone: true,
-  imports: [ FindEntityCardComponent, FindBusinessCardComponent, MarketStripComponent, AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
+  imports: [ FindEntityCardComponent, FindBusinessCardComponent, FindShopCardComponent, MarketStripComponent, AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
   templateUrl: './find-home.component.html',
   styleUrls: ['./find-home.component.css', './find-home.grid.css', './find-home.features.css'],
   // The prerendered "/" always contains the home screen, but a `?query=` or
@@ -1835,7 +1836,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
         next: ( response ) => {
           const entity = response?.entity ?? null;
           if ( searchId !== this.searchId || !entity ) return;
-          if ( entity.type === 'sports' ) {
+          if ( entity.type === 'sports' || entity.type === 'shop' ) {
             this.entity = entity;
             return;
           }
@@ -1893,6 +1894,18 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   /** The count beside "More results"; none until the normal search is back. */
   get entityMoreCount (): number | null {
     return this.isLoading ? null : this.result?.results?.length || null;
+  }
+
+  /** A Watch started inside a card: History lists it like any other watch. */
+  onEntityWatched ( watch: FindWatch ): void {
+    this.watches = [ watch, ...this.watches.filter( item => item.id !== watch.id ) ];
+    this.writeFlag( this.HAS_WATCHES_KEY, true );
+  }
+
+  get entityFooterNote (): string {
+    if ( this.entity?.type === 'sports' ) return 'Scores and stats from ESPN';
+    if ( this.entity?.type === 'shop' ) return 'Products and prices from 16Ahead Store';
+    return 'Hours, locations and ratings from Google';
   }
 
   /** "More results" swaps the card for the normal results (or their loading spinner). */

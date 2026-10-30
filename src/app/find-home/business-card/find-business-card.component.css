@@ -64,6 +64,10 @@
   margin-bottom: 10px;
 }
 
+.ec-section .ec-chip--plain {
+  background: var(--bg);
+}
+
 .ec-row--today .ec-row__left,
 .ec-row--today .ec-row__right {
   color: var(--blue-ink);
@@ -82,6 +86,59 @@
   font-weight: 600;
   text-align: left;
   white-space: normal;
+}
+
+/* Shop the sale: one row per sale page, with its own Watch. */
+.ec-sale {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.ec-sale + .ec-sale {
+  border-top: 1px solid var(--surface2);
+}
+
+.ec-sale__img {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--surface);
+}
+
+.ec-sale__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.ec-sale__text strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.ec-sale__text:hover strong {
+  color: var(--blue-ink);
+}
+
+.ec-sale__text small {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t-green-fg);
+}
+
+.ec-sale__text s {
+  font-weight: 400;
+  color: var(--muted);
 }
 
 .ec-about {

@@ -1,7 +1,7 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, PLATFORM_ID, SimpleChanges, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { FindEntity, FindEntitySection, FindEntitySummary, FindExperienceService, FindGameSide, FindSportsGame, FindSportsGamesSection, FindSportsLeadersSection, FindSportsTeamSection } from '../../services/find-experience.service';
+import { FindEntity, FindEntitySection, FindEntitySummary, FindExperienceService, FindGameSide, FindSportsGame, FindSportsGamesSection, FindSportsLeadersSection, FindSportsNewsSection, FindSportsTeamSection } from '../../services/find-experience.service';
 
 interface EntityAction {
   label: string;
@@ -10,12 +10,12 @@ interface EntityAction {
   href: string;
 }
 
-type StackedSection = 'game' | 'stats' | 'leaders' | 'next';
+type StackedSection = 'game' | 'stats' | 'leaders' | 'next' | 'news';
 
 const LIVE_REFRESH_MS = 30 * 1000;
 
 // docs/design_handoff_find_single_results: one rich card when the query names
-// one thing (an NFL team, for now). Layout A (dashboard) above 900px, layout B
+// one thing (an NFL, NBA or MLB team). Layout A (dashboard) above 900px, layout B
 // (stacked, live-first) below; both are in the template and CSS shows one.
 // Every section loads on its own: undefined = still loading (placeholder),
 // null = not available (hidden), so the card fills in as answers arrive.
@@ -36,6 +36,7 @@ export class FindEntityCardComponent implements OnChanges, OnDestroy {
   team?: FindSportsTeamSection | null;
   games?: FindSportsGamesSection | null;
   leaders?: FindSportsLeadersSection | null;
+  news?: FindSportsNewsSection | null;
   summary?: FindEntitySummary | null;
 
   expanded = false;
@@ -59,7 +60,7 @@ export class FindEntityCardComponent implements OnChanges, OnDestroy {
 
   private load (): void {
     this.stop();
-    this.team = this.games = this.leaders = this.summary = undefined;
+    this.team = this.games = this.leaders = this.news = this.summary = undefined;
     this.expanded = false;
     this.openSections.clear();
     this.imageFailed = this.logoFailed = false;
@@ -69,6 +70,7 @@ export class FindEntityCardComponent implements OnChanges, OnDestroy {
       this.syncLiveTimer();
     } );
     this.fetch<FindSportsLeadersSection>( 'leaders', data => this.leaders = data && ( data.offense.length || data.defense.length ) ? data : null );
+    this.fetch<FindSportsNewsSection>( 'news', data => this.news = data?.articles?.length ? data : null );
     this.fetch<FindEntitySummary>( 'summary', data => this.summary = data?.text ? data : null );
   }
 
@@ -109,7 +111,7 @@ export class FindEntityCardComponent implements OnChanges, OnDestroy {
   /** B's status pill: a game in progress, or one later today. */
   get status (): { tone: 'pink' | 'cyan'; text: string } | null {
     const live = this.live;
-    if ( live ) return { tone: 'pink', text: [ 'Live', live.period, live.clock ].filter( Boolean ).join( ' · ' ) };
+    if ( live ) return { tone: 'pink', text: [ 'Live', live.detail ].filter( Boolean ).join( ' · ' ) };
     const next = this.games?.next;
     if ( next && this.isToday( next.date ) ) return { tone: 'cyan', text: [ 'Today', this.timeOf( next.date ), next.network ].filter( Boolean ).join( ' · ' ) };
     return null;
@@ -129,9 +131,9 @@ export class FindEntityCardComponent implements OnChanges, OnDestroy {
     const live = this.live;
     return [
       live
-        ? { label: 'Live on ESPN', shortLabel: 'Live', icon: 'fa-tower-broadcast', href: `https://www.espn.com/nfl/game/_/gameId/${ live.id }` }
+        ? { label: 'Live on ESPN', shortLabel: 'Live', icon: 'fa-tower-broadcast', href: `https://www.espn.com/${ this.entity.league || 'nfl' }/game/_/gameId/${ live.id }` }
         : { label: 'Full coverage on ESPN', shortLabel: 'ESPN', icon: 'fa-arrow-up-right-from-square', href: links.espn },
-      { label: 'NFL.com', shortLabel: 'NFL.com', icon: 'fa-football', href: `https://www.nfl.com/teams/${ this.slug( this.entity.name ) }/` },
+      { label: links.siteName || 'League site', shortLabel: links.siteName || 'League', icon: this.sportIcon, href: links.site || '' },
       { label: 'Schedule', shortLabel: 'Schedule', icon: 'fa-calendar', href: links.schedule },
       { label: 'Tickets', shortLabel: 'Tickets', icon: 'fa-ticket', href: links.tickets },
     ].filter( action => !!action.href );
@@ -172,6 +174,25 @@ export class FindEntityCardComponent implements OnChanges, OnDestroy {
     return top ? `${ top.name } · ${ top.stat }` : '';
   }
 
+  get sportIcon (): string {
+    return this.entity.league === 'nba' ? 'fa-basketball' : this.entity.league === 'mlb' ? 'fa-baseball' : 'fa-football';
+  }
+
+  get newsPreview (): string {
+    return this.news?.articles[ 0 ]?.headline || '';
+  }
+
+  /** "2h ago", "Yesterday", "Oct 27". */
+  ago ( iso: string | null ): string {
+    const time = Date.parse( iso || '' );
+    if ( !Number.isFinite( time ) ) return '';
+    const minutes = Math.round( ( Date.now() - time ) / 60000 );
+    if ( minutes < 60 ) return `${ Math.max( minutes, 1 ) }m ago`;
+    if ( minutes < 24 * 60 ) return `${ Math.round( minutes / 60 ) }h ago`;
+    if ( minutes < 48 * 60 ) return 'Yesterday';
+    return new Date( time ).toLocaleDateString( [], { month: 'short', day: 'numeric' } );
+  }
+
   get nextPreview (): string {
     const next = this.games?.next;
     return next ? `${ next.homeAway } ${ next.opponent } · ${ this.dayOf( next.date ) }` : '';
@@ -192,7 +213,4 @@ export class FindEntityCardComponent implements OnChanges, OnDestroy {
     return new Date( iso ).toLocaleDateString( [], { weekday: 'short', month: 'short', day: 'numeric' } );
   }
 
-  private slug ( name: string ): string {
-    return name.toLowerCase().replace( /[^a-z0-9]+/g, '-' ).replace( /^-|-$/g, '' );
-  }
 }

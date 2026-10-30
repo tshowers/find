@@ -57,10 +57,20 @@
       </div>
       <div class="ec-skel ec-skel--list" *ngIf="leaders === undefined"></div>
       <ng-container *ngIf="leaders?.offense?.length">
-        <ng-container *ngTemplateOutlet="leaderList; context: { $implicit: leaders?.offense, title: 'Leaders' }"></ng-container>
+        <ng-container *ngTemplateOutlet="leaderList; context: { $implicit: leaders?.offense, title: leaders?.offenseTitle || 'Leaders' }"></ng-container>
       </ng-container>
     </div>
   </div>
+
+  <div class="ec-skel ec-skel--news" *ngIf="news === undefined"></div>
+  <section class="ec-news" *ngIf="news" aria-label="Latest news">
+    <h3 class="ec-list-title">Latest news</h3>
+    <div class="ec-news__grid">
+      <ng-container *ngFor="let article of news.articles.slice(0, 4)">
+        <ng-container *ngTemplateOutlet="newsCard; context: { $implicit: article }"></ng-container>
+      </ng-container>
+    </div>
+  </section>
 
   <div class="ec-expanded" *ngIf="expanded" id="ec-expanded">
     <div *ngIf="games?.recent?.length">
@@ -78,7 +88,7 @@
       </div>
     </div>
     <div *ngIf="leaders?.defense?.length">
-      <ng-container *ngTemplateOutlet="leaderList; context: { $implicit: leaders?.defense, title: 'Defense leaders' }"></ng-container>
+      <ng-container *ngTemplateOutlet="leaderList; context: { $implicit: leaders?.defense, title: leaders?.defenseTitle || 'More leaders' }"></ng-container>
     </div>
   </div>
 
@@ -111,7 +121,7 @@
   <div class="ec-scoreboard" *ngIf="live as game">
     <div class="ec-scoreboard__row">
       <div class="ec-scoreboard__side" [class.ec-muted]="isBehind(game, 'away')"><span>{{ game.away.abbr }}</span><strong>{{ game.away.score }}</strong></div>
-      <span class="ec-scoreboard__clock">{{ game.period }}<br />{{ game.clock }}</span>
+      <span class="ec-scoreboard__clock">{{ game.period }}<ng-container *ngIf="game.clock && !game.period.includes(game.clock)"><br />{{ game.clock }}</ng-container></span>
       <div class="ec-scoreboard__side" [class.ec-muted]="isBehind(game, 'home')"><span>{{ game.home.abbr }}</span><strong>{{ game.home.score }}</strong></div>
     </div>
     <p class="ec-scoreboard__footer" *ngIf="game.situation || game.network">{{ game.situation }}<ng-container *ngIf="game.situation && game.network"> · </ng-container>{{ game.network }}</p>
@@ -172,10 +182,24 @@
       </button>
       <div class="ec-section__body" *ngIf="openSections.has('leaders')">
         <ng-container *ngIf="leaders.offense.length">
-          <ng-container *ngTemplateOutlet="leaderList; context: { $implicit: leaders.offense, title: 'Offense' }"></ng-container>
+          <ng-container *ngTemplateOutlet="leaderList; context: { $implicit: leaders.offense, title: leaders.offenseTitle || 'Leaders' }"></ng-container>
         </ng-container>
         <ng-container *ngIf="leaders.defense.length">
-          <ng-container *ngTemplateOutlet="leaderList; context: { $implicit: leaders.defense, title: 'Defense', spaced: true }"></ng-container>
+          <ng-container *ngTemplateOutlet="leaderList; context: { $implicit: leaders.defense, title: leaders.defenseTitle || 'More leaders', spaced: true }"></ng-container>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="ec-skel ec-skel--section" *ngIf="news === undefined"></div>
+    <div class="ec-section" *ngIf="news">
+      <button type="button" class="ec-section__head" (click)="toggleSection('news')" [attr.aria-expanded]="openSections.has('news')">
+        <strong>Latest news</strong>
+        <span class="ec-section__preview">{{ newsPreview }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('news')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body ec-news__list" *ngIf="openSections.has('news')">
+        <ng-container *ngFor="let article of news.articles">
+          <ng-container *ngTemplateOutlet="newsCard; context: { $implicit: article }"></ng-container>
         </ng-container>
       </div>
     </div>
@@ -231,6 +255,16 @@
     <span class="ec-row__left">{{ row.name }}<small>{{ row.label }}<ng-container *ngIf="row.position"> · {{ row.position }}</ng-container></small></span>
     <span class="ec-row__right">{{ row.stat }}<small *ngIf="row.detail">{{ row.detail }}</small></span>
   </div>
+</ng-template>
+
+<ng-template #newsCard let-article>
+  <a class="ec-news__item" [href]="article.url" target="_blank" rel="noopener">
+    <img class="ec-news__img" *ngIf="article.imageUrl" [src]="article.imageUrl" alt="" loading="lazy" />
+    <span class="ec-news__text">
+      <strong>{{ article.headline }}</strong>
+      <small>ESPN<ng-container *ngIf="ago(article.published) as when"> · {{ when }}</ng-container></small>
+    </span>
+  </a>
 </ng-template>
 
 <ng-template #actionButtons>

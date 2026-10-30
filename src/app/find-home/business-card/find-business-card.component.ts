@@ -1,7 +1,8 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, PLATFORM_ID, SimpleChanges, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { FindEntity, FindEntitySection, FindEntitySummary, FindExperienceService, FindPlaceDetails, FindPlaceLocation, FindPlaceSection } from '../../services/find-experience.service';
+import { FindEntity, FindEntitySection, FindEntitySummary, FindExperienceService, FindPlaceDetails, FindPlaceLocation, FindPlaceSection, FindSaleSection, FindWatch } from '../../services/find-experience.service';
+import { FindWatchButtonComponent } from '../watch-button/find-watch-button.component';
 
 interface BusinessAction {
   label: string;
@@ -11,7 +12,7 @@ interface BusinessAction {
   external: boolean;
 }
 
-type StackedSection = 'details' | 'hours' | 'locations' | 'location';
+type StackedSection = 'details' | 'sale' | 'hours' | 'locations' | 'location';
 type Tone = 'green' | 'yellow' | 'muted';
 
 // Tint per type, from the handoff: store green, restaurant yellow, service violet.
@@ -25,7 +26,7 @@ const TINTS: Record<string, string> = { store: 'green', restaurant: 'yellow', se
 @Component( {
   selector: 'app-find-business-card',
   standalone: true,
-  imports: [ CommonModule ],
+  imports: [ CommonModule, FindWatchButtonComponent ],
   templateUrl: './find-business-card.component.html',
   styleUrls: [ '../entity-card/find-entity-card.component.css', './find-business-card.component.css' ],
 } )
@@ -36,9 +37,11 @@ export class FindBusinessCardComponent implements OnChanges, OnDestroy {
   /** The visitor's position, for the nearest location; null shows Google's pick. */
   @Input() position: { latitude: number; longitude: number } | null = null;
   @Output() moreResults = new EventEmitter<void>();
+  @Output() watched = new EventEmitter<FindWatch>();
 
   place?: FindPlaceSection | null;
   details?: FindPlaceDetails | null;
+  sale?: FindSaleSection | null;
   summary?: FindEntitySummary | null;
 
   expanded = false;
@@ -63,12 +66,15 @@ export class FindBusinessCardComponent implements OnChanges, OnDestroy {
 
   private load (): void {
     this.stop();
-    this.place = this.details = this.summary = undefined;
+    this.place = this.details = this.sale = this.summary = undefined;
     this.expanded = false;
     this.openSections.clear();
     this.imageFailed = this.logoFailed = false;
     this.fetch<FindPlaceSection>( 'place', data => this.place = data );
     this.fetch<FindPlaceDetails>( 'details', data => this.details = data );
+    // A store's sale pages, each with its own Watch.
+    if ( this.entity.type === 'store' ) this.fetch<FindSaleSection>( 'sale', data => this.sale = data?.items?.length ? data : null );
+    else this.sale = null;
     this.fetch<FindEntitySummary>( 'summary', data => this.summary = data?.text ? data : null );
     // "Closes in 12 min" counts down without a refresh.
     if ( this.isBrowser ) this.clock = setInterval( () => this.now = Date.now(), 60 * 1000 );
@@ -201,7 +207,7 @@ export class FindBusinessCardComponent implements OnChanges, OnDestroy {
     const details = this.details;
     if ( !details ) return [];
     if ( details.sales ) return details.sales.map( sale => ( { left: sale.title, right: sale.discount, sub: [ sale.detail, sale.endsAt && `ends ${ sale.endsAt }` ].filter( Boolean ).join( ' · ' ) } ) );
-    if ( details.popular ) return details.popular.map( dish => ( { left: dish.name, right: dish.price, sub: '' } ) );
+    if ( details.popular ) return details.popular.map( dish => ( { left: dish.name, right: dish.price, sub: dish.description || '' } ) );
     if ( details.services ) return details.services.map( service => ( { left: service.name, right: service.price, sub: service.duration } ) );
     return [];
   }
@@ -219,7 +225,9 @@ export class FindBusinessCardComponent implements OnChanges, OnDestroy {
     } : null;
     const directions = location ? { label: 'Directions', shortLabel: 'Directions', icon: 'fa-location-arrow', href: location.directionsUrl, external: true } : null;
     const maps = location?.mapsUrl ? { label: 'Google Maps', shortLabel: 'Maps', icon: 'fa-map-location-dot', href: location.mapsUrl, external: true } : null;
-    const ordered = this.entity.type === 'service' ? [ call, site, directions, maps ] : [ site, directions, call, maps ];
+    const menu = this.details?.menuUrl && this.details.menuUrl !== website ? { label: 'Full menu', shortLabel: 'Menu', icon: 'fa-book-open', href: this.details.menuUrl, external: true } : null;
+    if ( menu && site ) Object.assign( site, { label: 'Order online', shortLabel: 'Order', icon: 'fa-bag-shopping' } );
+    const ordered = this.entity.type === 'service' ? [ call, site, directions, maps ] : this.entity.type === 'restaurant' && menu ? [ menu, site, directions, call ] : [ site, directions, call, maps ];
     return ordered.filter( ( action ): action is BusinessAction => !!action );
   }
 
@@ -232,6 +240,10 @@ export class FindBusinessCardComponent implements OnChanges, OnDestroy {
 
   get detailsPreview (): string {
     return this.detailRows.slice( 0, 2 ).map( row => row.left ).join( ' · ' );
+  }
+
+  get salePreview (): string {
+    return ( this.sale?.items || [] ).slice( 0, 2 ).map( item => item.title ).join( ' · ' );
   }
 
   get othersPreview (): string {

@@ -64,6 +64,10 @@
       <div *ngIf="detailRows.length">
         <ng-container *ngTemplateOutlet="detailList"></ng-container>
       </div>
+      <div class="ec-skel ec-skel--list" *ngIf="sale === undefined"></div>
+      <div *ngIf="sale">
+        <ng-container *ngTemplateOutlet="saleList"></ng-container>
+      </div>
     </div>
   </div>
 
@@ -130,6 +134,18 @@
       </div>
     </div>
 
+    <div class="ec-skel ec-skel--section" *ngIf="sale === undefined"></div>
+    <div class="ec-section" *ngIf="sale">
+      <button type="button" class="ec-section__head" (click)="toggleSection('sale')" [attr.aria-expanded]="openSections.has('sale')">
+        <strong>Shop the sale</strong>
+        <span class="ec-section__preview">{{ salePreview }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('sale')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('sale')">
+        <ng-container *ngTemplateOutlet="saleList; context: { hideTitle: true }"></ng-container>
+      </div>
+    </div>
+
     <div class="ec-skel ec-skel--section" *ngIf="place === undefined"></div>
     <div class="ec-section" *ngIf="place?.hoursWeek?.length">
       <button type="button" class="ec-section__head" (click)="toggleSection('hours')" [attr.aria-expanded]="openSections.has('hours')">
@@ -192,6 +208,18 @@
   <div class="ec-row" *ngFor="let row of detailRows">
     <span class="ec-row__left">{{ row.left }}<small *ngIf="row.sub">{{ row.sub }}</small></span>
     <span class="ec-row__right">{{ row.right }}</span>
+  </div>
+</ng-template>
+
+<ng-template #saleList let-hideTitle="hideTitle">
+  <h3 class="ec-list-title" *ngIf="!hideTitle">Shop the sale</h3>
+  <div class="ec-sale" *ngFor="let item of sale?.items">
+    <img class="ec-sale__img" *ngIf="item.imageUrl" [src]="item.imageUrl" alt="" loading="lazy" />
+    <a class="ec-sale__text" [href]="item.url" target="_blank" rel="noopener">
+      <strong>{{ item.title }}</strong>
+      <small *ngIf="item.price || item.was"><ng-container *ngIf="item.price">{{ item.price }}</ng-container><s *ngIf="item.was">{{ item.was }}</s></small>
+    </a>
+    <app-find-watch-button [url]="item.url" [title]="name + ': ' + item.title" [query]="query" (watched)="watched.emit($event)"></app-find-watch-button>
   </div>
 </ng-template>
 

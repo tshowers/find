@@ -193,9 +193,9 @@ export interface FindMovieRatings {
 }
 
 // Single-item results (docs/design_handoff_find_single_results): a query that
-// clearly names one thing gets one rich card: an NFL team, a store, a
-// restaurant or a local service.
-export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service';
+// clearly names one thing gets one rich card: an NFL, NBA or MLB team, a
+// store, a restaurant, a local service, or a 16Ahead Store shop.
+export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service' | 'shop';
 
 export interface FindEntity {
   type: FindEntityType;
@@ -203,17 +203,22 @@ export interface FindEntity {
   id: string;
   name: string;
   logoUrl: string | null;
-  // NFL teams
-  league?: 'nfl';
+  // Teams
+  league?: 'nfl' | 'nba' | 'mlb';
   abbr?: string;
   shortName?: string;
   color?: string | null;
-  links?: { espn: string; schedule: string; stats: string; tickets: string };
-  // Businesses
+  links?: { espn: string; schedule: string; stats: string; tickets: string; site?: string; siteName?: string };
+  // Businesses and 16Ahead Store shops
   website?: string;
+  // 16Ahead Store shops: the shop's own colors
+  tint?: string | null;
+  tintFg?: string | null;
+  tintDark?: string | null;
+  tintFgDark?: string | null;
 }
 
-export type FindEntitySection = 'team' | 'games' | 'leaders' | 'summary' | 'place' | 'details';
+export type FindEntitySection = 'team' | 'games' | 'leaders' | 'news' | 'summary' | 'place' | 'details' | 'sale' | 'shop';
 
 export interface FindStatTile { label: string; value: string; sub: string }
 export interface FindKeyFact { value: string; label: string }
@@ -262,7 +267,9 @@ export interface FindSportsGamesSection {
 }
 
 export interface FindLeaderRow { label: string; name: string; position: string; stat: string; detail: string }
-export interface FindSportsLeadersSection { offense: FindLeaderRow[]; defense: FindLeaderRow[] }
+export interface FindSportsLeadersSection { offense: FindLeaderRow[]; defense: FindLeaderRow[]; offenseTitle?: string; defenseTitle?: string }
+export interface FindNewsArticle { headline: string; description: string; published: string | null; url: string; imageUrl: string | null }
+export interface FindSportsNewsSection { articles: FindNewsArticle[] }
 export interface FindEntitySummary { text: string; sources: string[] }
 
 export interface FindPlaceLocation {
@@ -298,8 +305,31 @@ export interface FindPlaceSection {
 
 export interface FindPlaceDetails {
   sales?: Array<{ title: string; discount: string; detail: string; endsAt: string }>;
-  popular?: Array<{ name: string; price: string }>;
+  popular?: Array<{ name: string; description?: string; price: string }>;
   services?: Array<{ name: string; price: string; duration: string }>;
+  menuUrl?: string;
+}
+
+/** A store's own sale pages: "Women's Shoes on Sale", $58–$63, was $69. */
+export interface FindSaleSection {
+  items: Array<{ title: string; url: string; imageUrl: string | null; price: string; was: string }>;
+}
+
+export interface FindShopProduct { id: string; title: string; price: string; imageUrl: string | null; url: string; watchUrl: string }
+
+export interface FindShopSection {
+  description: string;
+  heroLine: string;
+  category: string;
+  location: string;
+  features: string[];
+  productCount: number;
+  collections: Array<{ name: string; count: number }>;
+  shipping: string[];
+  freeShippingOver: string;
+  returns: string;
+  products: FindShopProduct[];
+  url: string;
 }
 
 export interface FindSearchResponse {

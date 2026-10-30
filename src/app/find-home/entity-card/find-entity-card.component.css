@@ -299,6 +299,59 @@ h1, h3, p {
   color: var(--muted);
 }
 
+/* Latest news: the team's newest stories, each a link out. */
+.ec-news__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.ec-news__item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.ec-news__item:hover {
+  background: var(--surface2);
+}
+
+.ec-news__img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--surface2);
+}
+
+.ec-news__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 4px 4px;
+}
+
+.ec-news__text strong {
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.ec-news__text small {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.ec-skel--news {
+  height: 230px;
+  border-radius: 18px;
+}
+
 .ec-expanded {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -629,6 +682,22 @@ h1, h3, p {
     font-size: 14px;
     line-height: 1.45;
     color: var(--muted);
+  }
+
+  .ec-news__list {
+    gap: 8px;
+  }
+
+  .ec-news__list .ec-news__item {
+    flex-direction: row;
+    align-items: center;
+    padding: 8px;
+    background: var(--bg);
+  }
+
+  .ec-news__list .ec-news__img {
+    flex: none;
+    width: 96px;
   }
 
   .ec-section .ec-score {
