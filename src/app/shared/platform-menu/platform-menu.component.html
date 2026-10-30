@@ -17,7 +17,7 @@
         </a>
         <label class="um-search">
           <span [innerHTML]="icon('search', 18)"></span>
-          <input #search type="search" [(ngModel)]="query" (keydown.enter)="openFirstMatch()" placeholder="Search products and pages" aria-label="Search products and pages" autocomplete="off" />
+          <input #search type="search" [(ngModel)]="query" (keydown.enter)="openFirstMatch()" placeholder="Search spaces and pages" aria-label="Search spaces and pages" autocomplete="off" />
         </label>
         <button type="button" class="um-close" (click)="close()" aria-label="Close menu">
           <span [innerHTML]="icon('close', 18)" aria-hidden="true"></span><span class="um-close__label">Close</span>
@@ -46,10 +46,10 @@
           </div>
         </nav>
 
-        <!-- 2 · Products -->
-        <section class="um-products" aria-label="Products" *ngIf="visibleProducts.length || !query">
+        <!-- 2 · Spaces (the other 16Ahead apps) -->
+        <section class="um-products" aria-label="Spaces" *ngIf="visibleProducts.length || !query">
           <div class="um-section-head">
-            <span class="um-eyebrow">Products</span>
+            <span class="um-eyebrow">Spaces</span>
             <small>Opens in this tab</small>
           </div>
           <div class="um-tiles">
