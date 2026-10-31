@@ -24,7 +24,7 @@
         </button>
       </header>
 
-      <div class="um-body" [class.um-body--no-app]="!hasAppColumn">
+      <div class="um-body" [class.um-body--no-app]="!hasAppColumn" [class.um-body--no-account]="!hasAccountCard">
         <!-- 1 · This app -->
         <nav class="um-app" *ngIf="hasAppColumn" [attr.aria-label]="config.name">
           <span class="um-eyebrow">{{ appTitle }}</span>
@@ -62,7 +62,7 @@
         </section>
 
         <!-- 3 · Account: global, on todd.taliferro.tech -->
-        <section class="um-account" aria-label="Account">
+        <section class="um-account" aria-label="Account" *ngIf="hasAccountCard">
           <span class="um-eyebrow">Account</span>
           <div class="um-card">
             <ng-container *ngIf="isLoggedIn; else signedOut">

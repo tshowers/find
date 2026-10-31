@@ -9,7 +9,7 @@ import { Router, RouterModule } from '@angular/router';
 import packageJson from '../../../../package.json';
 
 import {
-  MENU_COMPANY, MENU_SIGN_IN_URL, MENU_TODD_PROFILE_URL, MenuIconName, MenuSection, MenuLink, MenuProduct, menuAccountLinks, menuAdminItems, menuIconSvg, menuInitials, menuMatches, menuProductsFor, menuSectionFor, MENU_PRODUCTS,
+  MENU_COMPANY, MENU_TODD_PROFILE_URL, MenuIconName, MenuSection, MenuLink, MenuProduct, menuAccountLinks, menuAdminItems, menuIconSvg, menuInitials, menuMatches, menuProductsFor, menuSectionFor, MENU_PRODUCTS,
 } from '@taliferro/ui/platform/universal-menu.model';
 import type { SearchEntry } from '@taliferro/ui/platform/search-index.model';
 
@@ -109,6 +109,11 @@ export class PlatformMenuComponent {
   get secondaryItems (): MenuLink[] { return ( this.config.secondaryItems || [] ).filter( ( item ) => menuMatches( this.query, item.label, item.keywords ) ); }
   get visibleProducts (): MenuProduct[] { return this.products.filter( ( product ) => menuMatches( this.query, product.label ) ); }
   get visibleAccount (): MenuLink[] { return this.accountLinks.filter( ( item ) => menuMatches( this.query, item.label, item.keywords ) ); }
+  /** Apps without accounts (config.noSignIn) show no Account card while signed out. */
+  get hasAccountCard (): boolean {
+    return this.isLoggedIn || !this.config.noSignIn;
+  }
+
   get hasAppColumn (): boolean {
     return ( this.section?.items || this.config.items ).length > 0 || !!this.config.secondaryItems?.length || this.adminItems.length > 0;
   }
@@ -211,9 +216,7 @@ export class PlatformMenuComponent {
     this.close();
     const signInRoute = this.config.signInRoute;
     if ( !signInRoute ) {
-      // An app with no sign-in of its own (nothing bound to (signIn)) uses the 16Ahead one.
-      if ( this.signIn.observed ) this.signIn.emit();
-      else if ( typeof window !== 'undefined' ) window.location.href = MENU_SIGN_IN_URL;
+      this.signIn.emit();
       return;
     }
     // Come back to this page after signing in (not the app's default landing).
