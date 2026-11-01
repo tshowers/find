@@ -1,0 +1,239 @@
+/* The card's video slot (design_handoff_find_taliferro_results, "Video
+   player"): 16:9 on the card's darkest color; a clip that isn't 16:9 is
+   fitted inside it, never cropped. */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vp-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border-radius: 28px;
+  background: #0c0e13;
+}
+
+.vp-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: contain;
+}
+
+.vp-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  /* The logo sits above the caption, never behind it. */
+  padding-bottom: 18%;
+  background: radial-gradient(circle at 70% 40%, #1d2b52, #0c0e13 70%);
+}
+
+.vp-placeholder img {
+  width: 96px;
+  height: 96px;
+  padding: 14px;
+  border-radius: 24px;
+  background: #fff;
+}
+
+.vp-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 45%, rgba(0, 0, 0, 0.6));
+  pointer-events: none;
+}
+
+.vp-caption {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #fff;
+}
+
+.vp-play {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: #0f1115;
+  font-size: 22px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+.vp-play i {
+  margin-left: 4px;
+}
+
+.vp-play:hover {
+  filter: brightness(0.94);
+}
+
+.vp-caption__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.vp-title {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.vp-sub {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.vp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vp-row {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 8px;
+  border: 0;
+  border-radius: 18px;
+  background: none;
+  color: var(--text);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.vp-row--on,
+.vp-row:hover {
+  background: var(--surface);
+}
+
+.vp-thumb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  width: 88px;
+  height: 50px;
+  border-radius: 12px;
+  background: #1d2b52;
+  color: #fff;
+  font-size: 13px;
+}
+
+.vp-thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.75;
+}
+
+.vp-thumb i {
+  position: relative;
+}
+
+.vp-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vp-row__text strong {
+  font-size: 15px;
+}
+
+.vp-row__text span {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vp-row__time {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.vp-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.vp-chip {
+  flex: none;
+  height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.vp-chip--on {
+  background: var(--text);
+  color: var(--bg);
+}
+
+@media (max-width: 900px) {
+  .vp-frame {
+    border-radius: 22px;
+  }
+
+  .vp-caption {
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    gap: 12px;
+  }
+
+  .vp-placeholder img {
+    width: 64px;
+    height: 64px;
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .vp-play {
+    width: 52px;
+    height: 52px;
+    font-size: 18px;
+  }
+
+  .vp-title {
+    font-size: 18px;
+  }
+
+  .vp-sub {
+    font-size: 12px;
+  }
+}

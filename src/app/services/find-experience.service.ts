@@ -196,7 +196,7 @@ export interface FindMovieRatings {
 // clearly names one thing gets one rich card: an NFL, NBA, MLB or college
 // team, a store, a restaurant, a local service, a 16Ahead Store shop, or
 // (round 5) a country, US state, city, movie, TV show, artist, album or song.
-export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service' | 'shop' | 'country' | 'state' | 'city' | 'movie' | 'tv' | 'artist' | 'album' | 'song';
+export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service' | 'shop' | 'country' | 'state' | 'city' | 'movie' | 'tv' | 'artist' | 'album' | 'song' | 'company' | 'product';
 export type FindSportsLeague = 'nfl' | 'nba' | 'mlb' | 'college-football' | 'mens-college-basketball';
 
 export interface FindEntity {
@@ -220,7 +220,7 @@ export interface FindEntity {
   tintFgDark?: string | null;
 }
 
-export type FindEntitySection = 'team' | 'games' | 'leaders' | 'news' | 'summary' | 'place' | 'details' | 'sale' | 'shop' | 'region' | 'local' | 'todo' | 'title' | 'facts' | 'show' | 'apple';
+export type FindEntitySection = 'team' | 'games' | 'leaders' | 'news' | 'summary' | 'place' | 'details' | 'sale' | 'shop' | 'region' | 'local' | 'todo' | 'title' | 'facts' | 'show' | 'apple' | 'overview';
 
 export interface FindStatTile { label: string; value: string; sub: string }
 export interface FindEntityTag { text: string; tone: 'blue' | 'green' | 'cyan' | 'pink' | 'violet' | 'yellow' | 'plain' }
@@ -278,6 +278,29 @@ export interface FindSportsLeadersSection { offense: FindLeaderRow[]; defense: F
 export interface FindNewsArticle { headline: string; description: string; published: string | null; url: string; imageUrl: string | null }
 export interface FindSportsNewsSection { articles: FindNewsArticle[] }
 export interface FindEntitySummary { text: string; sources: string[] }
+
+/** A clip on a card: an MP4 (with an optional light-theme version) or a YouTube link. */
+export interface FindCardVideo { url: string; urlLight?: string; poster?: string; posterLight?: string; title: string; sub: string; duration: string }
+
+// Our own company and products (design_handoff_find_taliferro_results 5a–5c).
+// Everything on the card is our approved wording, in one "overview" section.
+export interface FindProductRow { id: string; name: string; iconUrl: string; url: string }
+export interface FindFirstPartyContact { kind: 'call' | 'email' | 'directions'; label: string; value: string; url: string }
+export interface FindFirstPartyOverview {
+  context: string;
+  tags: FindEntityTag[];
+  meta: Array<{ value: string; strong?: boolean }>;
+  videos: FindCardVideo[];
+  panel: { kind: 'contact' | 'steps'; label: string; title?: string; text?: string; contacts?: FindFirstPartyContact[]; steps?: string[] };
+  tiles: FindStatTile[];
+  groups?: Array<{ name: string; products: FindProductRow[] }>;
+  usedBy?: Array<FindProductRow & { text: string }>;
+  founder?: { name: string; role: string; photoUrl: string; linkedin: string };
+  more?: Array<{ title: string; text?: string; rows?: Array<{ name: string; value: string; url?: string }> }>;
+  faq?: Array<{ q: string; a: string }>;
+  actions: Array<{ kind: string; label: string; shortLabel: string; url: string }>;
+  footer: string;
+}
 
 // Countries, US states and cities (round 5, types 7–9). Tiles and rows arrive
 // already worded, so the card only lays them out.

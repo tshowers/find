@@ -1,4 +1,4 @@
-import { fakeAsync, flushMicrotasks, tick, TestBed } from '@angular/core/testing';
+import { fakeAsync, flush, flushMicrotasks, tick, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
@@ -443,6 +443,110 @@ describe('FindHomeComponent', () => {
     expect(root().textContent).toContain('A Taliferro Music artist');
 
     http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('calima shatiday'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+  }));
+
+  it('shows our company card: a video to play in place, and Call / Email / Directions', fakeAsync(() => {
+    component.query = 'taliferro tech phone number';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: { type: 'company', label: 'Software company', id: 'taliferro-tech', name: 'Taliferro Tech', logoUrl: '/assets/find/products/taliferro.png', firstParty: true },
+    });
+    tick();
+    harness.detectChanges();
+    // The card is deferred (its own chunk): let it load.
+    flush();
+    harness.detectChanges();
+
+    const sections = http.match(r => r.url.endsWith('/find/entity/section'));
+    expect(sections.map(req => req.request.body.section).sort()).toEqual([ 'overview', 'summary' ]);
+    sections.find(req => req.request.body.section === 'overview')!.flush({
+      data: {
+        context: 'Software company',
+        tags: [ { text: 'Software company', tone: 'cyan' } ],
+        meta: [ { value: 'Software that does the work.', strong: true }, { value: 'Founded 2022' } ],
+        videos: [
+          { url: 'https://16ahead.com/media/16ahead-story.mp4', poster: 'https://16ahead.com/media/16ahead-story-poster.jpg', title: 'The 16Ahead story', sub: 'A morning with 16Ahead', duration: '1:00' },
+          { url: 'https://16ahead.com/media/overnight-answer.mp4', title: 'An answer, overnight', sub: '16Ahead', duration: '1:00' },
+        ],
+        panel: {
+          kind: 'contact', label: 'Contact', title: 'Book a consultation', text: '',
+          contacts: [
+            { kind: 'call', label: 'Call', value: '(401) 646-2662', url: 'tel:+14016462662' },
+            { kind: 'email', label: 'Email', value: 'info@taliferro.tech', url: 'mailto:info@taliferro.tech?subject=Consultation' },
+            { kind: 'directions', label: 'Directions', value: '1424 11th Ave, Seattle', url: 'https://www.google.com/maps/search/?api=1&query=x' },
+          ],
+        },
+        tiles: [ { label: 'Founded', value: '2022', sub: 'Seattle, WA' } ],
+        groups: [], more: [ { title: 'Why it exists', text: 'Because.' } ],
+        actions: [ { kind: 'email', label: 'Book a consultation', shortLabel: 'Book', url: 'mailto:info@taliferro.tech?subject=Consultation' } ],
+        footer: 'taliferro.tech · first-party listing',
+      },
+    });
+    sections.find(req => req.request.body.section === 'summary')!.flush({ data: { text: 'Taliferro Tech is a Seattle software company.', sources: [ 'taliferro.tech' ] } });
+    harness.detectChanges();
+
+    const card = root().querySelector('[data-cy="find-entity-card"]')!;
+    const panel = card.querySelector('[data-cy="find-first-party-panel"]')!;
+    expect(Array.from(panel.querySelectorAll<HTMLAnchorElement>('a')).map(link => link.getAttribute('href'))).toEqual([
+      'tel:+14016462662', 'mailto:info@taliferro.tech?subject=Consultation', 'https://www.google.com/maps/search/?api=1&query=x',
+    ]);
+    // tel: and mailto: stay in the page; only web links open a tab.
+    expect(panel.querySelector('a')!.getAttribute('target')).toBeNull();
+
+    const video = card.querySelector('[data-cy="find-video"]')!;
+    expect(video.querySelector('video')).toBeNull();
+    video.querySelector<HTMLButtonElement>('.vp-play')!.click();
+    harness.detectChanges();
+    expect(video.querySelector('video')?.getAttribute('src')).toBe('https://16ahead.com/media/16ahead-story.mp4');
+
+    // Picking another clip plays it, and its row says Playing.
+    const rows = card.querySelectorAll<HTMLButtonElement>('.vp-row');
+    rows[1].click();
+    harness.detectChanges();
+    expect(video.querySelector('video')?.getAttribute('src')).toBe('https://16ahead.com/media/overnight-answer.mp4');
+    expect(rows[1].textContent).toContain('Playing');
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('taliferro tech phone number'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+  }));
+
+  it('shows "Video coming soon" and no play button for a product with no video yet', fakeAsync(() => {
+    component.query = 'lead vault';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: { type: 'product', label: 'Software · 16Ahead', id: 'lead-vault', name: 'Lead Vault', logoUrl: null, firstParty: true },
+    });
+    tick();
+    harness.detectChanges();
+    // The card is deferred (its own chunk): let it load.
+    flush();
+    harness.detectChanges();
+    const sections = http.match(r => r.url.endsWith('/find/entity/section'));
+    sections.find(req => req.request.body.section === 'overview')!.flush({
+      data: {
+        context: 'Software · 16Ahead', tags: [], meta: [], videos: [],
+        panel: { kind: 'steps', label: 'How it works', steps: [ 'Search.', 'Pick.', 'Talk.' ] },
+        tiles: [], actions: [ { kind: 'open', label: 'Open Lead Vault', shortLabel: 'Open', url: 'https://lead-vault.16ahead.com' } ], footer: '',
+      },
+    });
+    sections.find(req => req.request.body.section === 'summary')!.flush({ data: null });
+    harness.detectChanges();
+
+    const card = root().querySelector('[data-cy="find-entity-card"]')!;
+    expect(card.querySelector('[data-cy="find-video"]')?.textContent).toContain('Video coming soon');
+    expect(card.querySelector('.vp-play')).toBeNull();
+    expect(card.querySelectorAll('.fp-step').length).toBe(3);
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('lead vault'));
     tick();
     harness.detectChanges();
     drainSummarize();

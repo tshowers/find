@@ -1,0 +1,52 @@
+<div class="vp-frame" data-cy="find-video">
+  <ng-container *ngIf="playing && current; else posterState">
+    <iframe *ngIf="youtubeEmbed as embed; else fileVideo" class="vp-media" [src]="embed" [title]="current.title" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+    <ng-template #fileVideo>
+      <video class="vp-media" [src]="source" [poster]="poster(current) || ''" controls autoplay playsinline></video>
+    </ng-template>
+  </ng-container>
+
+  <ng-template #posterState>
+    <img class="vp-media vp-poster" *ngIf="poster(current) as image; else placeholderArt" [src]="image" alt="" />
+    <ng-template #placeholderArt>
+      <span class="vp-placeholder" aria-hidden="true"><img *ngIf="logoUrl" [src]="logoUrl" alt="" /></span>
+    </ng-template>
+    <div class="vp-shade"></div>
+    <div class="vp-caption" *ngIf="current as video; else comingSoon">
+      <button type="button" class="vp-play" (click)="play()" [attr.aria-label]="'Play ' + video.title"><i class="fa-solid fa-play" aria-hidden="true"></i></button>
+      <span class="vp-caption__text">
+        <strong class="vp-title">{{ video.title }}</strong>
+        <span class="vp-sub">{{ video.sub }}<ng-container *ngIf="video.duration"> · {{ video.duration }}</ng-container></span>
+      </span>
+    </div>
+    <ng-template #comingSoon>
+      <div class="vp-caption">
+        <span class="vp-caption__text">
+          <strong class="vp-title">Video coming soon</strong>
+          <span class="vp-sub" *ngIf="name">{{ name }}</span>
+        </span>
+      </div>
+    </ng-template>
+  </ng-template>
+</div>
+
+<ng-container *ngIf="videos.length > 1">
+  <div class="vp-chips" *ngIf="chips; else rows">
+    <button type="button" *ngFor="let video of videos; let i = index" class="vp-chip" [class.vp-chip--on]="i === index" (click)="play(i)">{{ video.title }}</button>
+  </div>
+  <ng-template #rows>
+    <div class="vp-list">
+      <button type="button" *ngFor="let video of videos; let i = index" class="vp-row" [class.vp-row--on]="i === index" (click)="play(i)">
+        <span class="vp-thumb">
+          <img *ngIf="poster(video) as image" [src]="image" alt="" />
+          <i class="fa-solid fa-play" aria-hidden="true"></i>
+        </span>
+        <span class="vp-row__text">
+          <strong>{{ video.title }}</strong>
+          <span>{{ video.sub }}</span>
+        </span>
+        <span class="vp-row__time">{{ playing && i === index ? 'Playing' : video.duration }}</span>
+      </button>
+    </div>
+  </ng-template>
+</ng-container>
