@@ -1,0 +1,277 @@
+<!-- ── LAYOUT A: dashboard (above 900px) ── -->
+<section class="ec-a" data-cy="find-entity-card" [attr.aria-label]="entity.name">
+  <div class="ec-identity">
+    <span class="ec-logo mu-thumb" [class.mu-thumb--round]="kind === 'artist'">
+      <img *ngIf="image as src" [src]="src" alt="" (error)="imageFailed = true" />
+    </span>
+    <div class="ec-identity__text">
+      <div class="ec-chips">
+        <span class="ec-chip" *ngFor="let tag of tags" [ngClass]="'ec-chip--' + tag.tone">{{ tag.text }}</span>
+      </div>
+      <h1 class="ec-name">{{ entity.name }}</h1>
+      <p class="ec-meta" *ngIf="meta.length; else metaSkeleton"><span *ngFor="let item of meta">{{ item }}</span></p>
+    </div>
+  </div>
+
+  <div class="ec-grid">
+    <div class="ec-col">
+      <ng-container *ngIf="kind !== 'song'">
+        <div class="ec-skel ec-hero" *ngIf="(kind === 'artist' ? facts : apple) === undefined"></div>
+        <img class="ec-hero mu-hero" *ngIf="image as src" [class.mu-hero--cover]="kind === 'album'" [src]="src" [alt]="entity.name" (error)="imageFailed = true" />
+      </ng-container>
+      <ng-container *ngTemplateOutlet="panel"></ng-container>
+    </div>
+
+    <div class="ec-col">
+      <ng-container *ngTemplateOutlet="listenButtons"></ng-container>
+      <ng-container *ngTemplateOutlet="summaryBlock"></ng-container>
+      <div class="ec-skel ec-skel--tiles" *ngIf="facts === undefined"></div>
+      <div class="ec-tiles" *ngIf="tiles.length">
+        <div class="ec-tile" *ngFor="let tile of tiles">
+          <span class="ec-tile__label">{{ tile.label }}</span>
+          <strong class="ec-tile__value">{{ tile.value }}</strong>
+          <span class="ec-tile__sub" *ngIf="tile.sub">{{ tile.sub }}</span>
+        </div>
+      </div>
+      <div *ngIf="kind === 'song' && facts?.credits?.length">
+        <h3 class="ec-list-title">Credits</h3>
+        <ng-container *ngTemplateOutlet="rowList; context: { $implicit: facts?.credits }"></ng-container>
+      </div>
+      <div *ngIf="kind === 'album' && firstTracks.length">
+        <h3 class="ec-list-title">Tracklist</h3>
+        <ng-container *ngTemplateOutlet="rowList; context: { $implicit: trackRows(firstTracks) }"></ng-container>
+      </div>
+      <div *ngIf="kind === 'artist' && apple?.topSongs?.length">
+        <h3 class="ec-list-title">Top songs</h3>
+        <ng-container *ngTemplateOutlet="rowList; context: { $implicit: trackRows(apple?.topSongs, false) }"></ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="ec-expanded" *ngIf="expanded" id="mu-expanded">
+    <div *ngIf="moreTracks.length">
+      <h3 class="ec-list-title">More tracks</h3>
+      <ng-container *ngTemplateOutlet="rowList; context: { $implicit: trackRows(moreTracks) }"></ng-container>
+    </div>
+    <div *ngIf="kind === 'album' && facts?.credits?.length">
+      <h3 class="ec-list-title">Credits</h3>
+      <ng-container *ngTemplateOutlet="rowList; context: { $implicit: facts?.credits }"></ng-container>
+    </div>
+    <div *ngIf="kind === 'artist' && apple?.albums?.length">
+      <h3 class="ec-list-title">Albums</h3>
+      <ng-container *ngTemplateOutlet="rowList; context: { $implicit: apple?.albums }"></ng-container>
+    </div>
+    <div *ngIf="kind === 'artist' && facts?.members?.length">
+      <h3 class="ec-list-title">Members</h3>
+      <ng-container *ngTemplateOutlet="rowList; context: { $implicit: facts?.members }"></ng-container>
+    </div>
+    <div *ngIf="kind === 'song' && facts?.credits?.length">
+      <h3 class="ec-list-title">Credits</h3>
+      <ng-container *ngTemplateOutlet="rowList; context: { $implicit: facts?.credits }"></ng-container>
+    </div>
+  </div>
+
+  <div class="ec-action-row">
+    <ng-container *ngTemplateOutlet="actionButtons"></ng-container>
+    <button type="button" class="ec-toggle" *ngIf="hasMore" (click)="expanded = !expanded" [attr.aria-expanded]="expanded" aria-controls="mu-expanded">
+      {{ expanded ? 'Show less' : 'Show more' }}
+      <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="expanded" aria-hidden="true"></i>
+    </button>
+  </div>
+  <ng-container *ngTemplateOutlet="moreLink"></ng-container>
+</section>
+
+<!-- ── LAYOUT B: stacked (900px and below) ── -->
+<section class="ec-b" [attr.aria-label]="entity.name">
+  <span class="ec-status" *ngIf="statusText" [ngClass]="'mu-status--' + tint"><span class="ec-status__dot" aria-hidden="true"></span>{{ statusText }}</span>
+  <img class="ec-hero mu-hero" *ngIf="kind === 'artist' && image as src" [src]="src" [alt]="entity.name" (error)="imageFailed = true" />
+
+  <div class="ec-identity">
+    <span class="ec-logo mu-thumb" [class.mu-thumb--round]="kind === 'artist'">
+      <img *ngIf="(kind === 'artist' ? null : image) as src" [src]="src" alt="" (error)="imageFailed = true" />
+    </span>
+    <div class="ec-identity__text">
+      <h1 class="ec-name">{{ entity.name }}</h1>
+      <p class="ec-meta" *ngIf="meta.length; else metaSkeleton"><span>{{ meta.join(' · ') }}</span></p>
+    </div>
+  </div>
+
+  <ng-container *ngTemplateOutlet="listenButtons"></ng-container>
+  <ng-container *ngTemplateOutlet="panel"></ng-container>
+  <ng-container *ngTemplateOutlet="summaryBlock"></ng-container>
+
+  <div class="ec-sections">
+    <div class="ec-skel ec-skel--section" *ngIf="facts === undefined"></div>
+    <div class="ec-section" *ngIf="tiles.length">
+      <button type="button" class="ec-section__head" (click)="toggleSection('facts')" [attr.aria-expanded]="openSections.has('facts')">
+        <strong>Facts</strong>
+        <span class="ec-section__preview">{{ tiles[0].label }} {{ tiles[0].value }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('facts')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('facts')">
+        <div class="ec-row" *ngFor="let tile of tiles">
+          <span class="ec-row__left">{{ tile.label }}<small *ngIf="tile.sub">{{ tile.sub }}</small></span>
+          <span class="ec-row__right">{{ tile.value }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ec-section" *ngIf="kind === 'album' && apple?.tracks?.length">
+      <button type="button" class="ec-section__head" (click)="toggleSection('tracks')" [attr.aria-expanded]="openSections.has('tracks')">
+        <strong>Tracklist</strong>
+        <span class="ec-section__preview">{{ apple?.trackCount }} tracks · {{ apple?.length }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('tracks')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('tracks')">
+        <ng-container *ngTemplateOutlet="rowList; context: { $implicit: trackRows(apple?.tracks) }"></ng-container>
+      </div>
+    </div>
+
+    <div class="ec-section" *ngIf="kind === 'artist' && apple?.topSongs?.length">
+      <button type="button" class="ec-section__head" (click)="toggleSection('songs')" [attr.aria-expanded]="openSections.has('songs')">
+        <strong>Top songs</strong>
+        <span class="ec-section__preview">{{ apple?.topSongs?.[0]?.name }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('songs')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('songs')">
+        <ng-container *ngTemplateOutlet="rowList; context: { $implicit: trackRows(apple?.topSongs, false) }"></ng-container>
+      </div>
+    </div>
+
+    <div class="ec-section" *ngIf="kind === 'artist' && (apple?.albums?.length || facts?.members?.length)">
+      <button type="button" class="ec-section__head" (click)="toggleSection('albums')" [attr.aria-expanded]="openSections.has('albums')">
+        <strong>{{ apple?.albums?.length ? 'Albums' : 'Members' }}</strong>
+        <span class="ec-section__preview">{{ apple?.albums?.length ? firstRow(apple?.albums) : firstRow(facts?.members) }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('albums')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('albums')">
+        <ng-container *ngTemplateOutlet="rowList; context: { $implicit: apple?.albums }"></ng-container>
+        <ng-container *ngIf="apple?.albums?.length && facts?.members?.length">
+          <h3 class="ec-list-title ec-list-title--spaced">Members</h3>
+          <ng-container *ngTemplateOutlet="rowList; context: { $implicit: facts?.members }"></ng-container>
+        </ng-container>
+        <ng-container *ngIf="!apple?.albums?.length">
+          <ng-container *ngTemplateOutlet="rowList; context: { $implicit: facts?.members }"></ng-container>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="ec-section" *ngIf="kind !== 'artist' && facts?.credits?.length">
+      <button type="button" class="ec-section__head" (click)="toggleSection('credits')" [attr.aria-expanded]="openSections.has('credits')">
+        <strong>Credits</strong>
+        <span class="ec-section__preview">{{ firstRow(facts?.credits) }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('credits')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('credits')">
+        <ng-container *ngTemplateOutlet="rowList; context: { $implicit: facts?.credits }"></ng-container>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngTemplateOutlet="actionButtons"></ng-container>
+  <ng-container *ngTemplateOutlet="moreLink"></ng-container>
+</section>
+
+<!-- ── Shared pieces ── -->
+<ng-template #metaSkeleton><span class="ec-skel ec-skel--meta" *ngIf="facts === undefined"></span></ng-template>
+
+<!-- Song: the preview and where the lyrics are. Album: reviews. Artist: the latest release. -->
+<ng-template #panel>
+  <ng-container [ngSwitch]="kind">
+    <ng-container *ngSwitchCase="'song'">
+      <div class="ec-skel ec-now mu-now--short" *ngIf="apple === undefined && facts === undefined"></div>
+      <div class="ec-now mu-panel mu-panel--pink" *ngIf="apple !== undefined || facts !== undefined" data-cy="find-music-panel">
+        <div class="mu-panel__block" *ngIf="apple?.track?.previewUrl as preview">
+          <span class="ec-now__label">Listen · 30-second preview</span>
+          <audio class="mu-audio" controls preload="none" [src]="preview"></audio>
+        </div>
+        <hr class="mu-divider" *ngIf="apple?.track?.previewUrl" />
+        <div class="mu-panel__block">
+          <span class="ec-now__label">Lyrics</span>
+          <a class="mu-lyrics" [href]="lyricsUrl" target="_blank" rel="noopener" data-cy="find-music-lyrics">
+            Read the lyrics on Genius <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+          </a>
+          <span class="mu-panel__note">Lyrics are licensed to Genius, so Find links to them.</span>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="'album'">
+      <div class="ec-now mu-panel mu-panel--pink" *ngIf="facts?.reviews?.length">
+        <span class="ec-now__label">Reviews</span>
+        <div class="mu-reviews">
+          <div class="mu-review" *ngFor="let review of facts?.reviews">
+            <strong>{{ review.score }}</strong>
+            <span>{{ review.source }}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngSwitchDefault>
+      <div class="ec-now mu-panel mu-panel--violet" *ngIf="apple?.latest as latest">
+        <span class="ec-now__label">Latest release</span>
+        <a class="mu-latest" [href]="latest.url" target="_blank" rel="noopener">
+          <img *ngIf="latest.artworkUrl" [src]="latest.artworkUrl" alt="" />
+          <span>
+            <strong>{{ latest.name }}</strong>
+            <small>{{ latest.kind }}<ng-container *ngIf="releaseDay(latest.released) as day"> · {{ day }}</ng-container></small>
+          </span>
+        </a>
+      </div>
+    </ng-container>
+  </ng-container>
+</ng-template>
+
+<ng-template #listenButtons>
+  <div class="mu-listen" *ngIf="facts !== undefined">
+    <a *ngFor="let action of listen; let first = first" class="ec-action" [class.ec-action--primary]="first" [href]="action.href" target="_blank" rel="noopener">
+      <i class="fa-solid" [ngClass]="action.icon" aria-hidden="true"></i>
+      <span>{{ action.label }}</span>
+    </a>
+  </div>
+</ng-template>
+
+<ng-template #rowList let-rows>
+  <ng-container *ngFor="let row of rows">
+    <a class="ec-row mu-row--link" *ngIf="row.url; else plainRow" [href]="row.url" target="_blank" rel="noopener">
+      <span class="ec-row__left">{{ row.name }}<small *ngIf="row.sub">{{ row.sub }}</small></span>
+      <span class="ec-row__right" *ngIf="row.value">{{ row.value }}</span>
+    </a>
+    <ng-template #plainRow>
+      <div class="ec-row">
+        <span class="ec-row__left">{{ row.name }}<small *ngIf="row.sub">{{ row.sub }}</small></span>
+        <span class="ec-row__right" *ngIf="row.value">{{ row.value }}</span>
+      </div>
+    </ng-template>
+  </ng-container>
+</ng-template>
+
+<ng-template #summaryBlock>
+  <div class="ec-skel ec-skel--summary" *ngIf="summary === undefined"></div>
+  <aside class="ec-summary" *ngIf="summary" aria-label="16Ahead summary">
+    <span class="ec-summary__head">
+      <img class="brand-mark--light" src="assets/brand/products/svg/light/01-16ahead.svg" alt="" width="22" height="22" /><img class="brand-mark--dark" src="assets/brand/products/svg/dark/01-16ahead.svg" alt="" width="22" height="22" />
+      <strong>16Ahead summary</strong>
+      <span *ngIf="summary.sources.length">· {{ summary.sources.join(', ') }}</span>
+    </span>
+    <p class="ec-summary__text">{{ summary.text }}</p>
+  </aside>
+</ng-template>
+
+<ng-template #actionButtons>
+  <div class="ec-actions" *ngIf="actions.length">
+    <a *ngFor="let action of actions; let first = first" class="ec-action" [class.ec-action--primary]="first" [href]="action.href" target="_blank" rel="noopener">
+      <i class="fa-solid" [ngClass]="action.icon" aria-hidden="true"></i>
+      <span class="ec-action__label">{{ action.label }}</span>
+      <span class="ec-action__short" aria-hidden="true">{{ action.shortLabel }}</span>
+    </a>
+  </div>
+</ng-template>
+
+<ng-template #moreLink>
+  <button type="button" class="ec-more" data-cy="find-entity-more" (click)="moreResults.emit()">
+    <span class="ec-more__label">More results for “{{ query }}”</span><span class="ec-more__count" *ngIf="moreCount">· {{ moreCount }}</span>
+    <span class="ec-more__circle" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+  </button>
+</ng-template>

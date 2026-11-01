@@ -56,7 +56,10 @@
           <app-find-region-card *ngIf="isRegionEntity(entity); else mediaCard" [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()" (search)="searchFromCard($event)"></app-find-region-card>
         </ng-template>
         <ng-template #mediaCard>
-          <app-find-media-card *ngIf="entity.type === 'movie' || entity.type === 'tv'; else placeCard" [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()"></app-find-media-card>
+          <app-find-media-card *ngIf="entity.type === 'movie' || entity.type === 'tv'; else musicCard" [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()"></app-find-media-card>
+        </ng-template>
+        <ng-template #musicCard>
+          <app-find-music-card *ngIf="entity.type === 'artist' || entity.type === 'album' || entity.type === 'song'; else placeCard" [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()"></app-find-music-card>
         </ng-template>
         <ng-template #placeCard>
           <app-find-business-card [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" [position]="entityPosition" (moreResults)="showAllResults()" (watched)="onEntityWatched($event)"></app-find-business-card>
