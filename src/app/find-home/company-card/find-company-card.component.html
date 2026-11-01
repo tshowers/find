@@ -1,0 +1,247 @@
+<!-- ── LAYOUT A: dashboard (above 900px) ── -->
+<section class="ec-a" data-cy="find-entity-card" [attr.aria-label]="entity.name">
+  <div class="ec-identity">
+    <span class="ec-logo fp-logo" [class.fp-logo--company]="isCompany">
+      <img *ngIf="logo as image" [src]="image" alt="" (error)="logoFailed = true" />
+    </span>
+    <div class="ec-identity__text">
+      <div class="ec-chips" *ngIf="overview?.tags?.length">
+        <span class="ec-chip" *ngFor="let tag of overview?.tags" [ngClass]="'ec-chip--' + tag.tone">{{ tag.text }}</span>
+      </div>
+      <h1 class="ec-name">{{ entity.name }}</h1>
+      <ng-container *ngTemplateOutlet="metaLine"></ng-container>
+    </div>
+  </div>
+
+  <div class="ec-grid fp-grid">
+    <div class="ec-col">
+      <div class="ec-skel fp-video-skel" *ngIf="overview === undefined"></div>
+      <app-find-video-player *ngIf="overview" [videos]="overview.videos" [name]="entity.name" [logoUrl]="logo"></app-find-video-player>
+      <div class="ec-skel ec-now" *ngIf="overview === undefined"></div>
+      <ng-container *ngTemplateOutlet="panel; context: { long: true }"></ng-container>
+    </div>
+
+    <div class="ec-col">
+      <ng-container *ngTemplateOutlet="summaryBlock"></ng-container>
+      <div class="ec-skel ec-skel--tiles" *ngIf="overview === undefined"></div>
+      <ng-container *ngTemplateOutlet="tiles"></ng-container>
+      <div *ngIf="overview?.groups?.length">
+        <h3 class="ec-list-title">Spaces</h3>
+        <ng-container *ngTemplateOutlet="groupRows"></ng-container>
+      </div>
+      <div *ngIf="overview?.usedBy?.length">
+        <h3 class="ec-list-title">Used by</h3>
+        <ng-container *ngTemplateOutlet="usedByRows"></ng-container>
+      </div>
+      <div *ngIf="overview?.founder">
+        <h3 class="ec-list-title">Founder</h3>
+        <ng-container *ngTemplateOutlet="founderRow"></ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="ec-expanded" *ngIf="expanded" id="fp-expanded">
+    <ng-container *ngTemplateOutlet="moreBlocks"></ng-container>
+  </div>
+
+  <div class="ec-action-row">
+    <ng-container *ngTemplateOutlet="actionButtons"></ng-container>
+    <button type="button" class="ec-toggle" *ngIf="hasMore" (click)="expanded = !expanded" [attr.aria-expanded]="expanded" aria-controls="fp-expanded">
+      {{ expanded ? 'Show less' : 'Show more' }}
+      <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="expanded" aria-hidden="true"></i>
+    </button>
+  </div>
+  <ng-container *ngTemplateOutlet="moreLink"></ng-container>
+</section>
+
+<!-- ── LAYOUT B: stacked (900px and below) ── -->
+<section class="ec-b" [attr.aria-label]="entity.name">
+  <div class="ec-identity">
+    <span class="ec-logo fp-logo" [class.fp-logo--company]="isCompany">
+      <img *ngIf="logo as image" [src]="image" alt="" (error)="logoFailed = true" />
+    </span>
+    <div class="ec-identity__text">
+      <h1 class="ec-name">{{ entity.name }}</h1>
+      <ng-container *ngTemplateOutlet="metaLine"></ng-container>
+    </div>
+  </div>
+
+  <div class="ec-skel fp-video-skel" *ngIf="overview === undefined"></div>
+  <app-find-video-player *ngIf="overview" [videos]="overview.videos" [chips]="true" [name]="entity.name" [logoUrl]="logo"></app-find-video-player>
+
+  <ng-container *ngTemplateOutlet="summaryBlock"></ng-container>
+  <ng-container *ngTemplateOutlet="tiles"></ng-container>
+
+  <!-- The company: Call / Email / Directions as three tiles. A product: How it works. -->
+  <div class="fp-contact-row" *ngIf="contacts.length">
+    <a *ngFor="let contact of contacts" class="fp-contact-tile" [href]="contact.url" [attr.target]="isWebLink(contact.url) ? '_blank' : null" [attr.rel]="isWebLink(contact.url) ? 'noopener' : null" [attr.data-cy]="'find-contact-' + contact.kind">
+      <span class="fp-contact__icon"><i class="fa-solid" [ngClass]="contactIcon(contact.kind)" aria-hidden="true"></i></span>
+      <span class="fp-contact-tile__label">{{ contact.label }}</span>
+    </a>
+  </div>
+  <ng-container *ngIf="!isCompany">
+    <ng-container *ngTemplateOutlet="panel; context: { long: false }"></ng-container>
+  </ng-container>
+
+  <div class="ec-sections">
+    <div class="ec-section" *ngIf="overview?.groups?.length">
+      <button type="button" class="ec-section__head" (click)="toggleSection('spaces')" [attr.aria-expanded]="openSections.has('spaces')">
+        <strong>Spaces</strong>
+        <span class="ec-section__preview">{{ overview?.groups?.[0]?.name }} · {{ productNames(overview?.groups?.[0]?.products || []) }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('spaces')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('spaces')">
+        <ng-container *ngTemplateOutlet="groupRows"></ng-container>
+      </div>
+    </div>
+    <div class="ec-section" *ngIf="overview?.usedBy?.length">
+      <button type="button" class="ec-section__head" (click)="toggleSection('used')" [attr.aria-expanded]="openSections.has('used')">
+        <strong>Used by</strong>
+        <span class="ec-section__preview">{{ productNames(overview?.usedBy || []) }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('used')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('used')">
+        <ng-container *ngTemplateOutlet="usedByRows"></ng-container>
+      </div>
+    </div>
+    <div class="ec-section" *ngIf="overview?.founder as founder">
+      <button type="button" class="ec-section__head" (click)="toggleSection('founder')" [attr.aria-expanded]="openSections.has('founder')">
+        <strong>Founder</strong>
+        <span class="ec-section__preview">{{ founder.name }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('founder')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('founder')">
+        <ng-container *ngTemplateOutlet="founderRow"></ng-container>
+      </div>
+    </div>
+    <div class="ec-section" *ngIf="hasMore">
+      <button type="button" class="ec-section__head" (click)="toggleSection('more')" [attr.aria-expanded]="openSections.has('more')">
+        <strong>{{ overview?.faq?.length ? 'Questions' : 'About' }}</strong>
+        <span class="ec-section__preview">{{ overview?.faq?.[0]?.q || overview?.more?.[0]?.title }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('more')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('more')">
+        <ng-container *ngTemplateOutlet="moreBlocks"></ng-container>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngTemplateOutlet="actionButtons"></ng-container>
+  <ng-container *ngTemplateOutlet="moreLink"></ng-container>
+</section>
+
+<!-- ── Shared pieces ── -->
+<ng-template #metaLine>
+  <p class="ec-meta" *ngIf="overview?.meta?.length; else metaSkeleton">
+    <span *ngFor="let item of overview?.meta" [class.fp-meta--strong]="item.strong">{{ item.value }}</span>
+  </p>
+  <ng-template #metaSkeleton><span class="ec-skel ec-skel--meta" *ngIf="overview === undefined"></span></ng-template>
+</ng-template>
+
+<ng-template #panel let-long="long">
+  <div class="ec-now fp-panel" *ngIf="overview?.panel as panel" data-cy="find-first-party-panel">
+    <span class="ec-now__label">{{ panel.label }}</span>
+    <ng-container *ngIf="panel.kind === 'contact'">
+      <strong class="fp-panel__title">{{ panel.title }}</strong>
+      <p class="fp-panel__text" *ngIf="panel.text">{{ panel.text }}</p>
+      <hr class="fp-divider" />
+      <div class="fp-contacts">
+        <a *ngFor="let contact of contacts" class="fp-contact" [href]="contact.url" [attr.target]="isWebLink(contact.url) ? '_blank' : null" [attr.rel]="isWebLink(contact.url) ? 'noopener' : null">
+          <span class="fp-contact__icon"><i class="fa-solid" [ngClass]="contactIcon(contact.kind)" aria-hidden="true"></i></span>
+          <strong>{{ contact.label }}</strong>
+          <span>{{ contact.value }}</span>
+        </a>
+      </div>
+    </ng-container>
+    <ol class="fp-steps" *ngIf="panel.kind === 'steps'" [class.fp-steps--three]="steps.length === 3" [class.fp-steps--list]="!long">
+      <li class="fp-step" *ngFor="let step of steps; let i = index">
+        <strong class="fp-step__number">{{ i + 1 }}</strong>
+        <span>{{ step }}</span>
+      </li>
+    </ol>
+  </div>
+</ng-template>
+
+<ng-template #tiles>
+  <div class="ec-tiles" *ngIf="overview?.tiles?.length">
+    <div class="ec-tile" *ngFor="let tile of overview?.tiles">
+      <span class="ec-tile__label">{{ tile.label }}</span>
+      <strong class="ec-tile__value">{{ tile.value }}</strong>
+      <span class="ec-tile__sub" *ngIf="tile.sub">{{ tile.sub }}</span>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #groupRows>
+  <div class="ec-row fp-group" *ngFor="let group of overview?.groups">
+    <span class="ec-row__left">{{ group.name }}<small>{{ productNames(group.products) }}</small></span>
+    <span class="fp-icons">
+      <a *ngFor="let product of group.products.slice(0, 5)" [href]="product.url" target="_blank" rel="noopener" [attr.aria-label]="product.name" [title]="product.name">
+        <img [src]="product.iconUrl" alt="" width="26" height="26" />
+      </a>
+    </span>
+  </div>
+</ng-template>
+
+<ng-template #usedByRows>
+  <a class="ec-row fp-used" *ngFor="let use of overview?.usedBy" [href]="use.url" target="_blank" rel="noopener">
+    <span class="fp-used__text"><img [src]="use.iconUrl" alt="" width="28" height="28" /><span><strong>{{ use.name }}</strong> {{ use.text }}</span></span>
+  </a>
+</ng-template>
+
+<ng-template #founderRow>
+  <div class="ec-row fp-founder" *ngIf="overview?.founder as founder">
+    <span class="fp-founder__who">
+      <img [src]="founder.photoUrl" alt="" width="52" height="52" />
+      <span class="ec-row__left">{{ founder.name }}<small>{{ founder.role }}</small></span>
+    </span>
+    <a class="fp-pill" *ngIf="founder.linkedin" [href]="founder.linkedin" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</ng-template>
+
+<ng-template #moreBlocks>
+  <div *ngFor="let block of overview?.more">
+    <h3 class="ec-list-title">{{ block.title }}</h3>
+    <div class="ec-row" *ngFor="let row of block.rows">
+      <span class="ec-row__left">{{ row.name }}</span>
+      <span class="ec-row__right">{{ row.value }}</span>
+    </div>
+    <p class="fp-more__text" *ngIf="block.text">{{ block.text }}</p>
+  </div>
+  <div *ngIf="overview?.faq?.length">
+    <h3 class="ec-list-title">Questions</h3>
+    <div class="fp-faq" *ngFor="let item of overview?.faq">
+      <strong>{{ item.q }}</strong>
+      <p>{{ item.a }}</p>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #summaryBlock>
+  <div class="ec-skel ec-skel--summary" *ngIf="summary === undefined"></div>
+  <aside class="ec-summary" *ngIf="summary" aria-label="16Ahead summary">
+    <span class="ec-summary__head">
+      <img class="brand-mark--light" src="assets/brand/products/svg/light/01-16ahead.svg" alt="" width="22" height="22" /><img class="brand-mark--dark" src="assets/brand/products/svg/dark/01-16ahead.svg" alt="" width="22" height="22" />
+      <strong>16Ahead summary</strong>
+      <span *ngIf="summary.sources.length">· {{ summary.sources.join(', ') }}</span>
+    </span>
+    <p class="ec-summary__text">{{ summary.text }}</p>
+  </aside>
+</ng-template>
+
+<ng-template #actionButtons>
+  <div class="ec-actions" *ngIf="overview?.actions?.length">
+    <a *ngFor="let action of overview?.actions; let first = first" class="ec-action" [class.ec-action--primary]="first" [href]="action.url" [attr.target]="isWebLink(action.url) ? '_blank' : null" [attr.rel]="isWebLink(action.url) ? 'noopener' : null">
+      <i class="fa-solid" [ngClass]="actionIcon(action.kind)" aria-hidden="true"></i>
+      <span class="ec-action__label">{{ action.label }}</span>
+      <span class="ec-action__short" aria-hidden="true">{{ action.shortLabel }}</span>
+    </a>
+  </div>
+</ng-template>
+
+<ng-template #moreLink>
+  <button type="button" class="ec-more" data-cy="find-entity-more" (click)="moreResults.emit()">
+    <span class="ec-more__label">More results for “{{ query }}”</span><span class="ec-more__count" *ngIf="moreCount">· {{ moreCount }}</span>
+    <span class="ec-more__circle" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+  </button>
+</ng-template>

@@ -1,0 +1,243 @@
+/* Our company and products (design_handoff_find_taliferro_results 5a–5c),
+   on top of find-entity-card.component.css: the video column is the wider
+   one here (6fr / 5fr), the cyan panel holds contact tiles or numbered
+   steps, and the lists carry product icons. */
+.fp-grid {
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+}
+
+/* The company's swirl sits on white, like the design. */
+.fp-logo--company {
+  background: #fff;
+}
+
+.fp-meta--strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.fp-video-skel {
+  aspect-ratio: 16 / 9;
+  border-radius: 28px;
+}
+
+.fp-panel__title {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.fp-panel__text {
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.fp-divider {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-top: 1.5px solid currentColor;
+  opacity: 0.5;
+}
+
+.fp-contacts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fp-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--bg);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.fp-contact:hover {
+  filter: brightness(0.94);
+}
+
+.fp-contact strong {
+  margin-top: 10px;
+  font-size: 15px;
+}
+
+.fp-contact span:last-child {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fp-contact__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 16px;
+}
+
+.fp-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fp-step {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
+  border-radius: 20px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.fp-step__number {
+  color: var(--t-cyan-fg);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Three steps fit one row; four make a 2×2 grid. */
+.fp-steps--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Layout B: steps as a numbered list. */
+.fp-steps--list {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.fp-steps--list .fp-step {
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+}
+
+.fp-steps--list .fp-step__number {
+  font-size: 22px;
+}
+
+.fp-icons {
+  display: flex;
+  gap: 6px;
+}
+
+.fp-icons img {
+  display: block;
+  border-radius: 7px;
+}
+
+.fp-used {
+  color: inherit;
+  text-decoration: none;
+}
+
+.fp-used__text {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+}
+
+.fp-used__text img {
+  border-radius: 8px;
+}
+
+.fp-used:hover strong {
+  text-decoration: underline;
+}
+
+.fp-founder {
+  align-items: center;
+}
+
+.fp-founder__who {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.fp-founder__who img {
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.fp-pill {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.fp-more__text {
+  padding-top: 10px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.fp-faq {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 0;
+  border-top: 1px solid var(--surface2);
+  font-size: 15px;
+}
+
+.fp-faq p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* Layout B: Call / Email / Directions as three tiles. */
+.fp-contact-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fp-contact-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 8px;
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.fp-contact-tile .fp-contact__icon {
+  width: 44px;
+  height: 44px;
+}
+
+@media (max-width: 900px) {
+  .fp-video-skel {
+    border-radius: 22px;
+  }
+}
