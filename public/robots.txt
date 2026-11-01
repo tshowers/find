@@ -1,4 +1,11 @@
 User-agent: *
 Allow: /
+# Search results are one visitor's answer, not pages to index. Guides
+# (/guides/) are the indexed pages built from what people search for.
+Disallow: /*?query=
+Disallow: /*&query=
+Disallow: /*?q=
+Disallow: /*?findQuery=
 
 Sitemap: https://find.16ahead.com/sitemap.xml
+Sitemap: https://find.16ahead.com/guides/sitemap.xml

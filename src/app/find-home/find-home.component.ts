@@ -242,6 +242,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
       const nextContext = String( params.get( 'context' ) || '' ).trim();
       const requestedView = params.get( 'view' );
       this.isForwardedQuery = params.has( 'q' ) && !params.has( 'query' );
+      this.seo.setIndexable( !next );
       if ( next ) {
         this.query = next;
         this.activeContext = nextContext;
@@ -1437,9 +1438,11 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     }
 
     const singleParagraph = explicitParagraphs[0];
-    const sentences = singleParagraph.match( /[^.!?]+(?:[.!?]+|$)/g )
-      ?.map( sentence => sentence.trim() )
-      .filter( Boolean ) || [];
+    // A sentence ends at punctuation followed by a space, so the dots inside
+    // a web address like "https://aetherapparel.com/" don't split it.
+    const sentences = singleParagraph.split( /(?<=[.!?])\s+/ )
+      .map( sentence => sentence.trim() )
+      .filter( Boolean );
 
     if ( singleParagraph.length < 240 || sentences.length < 4 ) {
       return explicitParagraphs;

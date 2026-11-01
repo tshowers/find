@@ -20,4 +20,18 @@ export class SeoService {
     }
     link.setAttribute('href', url);
   }
+
+  /**
+   * Whether search engines may index the page. Search results aren't
+   * (robots.txt also keeps crawlers off result URLs); everything else is.
+   */
+  setIndexable(indexable: boolean): void {
+    let tag = this.document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (!tag) {
+      tag = this.document.createElement('meta');
+      tag.setAttribute('name', 'robots');
+      this.document.head.appendChild(tag);
+    }
+    tag.setAttribute('content', indexable ? 'index, follow' : 'noindex, follow');
+  }
 }

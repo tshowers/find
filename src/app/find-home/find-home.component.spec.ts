@@ -181,6 +181,13 @@ describe('FindHomeComponent', () => {
 
   // --- Single-item results ---
 
+  it('a web address inside a summary stays on one line (2026-11-01)', () => {
+    const summary = 'AETHER Apparel is a brand that offers high-quality clothing and accessories designed for outdoor adventures and everyday wear. Their collections include insulated and non-insulated jackets, mid and base layers, and a variety of apparel for both men and women. You can explore their latest offerings and shop directly on their website at https://aetherapparel.com/. New styles arrive every season.';
+    const html = component.formatRichText(summary);
+    expect(html).toContain('https://aetherapparel.com/.');
+    expect(html).not.toContain('<p>com/.');
+  });
+
   it('shows one team card while the search runs, and "More results" swaps in the list', fakeAsync(() => {
     component.query = 'Chicago Bears';
     harness.detectChanges();
