@@ -195,8 +195,8 @@ export interface FindMovieRatings {
 // Single-item results (docs/design_handoff_find_single_results): a query that
 // clearly names one thing gets one rich card: an NFL, NBA, MLB or college
 // team, a store, a restaurant, a local service, a 16Ahead Store shop, or
-// (round 5) a country, US state or city.
-export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service' | 'shop' | 'country' | 'state' | 'city';
+// (round 5) a country, US state, city, movie or TV show.
+export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service' | 'shop' | 'country' | 'state' | 'city' | 'movie' | 'tv';
 export type FindSportsLeague = 'nfl' | 'nba' | 'mlb' | 'college-football' | 'mens-college-basketball';
 
 export interface FindEntity {
@@ -220,7 +220,7 @@ export interface FindEntity {
   tintFgDark?: string | null;
 }
 
-export type FindEntitySection = 'team' | 'games' | 'leaders' | 'news' | 'summary' | 'place' | 'details' | 'sale' | 'shop' | 'region' | 'local' | 'todo';
+export type FindEntitySection = 'team' | 'games' | 'leaders' | 'news' | 'summary' | 'place' | 'details' | 'sale' | 'shop' | 'region' | 'local' | 'todo' | 'title' | 'facts' | 'show';
 
 export interface FindStatTile { label: string; value: string; sub: string }
 export interface FindEntityTag { text: string; tone: 'blue' | 'green' | 'cyan' | 'pink' | 'violet' | 'yellow' | 'plain' }
@@ -303,6 +303,53 @@ export interface FindRegionLocal {
 }
 
 export interface FindRegionTodo { rows: FindListRow[] }
+
+// Movies and TV shows (round 5, types 1–2): OMDb scores and facts (title),
+// Wikidata money and cast roles (facts, movies), TVmaze episodes (show, TV).
+export interface FindMediaScore { source: 'imdb' | 'rt' | 'mc'; label: string; value: string; scale: string }
+
+export interface FindMediaTitleSection {
+  posterUrl: string | null;
+  tags: FindEntityTag[];
+  meta: string[];
+  scores: FindMediaScore[];
+  scoresVia: string;
+  plot: string;
+  awards: string;
+  tiles: FindStatTile[];
+  /** Movies: theaters (about ten weeks after opening), coming, or released. */
+  status?: 'theaters' | 'coming' | 'released';
+  released?: string | null;
+  cast?: FindListRow[];
+  crew?: FindListRow[];
+  links: { imdb: string; trailer: string; tickets?: string; watch?: string };
+}
+
+export interface FindMovieFactsSection {
+  tiles: FindStatTile[];
+  cast: FindListRow[] | null;
+  composer: string;
+  distributors: string[];
+  links: { website: string; wikipedia: string };
+}
+
+export interface FindTvEpisode { code: string; name: string; airstamp: string | null; airdate: string; runtime: number | null }
+
+export interface FindTvShowSection {
+  status: string;
+  statusTag: string;
+  service: string;
+  serviceUrl: string;
+  next: FindTvEpisode | null;
+  latest: FindTvEpisode | null;
+  imageUrl: string | null;
+  tiles: FindStatTile[];
+  seasons: FindListRow[];
+  cast: FindListRow[];
+  episodes: FindListRow[];
+  currentSeason: number | null;
+  links: { guide: string };
+}
 export interface FindRegionNews { articles: Array<{ headline: string; source: string; published: string | null; url: string; imageUrl: string | null }> }
 
 export interface FindPlaceLocation {

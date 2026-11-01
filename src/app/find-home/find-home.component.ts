@@ -21,6 +21,7 @@ import { FindEntityCardComponent } from './entity-card/find-entity-card.componen
 import { FindBusinessCardComponent } from './business-card/find-business-card.component';
 import { FindShopCardComponent } from './shop-card/find-shop-card.component';
 import { FindRegionCardComponent } from './region-card/find-region-card.component';
+import { FindMediaCardComponent } from './media-card/find-media-card.component';
 
 type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info' | 'awards';
 
@@ -64,7 +65,7 @@ function distanceMeters ( from: { latitude: number; longitude: number }, latitud
 @Component( {
   selector: 'app-find-home',
   standalone: true,
-  imports: [ FindEntityCardComponent, FindBusinessCardComponent, FindShopCardComponent, FindRegionCardComponent, MarketStripComponent, AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
+  imports: [ FindEntityCardComponent, FindBusinessCardComponent, FindShopCardComponent, FindRegionCardComponent, FindMediaCardComponent, MarketStripComponent, AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
   templateUrl: './find-home.component.html',
   styleUrls: ['./find-home.component.css', './find-home.grid.css', './find-home.features.css'],
   // The prerendered "/" always contains the home screen, but a `?query=` or
@@ -1907,6 +1908,8 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     if ( this.entity?.type === 'sports' ) return 'Scores and stats from ESPN';
     if ( this.entity?.type === 'shop' ) return 'Products and prices from 16Ahead Store';
     if ( this.isRegionEntity( this.entity ) ) return 'Facts from Wikidata · weather from Open-Meteo';
+    if ( this.entity?.type === 'movie' ) return 'Ratings via OMDb · box office and cast from Wikidata';
+    if ( this.entity?.type === 'tv' ) return 'Ratings via OMDb · episodes from TVmaze';
     return 'Hours, locations and ratings from Google';
   }
 

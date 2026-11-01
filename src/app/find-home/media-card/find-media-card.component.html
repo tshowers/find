@@ -1,0 +1,258 @@
+<!-- ── LAYOUT A: dashboard (above 900px) ── -->
+<section class="ec-a" data-cy="find-entity-card" [attr.aria-label]="entity.name">
+  <div class="ec-identity mc-identity">
+    <span class="mc-poster">
+      <img *ngIf="poster as image" [src]="image" [alt]="entity.name + ' poster'" (error)="posterFailed = true" />
+    </span>
+    <div class="ec-identity__text">
+      <div class="ec-chips">
+        <span class="ec-chip" *ngFor="let tag of tags" [ngClass]="'ec-chip--' + tag.tone">{{ tag.text }}</span>
+      </div>
+      <h1 class="ec-name">{{ entity.name }}</h1>
+      <ng-container *ngTemplateOutlet="scorePills"></ng-container>
+      <p class="ec-meta" *ngIf="title?.meta?.length; else metaSkeleton">
+        <span *ngFor="let item of title?.meta">{{ item }}</span>
+        <span *ngIf="!isMovie && show?.service">{{ show?.service }}</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="ec-grid">
+    <div class="ec-col">
+      <div class="ec-skel ec-now mc-now--short" *ngIf="isMovie ? title === undefined : show === undefined"></div>
+      <ng-container *ngTemplateOutlet="isMovie ? moviePanel : tvPanel"></ng-container>
+    </div>
+
+    <div class="ec-col">
+      <ng-container *ngTemplateOutlet="summaryBlock"></ng-container>
+      <div class="ec-skel ec-skel--tiles" *ngIf="title === undefined"></div>
+      <div class="ec-tiles" *ngIf="tiles.length">
+        <div class="ec-tile" *ngFor="let tile of tiles">
+          <span class="ec-tile__label">{{ tile.label }}</span>
+          <strong class="ec-tile__value">{{ tile.value }}</strong>
+          <span class="ec-tile__sub" *ngIf="tile.sub">{{ tile.sub }}</span>
+        </div>
+      </div>
+      <div *ngIf="isMovie && cast.length">
+        <h3 class="ec-list-title">Cast</h3>
+        <ng-container *ngTemplateOutlet="rowList; context: { $implicit: cast }"></ng-container>
+      </div>
+      <div *ngIf="!isMovie && show?.seasons?.length">
+        <h3 class="ec-list-title">Seasons</h3>
+        <ng-container *ngTemplateOutlet="rowList; context: { $implicit: show?.seasons }"></ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="ec-expanded" *ngIf="expanded" id="mc-expanded">
+    <ng-container *ngIf="isMovie; else tvMore">
+      <div *ngIf="crew.length">
+        <h3 class="ec-list-title">Crew</h3>
+        <ng-container *ngTemplateOutlet="rowList; context: { $implicit: crew }"></ng-container>
+      </div>
+      <div *ngIf="title?.scores?.length">
+        <h3 class="ec-list-title">Scores</h3>
+        <div class="ec-row" *ngFor="let score of title?.scores">
+          <span class="ec-row__left">{{ score.label }}</span>
+          <span class="ec-row__right">{{ score.value }}{{ score.scale }}</span>
+        </div>
+      </div>
+      <div *ngIf="title?.awards">
+        <h3 class="ec-list-title">Awards</h3>
+        <p class="mc-awards">{{ title?.awards }}</p>
+      </div>
+    </ng-container>
+    <ng-template #tvMore>
+      <div *ngIf="cast.length">
+        <h3 class="ec-list-title">Cast</h3>
+        <ng-container *ngTemplateOutlet="rowList; context: { $implicit: cast }"></ng-container>
+      </div>
+      <div *ngIf="show?.episodes?.length">
+        <h3 class="ec-list-title">Season {{ show?.currentSeason }} episodes</h3>
+        <ng-container *ngTemplateOutlet="rowList; context: { $implicit: show?.episodes }"></ng-container>
+      </div>
+      <div *ngIf="title?.awards">
+        <h3 class="ec-list-title">Awards</h3>
+        <p class="mc-awards">{{ title?.awards }}</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="ec-action-row">
+    <ng-container *ngTemplateOutlet="actionButtons"></ng-container>
+    <button type="button" class="ec-toggle" *ngIf="hasMore" (click)="expanded = !expanded" [attr.aria-expanded]="expanded" aria-controls="mc-expanded">
+      {{ expanded ? 'Show less' : 'Show more' }}
+      <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="expanded" aria-hidden="true"></i>
+    </button>
+  </div>
+  <ng-container *ngTemplateOutlet="moreLink"></ng-container>
+</section>
+
+<!-- ── LAYOUT B: stacked (900px and below) ── -->
+<section class="ec-b" [attr.aria-label]="entity.name">
+  <span class="ec-status" *ngIf="statusText" [ngClass]="'mc-status--' + tint"><span class="ec-status__dot" aria-hidden="true"></span>{{ statusText }}</span>
+
+  <div class="ec-identity mc-identity">
+    <span class="mc-poster">
+      <img *ngIf="poster as image" [src]="image" [alt]="entity.name + ' poster'" (error)="posterFailed = true" />
+    </span>
+    <div class="ec-identity__text">
+      <h1 class="ec-name">{{ entity.name }}</h1>
+      <p class="ec-meta" *ngIf="title?.meta?.length; else metaSkeleton"><span>{{ title?.meta?.join(' · ') }}</span></p>
+    </div>
+  </div>
+
+  <ng-container *ngTemplateOutlet="scorePills"></ng-container>
+  <ng-container *ngTemplateOutlet="isMovie ? moviePanel : tvPanel"></ng-container>
+  <ng-container *ngTemplateOutlet="summaryBlock"></ng-container>
+
+  <div class="ec-sections">
+    <div class="ec-skel ec-skel--section" *ngIf="title === undefined"></div>
+    <div class="ec-section" *ngIf="tiles.length">
+      <button type="button" class="ec-section__head" (click)="toggleSection('facts')" [attr.aria-expanded]="openSections.has('facts')">
+        <strong>{{ isMovie ? 'Box office and facts' : 'Facts' }}</strong>
+        <span class="ec-section__preview">{{ tiles[0].label }} {{ tiles[0].value }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('facts')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('facts')">
+        <div class="ec-row" *ngFor="let tile of tiles">
+          <span class="ec-row__left">{{ tile.label }}<small *ngIf="tile.sub">{{ tile.sub }}</small></span>
+          <span class="ec-row__right">{{ tile.value }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ec-section" *ngIf="cast.length">
+      <button type="button" class="ec-section__head" (click)="toggleSection('cast')" [attr.aria-expanded]="openSections.has('cast')">
+        <strong>Cast</strong>
+        <span class="ec-section__preview">{{ firstRow(cast) }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('cast')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('cast')">
+        <ng-container *ngTemplateOutlet="rowList; context: { $implicit: cast }"></ng-container>
+      </div>
+    </div>
+
+    <div class="ec-section" *ngIf="isMovie ? crew.length : show?.seasons?.length">
+      <button type="button" class="ec-section__head" (click)="toggleSection('more')" [attr.aria-expanded]="openSections.has('more')">
+        <strong>{{ isMovie ? 'Crew and awards' : 'Seasons and episodes' }}</strong>
+        <span class="ec-section__preview">{{ isMovie ? firstRow(crew) : firstRow(show?.seasons) }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('more')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('more')">
+        <ng-container *ngIf="isMovie; else tvSections">
+          <ng-container *ngTemplateOutlet="rowList; context: { $implicit: crew }"></ng-container>
+          <p class="mc-awards mc-awards--spaced" *ngIf="title?.awards">{{ title?.awards }}</p>
+        </ng-container>
+        <ng-template #tvSections>
+          <ng-container *ngTemplateOutlet="rowList; context: { $implicit: show?.seasons }"></ng-container>
+          <ng-container *ngIf="show?.episodes?.length">
+            <h3 class="ec-list-title ec-list-title--spaced">Season {{ show?.currentSeason }} episodes</h3>
+            <ng-container *ngTemplateOutlet="rowList; context: { $implicit: show?.episodes }"></ng-container>
+          </ng-container>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngTemplateOutlet="actionButtons"></ng-container>
+  <ng-container *ngTemplateOutlet="moreLink"></ng-container>
+</section>
+
+<!-- ── Shared pieces ── -->
+<ng-template #metaSkeleton><span class="ec-skel ec-skel--meta" *ngIf="title === undefined"></span></ng-template>
+
+<ng-template #scorePills>
+  <div class="mc-scores" *ngIf="title?.scores?.length" data-cy="find-media-scores">
+    <div class="mc-scores__pills">
+      <span class="mc-score" *ngFor="let score of title?.scores">
+        <img class="mc-score__icon" [src]="scoreIcon(score.source)" [alt]="score.label" />
+        <strong>{{ score.value }}</strong><small *ngIf="score.scale">{{ score.scale }}</small>
+      </span>
+    </div>
+    <span class="mc-scores__via">{{ title?.scoresVia }}</span>
+  </div>
+</ng-template>
+
+<!-- Movie: where to watch it, from its release date; awards. -->
+<ng-template #moviePanel>
+  <div class="ec-now mc-panel mc-panel--violet" *ngIf="release as release" data-cy="find-media-panel">
+    <div class="mc-panel__block">
+      <span class="ec-now__label">Where to watch</span>
+      <strong class="mc-panel__headline">{{ release.headline }}</strong>
+      <span class="mc-panel__line" *ngIf="release.line">{{ release.line }}</span>
+    </div>
+    <ng-container *ngIf="title?.awards">
+      <hr class="mc-divider" />
+      <div class="mc-panel__block">
+        <span class="ec-now__label">Awards</span>
+        <span class="mc-panel__text">{{ title?.awards }}</span>
+      </div>
+    </ng-container>
+  </div>
+</ng-template>
+
+<!-- TV: next and latest episode, and the service it's on. -->
+<ng-template #tvPanel>
+  <div class="ec-now mc-panel mc-panel--cyan" *ngIf="show && (show.next || show.latest || show.service)" data-cy="find-media-panel">
+    <div class="mc-panel__block" *ngIf="show.next as next">
+      <span class="ec-now__label">Next episode</span>
+      <strong class="mc-panel__headline">{{ next.code }}<ng-container *ngIf="next.name"> · {{ next.name }}</ng-container></strong>
+      <span class="mc-panel__line">{{ episodeDay(next) }}<ng-container *ngIf="episodeTime(next) as time"> · {{ time }}</ng-container><ng-container *ngIf="show.service"> · {{ show.service }}</ng-container></span>
+    </div>
+    <ng-container *ngIf="show.latest as latest">
+      <hr class="mc-divider" *ngIf="show.next" />
+      <div class="mc-panel__block">
+        <span class="ec-now__label">Latest episode</span>
+        <strong class="mc-panel__headline" [class.mc-panel__headline--small]="!!show.next">{{ latest.code }}<ng-container *ngIf="latest.name"> · {{ latest.name }}</ng-container></strong>
+        <span class="mc-panel__line">Aired {{ episodeDay(latest) }}<ng-container *ngIf="latest.runtime"> · {{ latest.runtime }} min</ng-container></span>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="show.service">
+      <hr class="mc-divider" />
+      <div class="mc-panel__block">
+        <span class="ec-now__label">Where to watch</span>
+        <div class="mc-providers">
+          <a class="mc-provider" *ngIf="show.serviceUrl; else plainService" [href]="show.serviceUrl" target="_blank" rel="noopener">{{ show.service }}</a>
+          <ng-template #plainService><span class="mc-provider">{{ show.service }}</span></ng-template>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</ng-template>
+
+<ng-template #rowList let-rows>
+  <div class="ec-row" *ngFor="let row of rows">
+    <span class="ec-row__left">{{ row.name }}<small *ngIf="row.sub">{{ row.sub }}</small></span>
+    <span class="ec-row__right" *ngIf="row.value">{{ row.value }}</span>
+  </div>
+</ng-template>
+
+<ng-template #summaryBlock>
+  <div class="ec-skel ec-skel--summary" *ngIf="summary === undefined"></div>
+  <aside class="ec-summary" *ngIf="summary" aria-label="16Ahead summary">
+    <span class="ec-summary__head">
+      <img class="brand-mark--light" src="assets/brand/products/svg/light/01-16ahead.svg" alt="" width="22" height="22" /><img class="brand-mark--dark" src="assets/brand/products/svg/dark/01-16ahead.svg" alt="" width="22" height="22" />
+      <strong>16Ahead summary</strong>
+      <span *ngIf="summary.sources.length">· {{ summary.sources.join(', ') }}</span>
+    </span>
+    <p class="ec-summary__text">{{ summary.text }}</p>
+  </aside>
+</ng-template>
+
+<ng-template #actionButtons>
+  <div class="ec-actions" *ngIf="actions.length">
+    <a *ngFor="let action of actions; let first = first" class="ec-action" [class.ec-action--primary]="first" [href]="action.href" target="_blank" rel="noopener">
+      <i class="fa-solid" [ngClass]="action.icon" aria-hidden="true"></i>
+      <span class="ec-action__label">{{ action.label }}</span>
+      <span class="ec-action__short" aria-hidden="true">{{ action.shortLabel }}</span>
+    </a>
+  </div>
+</ng-template>
+
+<ng-template #moreLink>
+  <button type="button" class="ec-more" data-cy="find-entity-more" (click)="moreResults.emit()">
+    <span class="ec-more__label">More results for “{{ query }}”</span><span class="ec-more__count" *ngIf="moreCount">· {{ moreCount }}</span>
+    <span class="ec-more__circle" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+  </button>
+</ng-template>

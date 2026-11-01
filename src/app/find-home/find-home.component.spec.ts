@@ -331,6 +331,45 @@ describe('FindHomeComponent', () => {
     drainSummarize();
   }));
 
+  it('shows a movie card with only the scores OMDb returned, and Get tickets while it is in theaters', fakeAsync(() => {
+    component.query = 'the long field movie';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: { type: 'movie', label: 'Movie', id: 'tt0000001.Q1', name: 'The Long Field', logoUrl: null },
+    });
+    tick();
+    harness.detectChanges();
+
+    const sections = http.match(r => r.url.endsWith('/find/entity/section'));
+    expect(sections.map(req => req.request.body.section).sort()).toEqual([ 'facts', 'summary', 'title' ]);
+    sections.find(req => req.request.body.section === 'title')!.flush({
+      data: {
+        posterUrl: null, tags: [ { text: 'Movie', tone: 'violet' }, { text: 'In theaters', tone: 'pink' } ], meta: [ 'PG-13', '2h 14m' ],
+        scores: [ { source: 'imdb', label: 'IMDb', value: '7.9', scale: '/10' }, { source: 'rt', label: 'Rotten Tomatoes', value: '91%', scale: '' } ],
+        scoresVia: 'Ratings via OMDb (IMDb, Rotten Tomatoes)', plot: '', awards: '', tiles: [ { label: 'US gross', value: '$85.3M', sub: 'Via OMDb' } ],
+        status: 'theaters', released: '2026-10-17', cast: [ { name: 'Daniel Reyes', value: '', sub: '' } ], crew: [],
+        links: { imdb: 'https://www.imdb.com/title/tt0000001/', trailer: 'https://www.youtube.com/results?search_query=x', tickets: 'https://www.fandango.com/search?q=The%20Long%20Field', watch: 'https://www.justwatch.com/us/search?q=x' },
+      },
+    });
+    sections.filter(req => req.request.body.section !== 'title').forEach(req => req.flush({ data: null }));
+    harness.detectChanges();
+
+    const card = root().querySelector('[data-cy="find-entity-card"]');
+    expect(card?.querySelectorAll('[data-cy="find-media-scores"] .mc-score').length).toBe(2);
+    expect(card?.textContent).toContain('Ratings via OMDb (IMDb, Rotten Tomatoes)');
+    expect(card?.querySelector('[data-cy="find-media-panel"]')?.textContent).toContain('In theaters now');
+    const primary = card?.querySelector<HTMLAnchorElement>('.ec-action--primary');
+    expect(primary?.textContent).toContain('Get tickets');
+    expect(primary?.href).toContain('fandango.com');
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('the long field movie'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+  }));
+
   // --- 1. The "Find" search button ---
 
   it('submits the typed query, runs a search, and saves it to history', fakeAsync(() => {
