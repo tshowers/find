@@ -409,7 +409,7 @@ describe('FindHomeComponent', () => {
     drainSummarize();
   }));
 
-  it('shows a Taliferro Music artist with Taliferro Music Radio and Bandcamp, not tour dates', fakeAsync(() => {
+  it('shows a Taliferro Music artist: only where they are to listen, and Taliferro Music Radio', fakeAsync(() => {
     component.query = 'calima shatiday';
     harness.detectChanges();
     submitButton().click();
@@ -427,14 +427,18 @@ describe('FindHomeComponent', () => {
         tiles: [ { label: 'Genre', value: 'Downtempo, Chillout', sub: '' }, { label: 'Label', value: 'Taliferro Music', sub: '' } ],
         credits: [], members: [], reviews: [],
         links: { spotify: '', youtube: '', genius: '', website: 'https://calimashatiday.bandcamp.com', wikipedia: '', bandcamp: 'https://calimashatiday.bandcamp.com', radio: 'https://music.taliferro.com' },
+        appleId: '307747843',
       },
     });
     sections.find(req => req.request.body.section === 'apple')!.flush({ data: null });
     sections.find(req => req.request.body.section === 'summary')!.flush({ data: null });
     harness.detectChanges();
 
+    // Not on Spotify here: no Spotify search, no YouTube search.
+    const listen = Array.from(root().querySelectorAll<HTMLAnchorElement>('[data-cy="find-entity-card"] .mu-listen a'));
+    expect(listen.map(action => action.href)).toEqual([ 'https://music.apple.com/us/artist/307747843', 'https://calimashatiday.bandcamp.com/' ]);
     const actions = Array.from(root().querySelectorAll<HTMLAnchorElement>('[data-cy="find-entity-card"] .ec-actions a'));
-    expect(actions.map(action => action.href)).toEqual([ 'https://music.taliferro.com/', 'https://calimashatiday.bandcamp.com/' ]);
+    expect(actions.map(action => action.href)).toEqual([ 'https://music.taliferro.com/' ]);
     expect(actions[0].textContent).toContain('Taliferro Music Radio');
     expect(root().textContent).toContain('A Taliferro Music artist');
 

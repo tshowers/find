@@ -143,10 +143,12 @@
 .mu-status--violet { background: var(--t-violet); color: var(--t-violet-fg); }
 
 @media (max-width: 900px) {
-  /* Three equal tiles: Spotify, Apple Music, YouTube Music. */
+  /* Equal tiles, however many: Spotify, Apple Music, YouTube Music, or a
+     Taliferro Music artist's own two or three. */
   .mu-listen {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
   }
 
   .mu-panel {

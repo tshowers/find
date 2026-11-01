@@ -133,6 +133,16 @@ export class FindMusicCardComponent implements OnChanges, OnDestroy {
   get listen (): MusicAction[] {
     const links = this.facts?.links;
     const text = encodeURIComponent( this.searchText );
+    if ( links?.radio ) {
+      // A Taliferro Music artist: only where they really are, no searches.
+      const apple = this.apple?.links.apple || ( this.facts?.appleId ? `https://music.apple.com/us/artist/${ this.facts.appleId }` : '' );
+      const ours: Array<MusicAction | null> = [
+        links.spotify ? { label: 'Spotify', shortLabel: 'Spotify', icon: 'fa-play', href: links.spotify } : null,
+        apple ? { label: 'Apple Music', shortLabel: 'Apple Music', icon: 'fa-music', href: apple } : null,
+        links.bandcamp ? { label: 'Bandcamp', shortLabel: 'Bandcamp', icon: 'fa-compact-disc', href: links.bandcamp } : null,
+      ];
+      return ours.filter( ( action ): action is MusicAction => !!action );
+    }
     return [
       { label: 'Spotify', shortLabel: 'Spotify', icon: 'fa-play', href: links?.spotify || `https://open.spotify.com/search/${ text }` },
       { label: 'Apple Music', shortLabel: 'Apple Music', icon: 'fa-music', href: this.apple?.links.apple || `https://music.apple.com/us/search?term=${ text }` },
@@ -162,11 +172,8 @@ export class FindMusicCardComponent implements OnChanges, OnDestroy {
           links?.wikipedia ? { label: 'Wikipedia', shortLabel: 'Wikipedia', icon: 'fa-arrow-up-right-from-square', href: links.wikipedia } : null,
         ]
         : links?.radio
-          // A Taliferro Music artist: the radio that plays them, and Bandcamp (their site).
-          ? [
-            { label: 'Taliferro Music Radio', shortLabel: 'Radio', icon: 'fa-radio', href: links.radio },
-            links.bandcamp ? { label: 'Bandcamp', shortLabel: 'Bandcamp', icon: 'fa-compact-disc', href: links.bandcamp } : null,
-          ]
+          // A Taliferro Music artist: the radio that plays them (Bandcamp is under Listen).
+          ? [ { label: 'Taliferro Music Radio', shortLabel: 'Radio', icon: 'fa-radio', href: links.radio } ]
           : [
             // Tour dates: no free source, so a search where tickets are sold.
             { label: 'Tour dates', shortLabel: 'Tour', icon: 'fa-ticket', href: `https://www.ticketmaster.com/search?q=${ encodeURIComponent( this.entity.name ) }` },
