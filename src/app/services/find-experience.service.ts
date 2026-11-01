@@ -344,7 +344,8 @@ export interface FindMusicFactsSection {
   credits: FindListRow[];
   members: FindListRow[];
   reviews: Array<{ source: string; score: string }>;
-  links: { spotify: string; youtube: string; genius: string; website: string; wikipedia: string };
+  // Taliferro Music's own artists: where the radio plays them, and their Bandcamp.
+  links: { spotify: string; youtube: string; genius: string; website: string; wikipedia: string; radio?: string; bandcamp?: string };
 }
 
 export interface FindMusicTrack { number: number | null; name: string; length: string; previewUrl: string | null; url: string; album?: string }

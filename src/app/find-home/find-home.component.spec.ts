@@ -409,6 +409,41 @@ describe('FindHomeComponent', () => {
     drainSummarize();
   }));
 
+  it('shows a Taliferro Music artist with Taliferro Music Radio and Bandcamp, not tour dates', fakeAsync(() => {
+    component.query = 'calima shatiday';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: { type: 'artist', label: 'Artist', id: 'tm.calima-shatiday', name: 'Calima Shatiday', logoUrl: null },
+    });
+    tick();
+    harness.detectChanges();
+
+    const sections = http.match(r => r.url.endsWith('/find/entity/section'));
+    sections.find(req => req.request.body.section === 'facts')!.flush({
+      data: {
+        artist: '', album: '', released: null, imageUrl: null,
+        tiles: [ { label: 'Genre', value: 'Downtempo, Chillout', sub: '' }, { label: 'Label', value: 'Taliferro Music', sub: '' } ],
+        credits: [], members: [], reviews: [],
+        links: { spotify: '', youtube: '', genius: '', website: 'https://calimashatiday.bandcamp.com', wikipedia: '', bandcamp: 'https://calimashatiday.bandcamp.com', radio: 'https://music.taliferro.com' },
+      },
+    });
+    sections.find(req => req.request.body.section === 'apple')!.flush({ data: null });
+    sections.find(req => req.request.body.section === 'summary')!.flush({ data: null });
+    harness.detectChanges();
+
+    const actions = Array.from(root().querySelectorAll<HTMLAnchorElement>('[data-cy="find-entity-card"] .ec-actions a'));
+    expect(actions.map(action => action.href)).toEqual([ 'https://music.taliferro.com/', 'https://calimashatiday.bandcamp.com/' ]);
+    expect(actions[0].textContent).toContain('Taliferro Music Radio');
+    expect(root().textContent).toContain('A Taliferro Music artist');
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('calima shatiday'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+  }));
+
   // --- 1. The "Find" search button ---
 
   it('submits the typed query, runs a search, and saves it to history', fakeAsync(() => {
