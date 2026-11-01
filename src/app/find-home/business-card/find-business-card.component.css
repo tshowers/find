@@ -1,12 +1,7 @@
 /* Business additions on top of find-entity-card.component.css: the tint per
-   type (store green, restaurant yellow, service violet), open/closed tones,
+   type (store green, restaurant yellow, service violet; chip tones are shared
+   there), open/closed tones,
    and the white sub-tiles in the "now" tile. */
-.ec-chip--green { background: var(--t-green); color: var(--t-green-fg); }
-.ec-chip--yellow { background: var(--t-yellow); color: var(--t-yellow-fg); }
-.ec-chip--violet { background: var(--t-violet); color: var(--t-violet-fg); }
-.ec-chip--muted,
-.ec-chip--plain { background: var(--surface); color: var(--text); }
-
 .ec-now--green { background: var(--t-green); color: var(--t-green-fg); }
 .ec-now--yellow { background: var(--t-yellow); color: var(--t-yellow-fg); }
 .ec-now--violet { background: var(--t-violet); color: var(--t-violet-fg); }

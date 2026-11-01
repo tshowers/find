@@ -276,6 +276,100 @@ describe('FindHomeComponent', () => {
     drainSummarize();
   }));
 
+  it('shows a country card with its local time, and "Convert USD to JPY" runs that search', fakeAsync(() => {
+    (navigator.geolocation.getCurrentPosition as jasmine.Spy).calls.reset();
+    component.query = 'japan';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: { type: 'country', label: 'Country', id: 'Q17', name: 'Japan', logoUrl: null },
+    });
+    tick();
+    harness.detectChanges();
+
+    expect(navigator.geolocation.getCurrentPosition).not.toHaveBeenCalled();
+    const sections = http.match(r => r.url.endsWith('/find/entity/section'));
+    expect(sections.map(req => req.request.body.section).sort()).toEqual([ 'local', 'news', 'region', 'summary', 'todo' ]);
+    expect(sections[0].request.body).toEqual(jasmine.objectContaining({ type: 'country', id: 'Q17' }));
+    sections.find(req => req.request.body.section === 'region')!.flush({
+      data: {
+        tags: [ { text: 'Country', tone: 'green' }, { text: 'Asia', tone: 'blue' } ],
+        meta: [ { label: 'Capital', value: 'Tokyo' }, { label: 'Population', value: '123.8M' } ],
+        thumbUrl: null, imageUrl: null, imageAlt: 'Map of Japan',
+        tiles: [ { label: 'Currency', value: 'Yen', sub: '1 USD = 157.3 JPY' } ],
+        lists: [ { title: 'Largest cities', rows: [ { name: 'Tokyo', value: '14.3M', sub: '' } ] } ],
+        currency: { code: 'JPY', rate: 157.25 },
+        advisory: { level: 1, text: 'Exercise Normal Precautions', url: 'https://travel.state.gov/japan' },
+        links: { wikipedia: 'https://en.wikipedia.org/wiki/Japan', website: '', map: 'https://www.google.com/maps/search/?api=1&query=Japan' },
+      },
+    });
+    sections.find(req => req.request.body.section === 'local')!.flush({
+      data: { place: 'Tokyo', timeZone: 'Asia/Tokyo', weather: { temperature: 18, unit: 'C', condition: 'Clear', high: 20, low: 12 } },
+    });
+    sections.filter(req => ![ 'region', 'local' ].includes(req.request.body.section)).forEach(req => req.flush({ data: null }));
+    harness.detectChanges();
+
+    const card = root().querySelector('[data-cy="find-entity-card"]');
+    expect(card?.textContent).toContain('Japan');
+    expect(card?.textContent).toContain('Tokyo');
+    expect(card?.querySelector('[data-cy="find-region-local"]')?.textContent).toContain('Clear');
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('japan'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+
+    card!.querySelector<HTMLAnchorElement>('[data-cy="find-region-convert"]')!.click();
+    tick();
+    harness.detectChanges();
+    expect(component.query).toBe('1 USD to JPY');
+    for (const pending of http.match(r => r.url.endsWith('/find/entity'))) pending.flush({ entity: null });
+    http.expectOne(r => r.url.endsWith('/find/search') && r.body.query === '1 USD to JPY').flush(makeEntityResponse('1 USD to JPY'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+  }));
+
+  it('shows a movie card with only the scores OMDb returned, and Get tickets while it is in theaters', fakeAsync(() => {
+    component.query = 'the long field movie';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: { type: 'movie', label: 'Movie', id: 'tt0000001.Q1', name: 'The Long Field', logoUrl: null },
+    });
+    tick();
+    harness.detectChanges();
+
+    const sections = http.match(r => r.url.endsWith('/find/entity/section'));
+    expect(sections.map(req => req.request.body.section).sort()).toEqual([ 'facts', 'summary', 'title' ]);
+    sections.find(req => req.request.body.section === 'title')!.flush({
+      data: {
+        posterUrl: null, tags: [ { text: 'Movie', tone: 'violet' }, { text: 'In theaters', tone: 'pink' } ], meta: [ 'PG-13', '2h 14m' ],
+        scores: [ { source: 'imdb', label: 'IMDb', value: '7.9', scale: '/10' }, { source: 'rt', label: 'Rotten Tomatoes', value: '91%', scale: '' } ],
+        scoresVia: 'Ratings via OMDb (IMDb, Rotten Tomatoes)', plot: '', awards: '', tiles: [ { label: 'US gross', value: '$85.3M', sub: 'Via OMDb' } ],
+        status: 'theaters', released: '2026-10-17', cast: [ { name: 'Daniel Reyes', value: '', sub: '' } ], crew: [],
+        links: { imdb: 'https://www.imdb.com/title/tt0000001/', trailer: 'https://www.youtube.com/results?search_query=x', tickets: 'https://www.fandango.com/search?q=The%20Long%20Field', watch: 'https://www.justwatch.com/us/search?q=x' },
+      },
+    });
+    sections.filter(req => req.request.body.section !== 'title').forEach(req => req.flush({ data: null }));
+    harness.detectChanges();
+
+    const card = root().querySelector('[data-cy="find-entity-card"]');
+    expect(card?.querySelectorAll('[data-cy="find-media-scores"] .mc-score').length).toBe(2);
+    expect(card?.textContent).toContain('Ratings via OMDb (IMDb, Rotten Tomatoes)');
+    expect(card?.querySelector('[data-cy="find-media-panel"]')?.textContent).toContain('In theaters now');
+    const primary = card?.querySelector<HTMLAnchorElement>('.ec-action--primary');
+    expect(primary?.textContent).toContain('Get tickets');
+    expect(primary?.href).toContain('fandango.com');
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('the long field movie'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+  }));
+
   // --- 1. The "Find" search button ---
 
   it('submits the typed query, runs a search, and saves it to history', fakeAsync(() => {

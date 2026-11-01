@@ -5,6 +5,7 @@
     <div class="ec-identity__text">
       <div class="ec-chips">
         <span class="ec-chip ec-chip--cyan">{{ entity.label }}</span>
+        <span class="ec-chip" *ngFor="let tag of team?.tags" [ngClass]="'ec-chip--' + tag.tone">{{ tag.text }}</span>
         <span class="ec-chip ec-chip--pink" *ngIf="live">Live</span>
       </div>
       <h1 class="ec-name">{{ entity.name }}</h1>

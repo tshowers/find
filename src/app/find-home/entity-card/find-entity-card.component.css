@@ -68,6 +68,12 @@ h1, h3, p {
 
 .ec-chip--cyan { background: var(--t-cyan); color: var(--t-cyan-fg); }
 .ec-chip--pink { background: var(--t-pink); color: var(--t-pink-fg); }
+.ec-chip--blue { background: var(--t-blue); color: var(--t-blue-fg); }
+.ec-chip--green { background: var(--t-green); color: var(--t-green-fg); }
+.ec-chip--yellow { background: var(--t-yellow); color: var(--t-yellow-fg); }
+.ec-chip--violet { background: var(--t-violet); color: var(--t-violet-fg); }
+.ec-chip--muted,
+.ec-chip--plain { background: var(--surface); color: var(--text); }
 
 .ec-name {
   font-size: 44px;

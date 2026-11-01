@@ -20,6 +20,8 @@ import { MarketStripComponent } from '../shared/market-strip/market-strip.compon
 import { FindEntityCardComponent } from './entity-card/find-entity-card.component';
 import { FindBusinessCardComponent } from './business-card/find-business-card.component';
 import { FindShopCardComponent } from './shop-card/find-shop-card.component';
+import { FindRegionCardComponent } from './region-card/find-region-card.component';
+import { FindMediaCardComponent } from './media-card/find-media-card.component';
 
 type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info' | 'awards';
 
@@ -63,7 +65,7 @@ function distanceMeters ( from: { latitude: number; longitude: number }, latitud
 @Component( {
   selector: 'app-find-home',
   standalone: true,
-  imports: [ FindEntityCardComponent, FindBusinessCardComponent, FindShopCardComponent, MarketStripComponent, AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
+  imports: [ FindEntityCardComponent, FindBusinessCardComponent, FindShopCardComponent, FindRegionCardComponent, FindMediaCardComponent, MarketStripComponent, AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
   templateUrl: './find-home.component.html',
   styleUrls: ['./find-home.component.css', './find-home.grid.css', './find-home.features.css'],
   // The prerendered "/" always contains the home screen, but a `?query=` or
@@ -1836,7 +1838,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
         next: ( response ) => {
           const entity = response?.entity ?? null;
           if ( searchId !== this.searchId || !entity ) return;
-          if ( entity.type === 'sports' || entity.type === 'shop' ) {
+          if ( !this.isBusinessEntity( entity ) ) {
             this.entity = entity;
             return;
           }
@@ -1905,7 +1907,25 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   get entityFooterNote (): string {
     if ( this.entity?.type === 'sports' ) return 'Scores and stats from ESPN';
     if ( this.entity?.type === 'shop' ) return 'Products and prices from 16Ahead Store';
+    if ( this.isRegionEntity( this.entity ) ) return 'Facts from Wikidata · weather from Open-Meteo';
+    if ( this.entity?.type === 'movie' ) return 'Ratings via OMDb · box office and cast from Wikidata';
+    if ( this.entity?.type === 'tv' ) return 'Ratings via OMDb · episodes from TVmaze';
     return 'Hours, locations and ratings from Google';
+  }
+
+  /** A store, restaurant or local service: the card is about the nearest location. */
+  isBusinessEntity ( entity: FindEntity | null ): boolean {
+    return entity?.type === 'store' || entity?.type === 'restaurant' || entity?.type === 'service';
+  }
+
+  isRegionEntity ( entity: FindEntity | null ): boolean {
+    return entity?.type === 'country' || entity?.type === 'state' || entity?.type === 'city';
+  }
+
+  /** A card's own search ("Convert USD to JPY"): run it like a typed one. */
+  searchFromCard ( query: string ): void {
+    this.query = query;
+    this.onSubmit();
   }
 
   /** "More results" swaps the card for the normal results (or their loading spinner). */

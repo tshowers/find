@@ -15,7 +15,7 @@ type StackedSection = 'game' | 'stats' | 'leaders' | 'next' | 'news';
 const LIVE_REFRESH_MS = 30 * 1000;
 
 // docs/design_handoff_find_single_results: one rich card when the query names
-// one thing (an NFL, NBA or MLB team). Layout A (dashboard) above 900px, layout B
+// one thing (an NFL, NBA, MLB or college team; r5 adds the college tags). Layout A (dashboard) above 900px, layout B
 // (stacked, live-first) below; both are in the template and CSS shows one.
 // Every section loads on its own: undefined = still loading (placeholder),
 // null = not available (hidden), so the card fills in as answers arrive.
@@ -175,7 +175,8 @@ export class FindEntityCardComponent implements OnChanges, OnDestroy {
   }
 
   get sportIcon (): string {
-    return this.entity.league === 'nba' ? 'fa-basketball' : this.entity.league === 'mlb' ? 'fa-baseball' : 'fa-football';
+    const league = this.entity.league;
+    return league === 'nba' || league === 'mens-college-basketball' ? 'fa-basketball' : league === 'mlb' ? 'fa-baseball' : 'fa-football';
   }
 
   get newsPreview (): string {
