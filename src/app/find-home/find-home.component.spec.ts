@@ -370,6 +370,45 @@ describe('FindHomeComponent', () => {
     drainSummarize();
   }));
 
+  it('shows a song card with a preview and a Lyrics link, never the lyrics', fakeAsync(() => {
+    component.query = 'anti-hero lyrics';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: { type: 'song', label: 'Song', id: 'Q114721508', name: 'Anti-Hero', logoUrl: null },
+    });
+    tick();
+    harness.detectChanges();
+
+    const sections = http.match(r => r.url.endsWith('/find/entity/section'));
+    expect(sections.map(req => req.request.body.section).sort()).toEqual([ 'apple', 'facts', 'summary' ]);
+    sections.find(req => req.request.body.section === 'facts')!.flush({
+      data: {
+        artist: 'Taylor Swift', album: 'Midnights', released: '2022-10-21', imageUrl: null,
+        tiles: [ { label: 'Released', value: 'Oct 21, 2022', sub: '' }, { label: 'Genre', value: 'Pop rock', sub: '' } ],
+        credits: [ { name: 'Jack Antonoff', value: 'Producer', sub: '' } ], members: [], reviews: [],
+        links: { spotify: 'https://open.spotify.com/track/02Zk', youtube: '', genius: 'https://genius.com/Taylor-swift-anti-hero-lyrics', website: '', wikipedia: '' },
+      },
+    });
+    sections.find(req => req.request.body.section === 'apple')!.flush({
+      data: { artworkUrl: null, album: 'Midnights', track: { number: 3, name: 'Anti-Hero', length: '3:21', previewUrl: 'https://audio.example/anti-hero.m4a', url: 'https://music.apple.com/x' }, links: { apple: 'https://music.apple.com/x' } },
+    });
+    sections.find(req => req.request.body.section === 'summary')!.flush({ data: null });
+    harness.detectChanges();
+
+    const card = root().querySelector('[data-cy="find-entity-card"]');
+    expect(card?.textContent).toContain('Taylor Swift');
+    expect(card?.querySelector<HTMLAudioElement>('[data-cy="find-music-panel"] audio')?.getAttribute('src')).toBe('https://audio.example/anti-hero.m4a');
+    expect(card?.querySelector<HTMLAnchorElement>('[data-cy="find-music-lyrics"]')?.href).toBe('https://genius.com/Taylor-swift-anti-hero-lyrics');
+    expect(card?.querySelector<HTMLAnchorElement>('.ec-actions .ec-action--primary')?.textContent).toContain('Lyrics');
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('anti-hero lyrics'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+  }));
+
   // --- 1. The "Find" search button ---
 
   it('submits the typed query, runs a search, and saves it to history', fakeAsync(() => {

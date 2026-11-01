@@ -195,8 +195,8 @@ export interface FindMovieRatings {
 // Single-item results (docs/design_handoff_find_single_results): a query that
 // clearly names one thing gets one rich card: an NFL, NBA, MLB or college
 // team, a store, a restaurant, a local service, a 16Ahead Store shop, or
-// (round 5) a country, US state, city, movie or TV show.
-export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service' | 'shop' | 'country' | 'state' | 'city' | 'movie' | 'tv';
+// (round 5) a country, US state, city, movie, TV show, artist, album or song.
+export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service' | 'shop' | 'country' | 'state' | 'city' | 'movie' | 'tv' | 'artist' | 'album' | 'song';
 export type FindSportsLeague = 'nfl' | 'nba' | 'mlb' | 'college-football' | 'mens-college-basketball';
 
 export interface FindEntity {
@@ -220,7 +220,7 @@ export interface FindEntity {
   tintFgDark?: string | null;
 }
 
-export type FindEntitySection = 'team' | 'games' | 'leaders' | 'news' | 'summary' | 'place' | 'details' | 'sale' | 'shop' | 'region' | 'local' | 'todo' | 'title' | 'facts' | 'show';
+export type FindEntitySection = 'team' | 'games' | 'leaders' | 'news' | 'summary' | 'place' | 'details' | 'sale' | 'shop' | 'region' | 'local' | 'todo' | 'title' | 'facts' | 'show' | 'apple';
 
 export interface FindStatTile { label: string; value: string; sub: string }
 export interface FindEntityTag { text: string; tone: 'blue' | 'green' | 'cyan' | 'pink' | 'violet' | 'yellow' | 'plain' }
@@ -331,6 +331,40 @@ export interface FindMovieFactsSection {
   composer: string;
   distributors: string[];
   links: { website: string; wikipedia: string };
+}
+
+// Artists, albums and songs (round 5, types 3–5): Wikidata facts, iTunes
+// tracks and previews. No lyrics (they need a licence): a Genius link.
+export interface FindMusicFactsSection {
+  artist: string;
+  album: string;
+  released: string | null;
+  imageUrl: string | null;
+  tiles: FindStatTile[];
+  credits: FindListRow[];
+  members: FindListRow[];
+  reviews: Array<{ source: string; score: string }>;
+  links: { spotify: string; youtube: string; genius: string; website: string; wikipedia: string };
+}
+
+export interface FindMusicTrack { number: number | null; name: string; length: string; previewUrl: string | null; url: string; album?: string }
+
+export interface FindMusicAppleSection {
+  artworkUrl?: string | null;
+  // Song
+  track?: FindMusicTrack;
+  album?: string;
+  // Album
+  tracks?: FindMusicTrack[];
+  trackCount?: number;
+  length?: string;
+  copyright?: string;
+  // Artist
+  topSongs?: FindMusicTrack[];
+  albums?: FindListRow[];
+  albumCount?: number;
+  latest?: { name: string; kind: string; released: string; artworkUrl: string | null; url: string } | null;
+  links: { apple: string; appleAlbum?: string; appleArtist?: string };
 }
 
 export interface FindTvEpisode { code: string; name: string; airstamp: string | null; airdate: string; runtime: number | null }

@@ -1,0 +1,156 @@
+/* Artist, album and song additions on top of find-entity-card.component.css
+   (design_handoff_find_single_results_r5, types 3–5): cover and photo,
+   the Spotify / Apple Music / YouTube row, and the tinted panel (song and
+   album pink, artist violet). */
+.mu-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mu-thumb--round {
+  border-radius: 50%;
+}
+
+.mu-hero--cover {
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.mu-listen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mu-panel {
+  gap: 18px;
+}
+
+.mu-panel--pink { background: var(--t-pink); color: var(--t-pink-fg); }
+.mu-panel--violet { background: var(--t-violet); color: var(--t-violet-fg); }
+
+.mu-now--short.ec-skel {
+  min-height: 220px;
+}
+
+.mu-panel__block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mu-audio {
+  width: 100%;
+}
+
+.mu-divider {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-top: 1.5px solid currentColor;
+}
+
+/* The lyrics link: a white card in the panel, like the handoff's lyrics card. */
+.mu-lyrics {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 20px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mu-lyrics:hover {
+  filter: brightness(0.94);
+}
+
+.mu-panel__note {
+  font-size: 13px;
+}
+
+.mu-reviews {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 10px;
+}
+
+.mu-review {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.mu-review strong {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.mu-review span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.mu-latest {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.mu-latest img {
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+.mu-latest span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mu-latest strong {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.mu-latest small {
+  font-size: 14px;
+}
+
+.mu-row--link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.mu-row--link:hover .ec-row__left {
+  text-decoration: underline;
+}
+
+.mu-status--pink { background: var(--t-pink); color: var(--t-pink-fg); }
+.mu-status--violet { background: var(--t-violet); color: var(--t-violet-fg); }
+
+@media (max-width: 900px) {
+  /* Three equal tiles: Spotify, Apple Music, YouTube Music. */
+  .mu-listen {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .mu-panel {
+    padding: 18px;
+    border-radius: 20px;
+  }
+}
