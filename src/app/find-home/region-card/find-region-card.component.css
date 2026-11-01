@@ -1,0 +1,105 @@
+/* Country, state and city additions on top of find-entity-card.component.css
+   (design_handoff_find_single_results_r5, types 7–9): the tint per type
+   (country and state green, city blue), the local time and weather panel,
+   flag and map images, and list rows that link out. */
+.rc-meta__value {
+  font-weight: 400;
+  color: var(--text);
+}
+
+/* A flag or seal sits whole inside its square. */
+.rc-thumb img {
+  width: 84%;
+  height: 84%;
+  border-radius: 8px;
+}
+
+/* A locator map is drawn on white: shown whole, not cropped. */
+.rc-hero--map {
+  object-fit: contain;
+  padding: 16px;
+  background: var(--surface);
+}
+
+.rc-now--green { background: var(--t-green); color: var(--t-green-fg); }
+.rc-now--blue { background: var(--t-blue); color: var(--t-blue-fg); }
+
+.rc-now--short.ec-skel {
+  min-height: 260px;
+}
+
+.rc-now {
+  gap: 20px;
+}
+
+.rc-clock,
+.rc-weather {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rc-clock__time {
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.rc-clock__line {
+  font-size: 15px;
+}
+
+.rc-divider {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-top: 1.5px solid currentColor;
+}
+
+.rc-weather__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 16px;
+  font-size: 15px;
+}
+
+.rc-weather__temp {
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.rc-weather__condition {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.rc-row--link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.rc-row--link:hover .ec-row__left {
+  text-decoration: underline;
+}
+
+.rc-status--green { background: var(--t-green); color: var(--t-green-fg); }
+.rc-status--blue { background: var(--t-blue); color: var(--t-blue-fg); }
+
+@media (max-width: 900px) {
+  .rc-now {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .rc-clock__time {
+    font-size: 44px;
+  }
+
+  .rc-hero--map {
+    height: 220px;
+  }
+}

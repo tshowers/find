@@ -193,9 +193,11 @@ export interface FindMovieRatings {
 }
 
 // Single-item results (docs/design_handoff_find_single_results): a query that
-// clearly names one thing gets one rich card: an NFL, NBA or MLB team, a
-// store, a restaurant, a local service, or a 16Ahead Store shop.
-export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service' | 'shop';
+// clearly names one thing gets one rich card: an NFL, NBA, MLB or college
+// team, a store, a restaurant, a local service, a 16Ahead Store shop, or
+// (round 5) a country, US state or city.
+export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service' | 'shop' | 'country' | 'state' | 'city';
+export type FindSportsLeague = 'nfl' | 'nba' | 'mlb' | 'college-football' | 'mens-college-basketball';
 
 export interface FindEntity {
   type: FindEntityType;
@@ -204,7 +206,7 @@ export interface FindEntity {
   name: string;
   logoUrl: string | null;
   // Teams
-  league?: 'nfl' | 'nba' | 'mlb';
+  league?: FindSportsLeague;
   abbr?: string;
   shortName?: string;
   color?: string | null;
@@ -218,15 +220,20 @@ export interface FindEntity {
   tintFgDark?: string | null;
 }
 
-export type FindEntitySection = 'team' | 'games' | 'leaders' | 'news' | 'summary' | 'place' | 'details' | 'sale' | 'shop';
+export type FindEntitySection = 'team' | 'games' | 'leaders' | 'news' | 'summary' | 'place' | 'details' | 'sale' | 'shop' | 'region' | 'local' | 'todo';
 
 export interface FindStatTile { label: string; value: string; sub: string }
+export interface FindEntityTag { text: string; tone: 'blue' | 'green' | 'cyan' | 'pink' | 'violet' | 'yellow' | 'plain' }
+/** A list row the backend has already worded: name left, value right, optional sub-line. */
+export interface FindListRow { name: string; value: string; sub: string; url?: string }
 export interface FindKeyFact { value: string; label: string }
 
 export interface FindSportsTeamSection {
   record: string;
   standing: string;
   division: { division: string; place: number; rows: Array<{ abbr: string; name: string; record: string; isTeam: boolean }> } | null;
+  /** College teams: the conference and AP ranking tags. */
+  tags?: FindEntityTag[];
   tiles: FindStatTile[];
   keyFacts: FindKeyFact[];
   imageUrl: string | null;
@@ -271,6 +278,32 @@ export interface FindSportsLeadersSection { offense: FindLeaderRow[]; defense: F
 export interface FindNewsArticle { headline: string; description: string; published: string | null; url: string; imageUrl: string | null }
 export interface FindSportsNewsSection { articles: FindNewsArticle[] }
 export interface FindEntitySummary { text: string; sources: string[] }
+
+// Countries, US states and cities (round 5, types 7–9). Tiles and rows arrive
+// already worded, so the card only lays them out.
+export interface FindRegionSection {
+  tags: FindEntityTag[];
+  meta: Array<{ label: string; value: string }>;
+  thumbUrl: string | null;
+  imageUrl: string | null;
+  imageAlt: string;
+  tiles: FindStatTile[];
+  lists: Array<{ title: string; rows: FindListRow[] }>;
+  /** A country's currency against the dollar, for "Convert USD to …". */
+  currency: { code: string; rate: number } | null;
+  advisory: { level: number; text: string; url: string } | null;
+  links: { wikipedia: string; website: string; map: string };
+}
+
+export interface FindRegionLocal {
+  place: string;
+  /** IANA zone; the card keeps the clock running itself. */
+  timeZone: string;
+  weather: { temperature: number; unit: 'F' | 'C'; condition: string; high: number | null; low: number | null } | null;
+}
+
+export interface FindRegionTodo { rows: FindListRow[] }
+export interface FindRegionNews { articles: Array<{ headline: string; source: string; published: string | null; url: string; imageUrl: string | null }> }
 
 export interface FindPlaceLocation {
   name: string;

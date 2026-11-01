@@ -51,7 +51,10 @@
       </nav>
       <app-find-entity-card *ngIf="entity.type === 'sports'; else businessCard" [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()"></app-find-entity-card>
       <ng-template #businessCard>
-        <app-find-shop-card *ngIf="entity.type === 'shop'; else placeCard" [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()" (watched)="onEntityWatched($event)"></app-find-shop-card>
+        <app-find-shop-card *ngIf="entity.type === 'shop'; else regionCard" [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()" (watched)="onEntityWatched($event)"></app-find-shop-card>
+        <ng-template #regionCard>
+          <app-find-region-card *ngIf="isRegionEntity(entity); else placeCard" [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()" (search)="searchFromCard($event)"></app-find-region-card>
+        </ng-template>
         <ng-template #placeCard>
           <app-find-business-card [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" [position]="entityPosition" (moreResults)="showAllResults()" (watched)="onEntityWatched($event)"></app-find-business-card>
         </ng-template>

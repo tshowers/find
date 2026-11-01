@@ -1,0 +1,219 @@
+<!-- ── LAYOUT A: dashboard (above 900px) ── -->
+<section class="ec-a" data-cy="find-entity-card" [attr.aria-label]="entity.name">
+  <div class="ec-identity">
+    <span class="ec-logo rc-thumb">
+      <img *ngIf="thumb as image" [src]="image" alt="" (error)="thumbFailed = true" />
+    </span>
+    <div class="ec-identity__text">
+      <div class="ec-chips">
+        <ng-container *ngIf="region?.tags?.length; else labelChipA">
+          <span class="ec-chip" *ngFor="let tag of region?.tags" [ngClass]="'ec-chip--' + tag.tone">{{ tag.text }}</span>
+        </ng-container>
+        <ng-template #labelChipA><span class="ec-chip" [ngClass]="'ec-chip--' + tint">{{ entity.label }}</span></ng-template>
+      </div>
+      <h1 class="ec-name">{{ entity.name }}</h1>
+      <p class="ec-meta" *ngIf="region?.meta?.length; else metaSkeleton">
+        <span *ngFor="let item of region?.meta"><ng-container *ngIf="item.label">{{ item.label }} </ng-container><strong class="rc-meta__value">{{ item.value }}</strong></span>
+      </p>
+    </div>
+  </div>
+
+  <div class="ec-grid">
+    <div class="ec-col">
+      <div class="ec-skel ec-hero" *ngIf="region === undefined"></div>
+      <img class="ec-hero rc-hero" *ngIf="heroImage as image" [class.rc-hero--map]="entity.type !== 'city'" [src]="image" [alt]="region?.imageAlt || ''" (error)="imageFailed = true" />
+
+      <div class="ec-skel ec-now rc-now--short" *ngIf="local === undefined"></div>
+      <ng-container *ngIf="local">
+        <ng-container *ngTemplateOutlet="localPanel; context: { $implicit: local, long: true }"></ng-container>
+      </ng-container>
+    </div>
+
+    <div class="ec-col">
+      <ng-container *ngTemplateOutlet="summaryBlock"></ng-container>
+      <div class="ec-skel ec-skel--tiles" *ngIf="region === undefined"></div>
+      <div class="ec-tiles" *ngIf="region?.tiles?.length">
+        <div class="ec-tile" *ngFor="let tile of region?.tiles">
+          <span class="ec-tile__label">{{ tile.label }}</span>
+          <strong class="ec-tile__value">{{ tile.value }}</strong>
+          <span class="ec-tile__sub" *ngIf="tile.sub">{{ tile.sub }}</span>
+        </div>
+      </div>
+      <div class="ec-skel ec-skel--list" *ngIf="todo === undefined"></div>
+      <div *ngIf="todo">
+        <h3 class="ec-list-title">Things to do</h3>
+        <ng-container *ngTemplateOutlet="rowList; context: { $implicit: todo.rows }"></ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="ec-expanded" *ngIf="expanded" id="rc-expanded">
+    <div *ngIf="news">
+      <h3 class="ec-list-title">Local news</h3>
+      <ng-container *ngTemplateOutlet="newsList; context: { $implicit: news.articles.slice(0, 4) }"></ng-container>
+    </div>
+    <div *ngFor="let list of region?.lists">
+      <h3 class="ec-list-title">{{ list.title }}</h3>
+      <ng-container *ngTemplateOutlet="rowList; context: { $implicit: list.rows }"></ng-container>
+    </div>
+  </div>
+
+  <div class="ec-action-row">
+    <ng-container *ngTemplateOutlet="actionButtons"></ng-container>
+    <button type="button" class="ec-toggle" *ngIf="news || region?.lists?.length" (click)="expanded = !expanded" [attr.aria-expanded]="expanded" aria-controls="rc-expanded">
+      {{ expanded ? 'Show less' : 'Show more' }}
+      <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="expanded" aria-hidden="true"></i>
+    </button>
+  </div>
+  <ng-container *ngTemplateOutlet="moreLink"></ng-container>
+</section>
+
+<!-- ── LAYOUT B: stacked (900px and below) ── -->
+<section class="ec-b" [attr.aria-label]="entity.name">
+  <span class="ec-status" *ngIf="statusText" [ngClass]="'rc-status--' + tint"><span class="ec-status__dot" aria-hidden="true"></span>{{ statusText }}</span>
+  <div class="ec-skel ec-hero" *ngIf="region === undefined"></div>
+  <img class="ec-hero rc-hero" *ngIf="heroImage as image" [class.rc-hero--map]="entity.type !== 'city'" [src]="image" [alt]="region?.imageAlt || ''" (error)="imageFailed = true" />
+
+  <div class="ec-identity">
+    <span class="ec-logo rc-thumb">
+      <img *ngIf="thumb as image" [src]="image" alt="" (error)="thumbFailed = true" />
+    </span>
+    <div class="ec-identity__text">
+      <h1 class="ec-name">{{ entity.name }}</h1>
+      <p class="ec-meta" *ngIf="subtitle; else metaSkeleton"><span>{{ subtitle }}</span></p>
+    </div>
+  </div>
+
+  <div class="ec-skel ec-skel--facts" *ngIf="region === undefined"></div>
+  <div class="ec-facts" *ngIf="keyFacts.length">
+    <span class="ec-fact" *ngFor="let fact of keyFacts"><strong>{{ fact.value }}</strong> {{ fact.label }}</span>
+  </div>
+
+  <ng-container *ngIf="local">
+    <ng-container *ngTemplateOutlet="localPanel; context: { $implicit: local, long: false }"></ng-container>
+  </ng-container>
+
+  <ng-container *ngTemplateOutlet="summaryBlock"></ng-container>
+
+  <div class="ec-sections">
+    <div class="ec-skel ec-skel--section" *ngIf="todo === undefined"></div>
+    <div class="ec-section" *ngIf="todo">
+      <button type="button" class="ec-section__head" (click)="toggleSection('todo')" [attr.aria-expanded]="openSections.has('todo')">
+        <strong>Things to do</strong>
+        <span class="ec-section__preview">{{ firstRow(todo.rows) }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('todo')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('todo')">
+        <ng-container *ngTemplateOutlet="rowList; context: { $implicit: todo.rows }"></ng-container>
+      </div>
+    </div>
+
+    <div class="ec-skel ec-skel--section" *ngIf="region === undefined"></div>
+    <div class="ec-section" *ngIf="region?.tiles?.length">
+      <button type="button" class="ec-section__head" (click)="toggleSection('facts')" [attr.aria-expanded]="openSections.has('facts')">
+        <strong>Facts</strong>
+        <span class="ec-section__preview">{{ region?.tiles?.[0]?.label }} {{ region?.tiles?.[0]?.value }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('facts')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('facts')">
+        <div class="ec-row" *ngFor="let tile of region?.tiles">
+          <span class="ec-row__left">{{ tile.label }}<small *ngIf="tile.sub">{{ tile.sub }}</small></span>
+          <span class="ec-row__right">{{ tile.value }}</span>
+        </div>
+        <ng-container *ngFor="let list of region?.lists">
+          <h3 class="ec-list-title ec-list-title--spaced">{{ list.title }}</h3>
+          <ng-container *ngTemplateOutlet="rowList; context: { $implicit: list.rows }"></ng-container>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="ec-skel ec-skel--section" *ngIf="news === undefined"></div>
+    <div class="ec-section" *ngIf="news">
+      <button type="button" class="ec-section__head" (click)="toggleSection('news')" [attr.aria-expanded]="openSections.has('news')">
+        <strong>Local news</strong>
+        <span class="ec-section__preview">{{ news.articles[0].headline }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('news')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('news')">
+        <ng-container *ngTemplateOutlet="newsList; context: { $implicit: news.articles }"></ng-container>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngTemplateOutlet="actionButtons"></ng-container>
+  <ng-container *ngTemplateOutlet="moreLink"></ng-container>
+</section>
+
+<!-- ── Shared pieces ── -->
+<ng-template #metaSkeleton><span class="ec-skel ec-skel--meta" *ngIf="region === undefined"></span></ng-template>
+
+<ng-template #localPanel let-local let-long="long">
+  <div class="ec-now rc-now" [ngClass]="'rc-now--' + tint" data-cy="find-region-local">
+    <div class="rc-clock">
+      <span class="ec-now__label">Local time</span>
+      <strong class="rc-clock__time">{{ localTime }}</strong>
+      <span class="rc-clock__line">{{ long ? localDateLine : shortDateLine }}</span>
+    </div>
+    <ng-container *ngIf="local.weather as weather">
+      <hr class="rc-divider" />
+      <div class="rc-weather">
+        <span class="ec-now__label">Weather · {{ local.place }}</span>
+        <div class="rc-weather__row">
+          <strong class="rc-weather__temp">{{ weather.temperature }}°</strong>
+          <strong class="rc-weather__condition" *ngIf="weather.condition">{{ weather.condition }}</strong>
+          <span *ngIf="weather.high !== null && weather.low !== null">H {{ weather.high }}° · L {{ weather.low }}°</span>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</ng-template>
+
+<ng-template #rowList let-rows>
+  <ng-container *ngFor="let row of rows">
+    <a class="ec-row rc-row--link" *ngIf="row.url; else plainRow" [href]="row.url" target="_blank" rel="noopener">
+      <span class="ec-row__left">{{ row.name }}<small *ngIf="row.sub">{{ row.sub }}</small></span>
+      <span class="ec-row__right" *ngIf="row.value">{{ row.value }}</span>
+    </a>
+    <ng-template #plainRow>
+      <div class="ec-row">
+        <span class="ec-row__left">{{ row.name }}<small *ngIf="row.sub">{{ row.sub }}</small></span>
+        <span class="ec-row__right" *ngIf="row.value">{{ row.value }}</span>
+      </div>
+    </ng-template>
+  </ng-container>
+</ng-template>
+
+<ng-template #newsList let-articles>
+  <a class="ec-row rc-row--link" *ngFor="let article of articles" [href]="article.url" target="_blank" rel="noopener">
+    <span class="ec-row__left">{{ article.headline }}<small>{{ article.source }}<ng-container *ngIf="ago(article.published) as when"> · {{ when }}</ng-container></small></span>
+  </a>
+</ng-template>
+
+<ng-template #summaryBlock>
+  <div class="ec-skel ec-skel--summary" *ngIf="summary === undefined"></div>
+  <aside class="ec-summary" *ngIf="summary" aria-label="16Ahead summary">
+    <span class="ec-summary__head">
+      <img class="brand-mark--light" src="assets/brand/products/svg/light/01-16ahead.svg" alt="" width="22" height="22" /><img class="brand-mark--dark" src="assets/brand/products/svg/dark/01-16ahead.svg" alt="" width="22" height="22" />
+      <strong>16Ahead summary</strong>
+      <span *ngIf="summary.sources.length">· {{ summary.sources.join(', ') }}</span>
+    </span>
+    <p class="ec-summary__text">{{ summary.text }}</p>
+  </aside>
+</ng-template>
+
+<ng-template #actionButtons>
+  <div class="ec-actions" *ngIf="actions.length">
+    <a *ngFor="let action of actions; let first = first" class="ec-action" [class.ec-action--primary]="first" [href]="action.href || '#'" [attr.target]="action.href ? '_blank' : null" [attr.rel]="action.href ? 'noopener' : null" (click)="runAction(action, $event)" [attr.data-cy]="action.search ? 'find-region-convert' : null">
+      <i class="fa-solid" [ngClass]="action.icon" aria-hidden="true"></i>
+      <span class="ec-action__label">{{ action.label }}</span>
+      <span class="ec-action__short" aria-hidden="true">{{ action.shortLabel }}</span>
+    </a>
+  </div>
+</ng-template>
+
+<ng-template #moreLink>
+  <button type="button" class="ec-more" data-cy="find-entity-more" (click)="moreResults.emit()">
+    <span class="ec-more__label">More results for “{{ query }}”</span><span class="ec-more__count" *ngIf="moreCount">· {{ moreCount }}</span>
+    <span class="ec-more__circle" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+  </button>
+</ng-template>
