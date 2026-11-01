@@ -11,4 +11,6 @@ export const PLATFORM_MENU_CONFIG: MenuAppConfig = {
     { label: 'Help', icon: 'help', route: '/help' },
     { label: 'About', icon: 'info', route: '/about' },
   ],
+  // Free, no accounts: no Sign in to offer.
+  noSignIn: true,
 };

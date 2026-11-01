@@ -1,0 +1,164 @@
+/* Business additions on top of find-entity-card.component.css: the tint per
+   type (store green, restaurant yellow, service violet), open/closed tones,
+   and the white sub-tiles in the "now" tile. */
+.ec-chip--green { background: var(--t-green); color: var(--t-green-fg); }
+.ec-chip--yellow { background: var(--t-yellow); color: var(--t-yellow-fg); }
+.ec-chip--violet { background: var(--t-violet); color: var(--t-violet-fg); }
+.ec-chip--muted,
+.ec-chip--plain { background: var(--surface); color: var(--text); }
+
+.ec-now--green { background: var(--t-green); color: var(--t-green-fg); }
+.ec-now--yellow { background: var(--t-yellow); color: var(--t-yellow-fg); }
+.ec-now--violet { background: var(--t-violet); color: var(--t-violet-fg); }
+
+.ec-now--short.ec-skel {
+  min-height: 220px;
+}
+
+.ec-logo--initial {
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.ec-logo img {
+  border-radius: 12px;
+}
+
+.ec-meta__rating {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.ec-subtiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.ec-subtile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.ec-subtile span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.ec-subtile strong {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.ec-serves .ec-chips {
+  margin-top: 6px;
+}
+
+.ec-chips--spaced {
+  margin-bottom: 10px;
+}
+
+.ec-section .ec-chip--plain {
+  background: var(--bg);
+}
+
+.ec-row--today .ec-row__left,
+.ec-row--today .ec-row__right {
+  color: var(--blue-ink);
+}
+
+.ec-row__right {
+  white-space: nowrap;
+}
+
+.ec-row--stacked {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+}
+
+.ec-row--stacked .ec-row__right {
+  font-weight: 600;
+  text-align: left;
+  white-space: normal;
+}
+
+/* Shop the sale: one row per sale page, with its own Watch. */
+.ec-sale {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.ec-sale + .ec-sale {
+  border-top: 1px solid var(--surface2);
+}
+
+.ec-sale__img {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--surface);
+}
+
+.ec-sale__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.ec-sale__text strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.ec-sale__text:hover strong {
+  color: var(--blue-ink);
+}
+
+.ec-sale__text small {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t-green-fg);
+}
+
+.ec-sale__text s {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.ec-about {
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.ec-row__right a {
+  color: var(--blue-ink);
+  text-decoration: none;
+}
+
+@media (max-width: 900px) {
+  .ec-status--green { background: var(--t-green); color: var(--t-green-fg); }
+  .ec-status--yellow { background: var(--t-yellow); color: var(--t-yellow-fg); }
+  .ec-status--yellow .ec-status__dot { background: var(--yellow); }
+  .ec-status--muted { background: var(--surface); color: var(--muted); }
+
+  .ec-logo--initial {
+    font-size: 30px;
+  }
+
+}

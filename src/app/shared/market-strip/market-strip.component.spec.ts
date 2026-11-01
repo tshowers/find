@@ -49,7 +49,7 @@ describe( 'MarketStripComponent', () => {
     // The photo opens the shop's own product page.
     expect( first.querySelector( 'a.market-strip__img' )?.getAttribute( 'href' ) ).toBe( 'https://shop.test/products/heel-1' );
     const links = [...first.querySelectorAll( '.market-strip__actions a' )].map( ( a ) => [a.textContent?.trim(), a.getAttribute( 'href' )] );
-    expect( links ).toEqual( [['Shop on their site ↗', 'https://shop.test/products/heel-1'], ['Buy it here', 'https://market.taliferro.tech/?q=heels']] );
+    expect( links ).toEqual( [['Shop on their site ↗', 'https://shop.test/products/heel-1'], ['Buy it here', 'https://16ahead.store/?q=heels']] );
     // http photos are asked for over https; no price, no price line.
     expect( cards[1].querySelector( 'img' )?.getAttribute( 'src' ) ).toBe( 'https://shop.test/heel-2.jpg' );
     expect( cards[1].querySelector( '.market-strip__price' ) ).toBeNull();

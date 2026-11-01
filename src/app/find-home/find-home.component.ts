@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { FindSwipeDirective } from '../directives/find-swipe.directive';
 import { FindAward, FindAwardView, FindAwardsProgress, FindAwardsService } from '../services/find-awards.service';
-import { FindBusinessHours, FindBusinessHoursDay, FindBusinessLocation, FindFollowupResponse, FindInstantAnswer, FindWatch, FindConversionCategory, FindConversionResult, FindExperienceService, FindFeedbackRating, FindMovieRatings, FindRankedResult, FindSearchResponse, FindSourceType, FindWeatherForecastDay } from '../services/find-experience.service';
+import { FindBusinessHours, FindBusinessHoursDay, FindBusinessLocation, FindEntity, FindFollowupResponse, FindInstantAnswer, FindWatch, FindConversionCategory, FindConversionResult, FindExperienceService, FindFeedbackRating, FindMovieRatings, FindRankedResult, FindSearchResponse, FindSourceType, FindWeatherForecastDay } from '../services/find-experience.service';
 import { FindGyroscopeService, GyroTilt } from '../services/find-gyroscope.service';
 import { HeadlineFeedsService } from '../services/headline-feeds.service';
 import { environment } from '../../environments/environment';
@@ -17,6 +17,9 @@ import { SiteFooterComponent } from '../shared/site-footer/site-footer.component
 import { MENU_COMPANY } from '@taliferro/ui/platform/universal-menu.model';
 import { AlsoFromUsComponent } from '../shared/also-from-us/also-from-us.component';
 import { MarketStripComponent } from '../shared/market-strip/market-strip.component';
+import { FindEntityCardComponent } from './entity-card/find-entity-card.component';
+import { FindBusinessCardComponent } from './business-card/find-business-card.component';
+import { FindShopCardComponent } from './shop-card/find-shop-card.component';
 
 type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info' | 'awards';
 
@@ -60,7 +63,7 @@ function distanceMeters ( from: { latitude: number; longitude: number }, latitud
 @Component( {
   selector: 'app-find-home',
   standalone: true,
-  imports: [ MarketStripComponent, AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
+  imports: [ FindEntityCardComponent, FindBusinessCardComponent, FindShopCardComponent, MarketStripComponent, AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
   templateUrl: './find-home.component.html',
   styleUrls: ['./find-home.component.css', './find-home.grid.css', './find-home.features.css'],
   // The prerendered "/" always contains the home screen, but a `?query=` or
@@ -118,7 +121,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     { label: 'Conversion', icon: 'fa-arrow-right-arrow-left', color: 'conversion', query: '100 USD to EUR' },
     { label: 'Restaurants', icon: 'fa-utensils', color: 'restaurants', query: 'restaurants near me' },
     // Shop independent stores on TODD Market (replaced the "Events, coming soon" tile).
-    { label: 'Shop', icon: 'fa-bag-shopping', color: 'shop', query: '', href: 'https://market.taliferro.tech' },
+    { label: 'Shop', icon: 'fa-bag-shopping', color: 'shop', query: '', href: 'https://16ahead.store' },
   ];
 
   gyroEnabled = false;
@@ -183,6 +186,15 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   private routeSub?: Subscription;
   private gyroSub?: Subscription;
   private summarySub?: Subscription;
+  // Single-item results: when the query names one thing (an NFL team, a
+  // store, a restaurant, a local service), one rich card shows instead of
+  // the list, as soon as the backend recognizes it, while the normal search
+  // keeps running behind it.
+  entity: FindEntity | null = null;
+  entityDismissed = false;
+  /** Where the visitor is, for a business card's nearest location (null: not shared). */
+  entityPosition: { latitude: number; longitude: number } | null = null;
+  private entitySub?: Subscription;
   // Bumped on each search, so a slow headline merge never shows an older search.
   private searchId = 0;
 
@@ -253,6 +265,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     this.routeSub?.unsubscribe();
     this.gyroSub?.unsubscribe();
     this.summarySub?.unsubscribe();
+    this.entitySub?.unsubscribe();
     this.gyroscope.disable();
     this.clearGyroTimer();
     this.stopLoadingTimer();
@@ -265,7 +278,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   onDocumentKeydown ( event: KeyboardEvent ): void {
     if ( event.key !== 'ArrowLeft' && event.key !== 'ArrowRight' ) return;
     if ( event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ) return;
-    if ( ( this.activeView !== 'result' && this.activeView !== 'detail' ) || !this.result || this.isLoading || this.pendingAwardUnlock ) return;
+    if ( ( this.activeView !== 'result' && this.activeView !== 'detail' ) || !this.result || this.isLoading || this.pendingAwardUnlock || this.showEntityCard ) return;
     const target = event.target as HTMLElement | null;
     if ( target?.closest?.( 'input, textarea, select, [contenteditable="true"]' ) ) return;
     event.preventDefault();
@@ -428,6 +441,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
 
   resetToSearch (): void {
     this.summarySub?.unsubscribe();
+    this.clearEntity();
     this.result = null;
     this.updateCards();
     this.breadcrumb = [];
@@ -722,7 +736,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   get showPillBar (): boolean {
-    return !!this.result && this.isResultView;
+    return !!this.result && this.isResultView && !this.showEntityCard;
   }
 
   get shelfTitle (): string {
@@ -1684,10 +1698,12 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   // --- Swipe ---
 
   onSwipeLeft (): void {
+    if ( this.showEntityCard ) return;
     this.onNextResult();
   }
 
   onSwipeRight (): void {
+    if ( this.showEntityCard ) return;
     this.onPreviousResult();
   }
 
@@ -1814,6 +1830,30 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     const extraHeadlines = this.headlineFeeds.extraHeadlines( this.headlineFeeds.sectionForQuery( query ) );
     const searchId = ++this.searchId;
 
+    this.clearEntity();
+    if ( !normalizedContext ) {
+      this.entitySub = this.findExperienceService.detectEntity( query ).subscribe( {
+        next: ( response ) => {
+          const entity = response?.entity ?? null;
+          if ( searchId !== this.searchId || !entity ) return;
+          if ( entity.type === 'sports' || entity.type === 'shop' ) {
+            this.entity = entity;
+            return;
+          }
+          // A store or restaurant card is about the nearest location, so this
+          // is when Find asks for the position (once: the browser remembers
+          // the answer and requestPosition keeps it for the session).
+          this.requestPosition().then( ( position ) => {
+            if ( searchId !== this.searchId ) return;
+            this.entityPosition = position;
+            this.entity = entity;
+          } );
+        },
+        // No card: the normal results show as before.
+        error: () => { },
+      } );
+    }
+
     this.resolveCoordinatesForQuery( query ).then( ( coords ) => {
       this.findExperienceService.search( {
         query,
@@ -1845,6 +1885,38 @@ export class FindHomeComponent implements OnInit, OnDestroy {
         }
       } );
     } );
+  }
+
+  get showEntityCard (): boolean {
+    return !!this.entity && !this.entityDismissed && this.activeView === 'result';
+  }
+
+  /** The count beside "More results"; none until the normal search is back. */
+  get entityMoreCount (): number | null {
+    return this.isLoading ? null : this.result?.results?.length || null;
+  }
+
+  /** A Watch started inside a card: History lists it like any other watch. */
+  onEntityWatched ( watch: FindWatch ): void {
+    this.watches = [ watch, ...this.watches.filter( item => item.id !== watch.id ) ];
+    this.writeFlag( this.HAS_WATCHES_KEY, true );
+  }
+
+  get entityFooterNote (): string {
+    if ( this.entity?.type === 'sports' ) return 'Scores and stats from ESPN';
+    if ( this.entity?.type === 'shop' ) return 'Products and prices from 16Ahead Store';
+    return 'Hours, locations and ratings from Google';
+  }
+
+  /** "More results" swaps the card for the normal results (or their loading spinner). */
+  showAllResults (): void {
+    this.entityDismissed = true;
+  }
+
+  private clearEntity (): void {
+    this.entitySub?.unsubscribe();
+    this.entity = null;
+    this.entityDismissed = false;
   }
 
   private applySearchResponse ( response: FindSearchResponse, query: string ): void {
