@@ -161,12 +161,18 @@ export class FindMusicCardComponent implements OnChanges, OnDestroy {
           this.apple?.links.appleArtist ? { label: this.facts?.artist || 'Artist', shortLabel: 'Artist', icon: 'fa-user', href: this.apple.links.appleArtist } : null,
           links?.wikipedia ? { label: 'Wikipedia', shortLabel: 'Wikipedia', icon: 'fa-arrow-up-right-from-square', href: links.wikipedia } : null,
         ]
-        : [
-          // Tour dates: no free source, so a search where tickets are sold.
-          { label: 'Tour dates', shortLabel: 'Tour', icon: 'fa-ticket', href: `https://www.ticketmaster.com/search?q=${ encodeURIComponent( this.entity.name ) }` },
-          links?.website ? { label: 'Official site', shortLabel: 'Site', icon: 'fa-globe', href: links.website } : null,
-          links?.wikipedia ? { label: 'Wikipedia', shortLabel: 'Wikipedia', icon: 'fa-arrow-up-right-from-square', href: links.wikipedia } : null,
-        ];
+        : links?.radio
+          // A Taliferro Music artist: the radio that plays them, and Bandcamp (their site).
+          ? [
+            { label: 'Taliferro Music Radio', shortLabel: 'Radio', icon: 'fa-radio', href: links.radio },
+            links.bandcamp ? { label: 'Bandcamp', shortLabel: 'Bandcamp', icon: 'fa-compact-disc', href: links.bandcamp } : null,
+          ]
+          : [
+            // Tour dates: no free source, so a search where tickets are sold.
+            { label: 'Tour dates', shortLabel: 'Tour', icon: 'fa-ticket', href: `https://www.ticketmaster.com/search?q=${ encodeURIComponent( this.entity.name ) }` },
+            links?.website ? { label: 'Official site', shortLabel: 'Site', icon: 'fa-globe', href: links.website } : null,
+            links?.wikipedia ? { label: 'Wikipedia', shortLabel: 'Wikipedia', icon: 'fa-arrow-up-right-from-square', href: links.wikipedia } : null,
+          ];
     return actions.filter( ( action ): action is MusicAction => !!action );
   }
 

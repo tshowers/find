@@ -1911,6 +1911,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     if ( this.isRegionEntity( this.entity ) ) return 'Facts from Wikidata · weather from Open-Meteo';
     if ( this.entity?.type === 'movie' ) return 'Ratings via OMDb · box office and cast from Wikidata';
     if ( this.entity?.type === 'tv' ) return 'Ratings via OMDb · episodes from TVmaze';
+    if ( this.entity?.type === 'artist' && this.entity.id.startsWith( 'tm.' ) ) return 'A Taliferro Music artist · tracks and previews from Apple Music';
     if ( this.entity?.type === 'artist' || this.entity?.type === 'album' || this.entity?.type === 'song' ) return 'Facts from Wikidata · tracks and previews from Apple Music';
     return 'Hours, locations and ratings from Google';
   }
