@@ -45,7 +45,7 @@ describe('FindExperienceService', () => {
     expect(request.request.body).toEqual({
       query: 'weather tomorrow',
       context: null,
-      maxResults: 20,
+      maxResults: 16,
       timeZone: jasmine.any(String),
       features: ['instant', 'units'],
     });
@@ -61,7 +61,7 @@ describe('FindExperienceService', () => {
       context: null,
       latitude: 47.5218,
       longitude: -122.3466,
-      maxResults: 20,
+      maxResults: 16,
       timeZone: jasmine.any(String),
       features: ['instant', 'units'],
     });
@@ -75,7 +75,7 @@ describe('FindExperienceService', () => {
     expect(request.request.body).toEqual({
       query: 'places to eat near me',
       context: null,
-      maxResults: 20,
+      maxResults: 16,
       timeZone: jasmine.any(String),
       features: ['instant', 'units'],
     });

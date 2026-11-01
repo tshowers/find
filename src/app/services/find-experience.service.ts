@@ -246,7 +246,7 @@ export class FindExperienceService {
       context: String( payload?.context || '' ).trim() || null,
       ...( postalCode ? { postalCode } : {} ),
       ...( hasCoordinates ? { latitude: payload!.latitude, longitude: payload!.longitude } : {} ),
-      maxResults: Math.max( 1, Math.min( 20, Number( payload?.maxResults ) || 20 ) ),
+      maxResults: Math.max( 1, Math.min( 16, Number( payload?.maxResults ) || 16 ) ),
       timeZone: this.userTimeZone(),
       // Answer types this app can show; the backend leaves them out for apps that can't.
       features: [ 'instant', 'units' ]

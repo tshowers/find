@@ -42,16 +42,16 @@ export class HelpComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const pageTitle = 'Find Help — How to search with Find | Taliferro Tech';
+    const pageTitle = 'Find Help — How to search with Find | 16Ahead';
     const description = 'A walkthrough of how to use Find: ask a question, read the strongest result first, explore alternatives, refine with context pills, and use quick actions.';
     this.title.setTitle(pageTitle);
     this.meta.updateTag({ name: 'description', content: description });
     this.meta.updateTag({ property: 'og:title', content: pageTitle });
     this.meta.updateTag({ property: 'og:description', content: description });
-    this.meta.updateTag({ property: 'og:url', content: 'https://find.taliferro.tech/help' });
+    this.meta.updateTag({ property: 'og:url', content: 'https://find.16ahead.com/help' });
     this.meta.updateTag({ name: 'twitter:title', content: pageTitle });
     this.meta.updateTag({ name: 'twitter:description', content: description });
-    this.seo.setCanonical('https://find.taliferro.tech/help');
+    this.seo.setCanonical('https://find.16ahead.com/help');
   }
 
   ngAfterViewInit(): void {
@@ -102,7 +102,7 @@ export class HelpComponent implements OnInit, AfterViewInit, OnDestroy {
         'Conversion handles currency and unit conversions, including an interactive keypad.',
         'Restaurants searches for places to eat near you when location context is available. Tap Open now to see only places open right now.',
         'Turn on Use my location on the Info tab to see how far away places are on every search. Your location is sent with each search and never stored.',
-        'Shop opens TODD Market, where you can search every independent store in the network at once or browse them one by one. Matching items from those stores also appear on your Find results.',
+        'Shop opens 16Ahead Store, where you can search every independent store in the network at once or browse them one by one. Matching items from those stores also appear on your Find results.',
       ],
       action: 'Try a quick search',
       actionQueryParams: { query: 'weather' },

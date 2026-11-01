@@ -205,7 +205,7 @@ describe( 'Find home - buttons and navigation', () => {
 
   it( 'shows a Shop quick action for TODD Market (it replaced Events, coming soon)', () => {
     cy.visit( '/' );
-    cy.get( '[aria-label="Shop on TODD Market"]' ).should( 'be.visible' ).and( 'not.be.disabled' );
+    cy.get( '[aria-label="Shop on 16Ahead Store"]' ).should( 'be.visible' ).and( 'not.be.disabled' );
     cy.get( '[aria-label="Events coming soon"]' ).should( 'not.exist' );
   } );
 
@@ -244,7 +244,7 @@ describe( 'Find home - buttons and navigation', () => {
   } );
 
   it( 'shares a short link to the current result from the Share tab', () => {
-    cy.intercept( 'POST', '**/find/share', { success: true, id: 'AbCdEfGhIj', url: 'https://find.taliferro.tech/s/AbCdEfGhIj' } ).as( 'createShare' );
+    cy.intercept( 'POST', '**/find/share', { success: true, id: 'AbCdEfGhIj', url: 'https://find.16ahead.com/s/AbCdEfGhIj' } ).as( 'createShare' );
     runSearch( 'sushi in seattle', entityResponse( 'sushi in seattle' ) );
 
     cy.window().then( ( win ) => {
@@ -259,9 +259,9 @@ describe( 'Find home - buttons and navigation', () => {
     // Share opens a panel: the short link first, then Share… as its own tap.
     cy.get( '[aria-label="Share result"]' ).click();
     cy.wait( '@createShare' ).its( 'request.body' ).should( 'include', { query: 'sushi in seattle', title: 'Example Result' } );
-    cy.get( '.find-share-panel__link' ).should( 'have.value', 'https://find.taliferro.tech/s/AbCdEfGhIj' );
+    cy.get( '.find-share-panel__link' ).should( 'have.value', 'https://find.16ahead.com/s/AbCdEfGhIj' );
     cy.contains( '.find-share-panel button', 'Share…' ).click();
-    cy.get( '@share' ).should( 'have.been.calledWith', { title: 'Example Result', url: 'https://find.taliferro.tech/s/AbCdEfGhIj' } );
+    cy.get( '@share' ).should( 'have.been.calledWith', { title: 'Example Result', url: 'https://find.16ahead.com/s/AbCdEfGhIj' } );
     cy.get( '.find-share-panel' ).should( 'not.exist' );
   } );
 } );
