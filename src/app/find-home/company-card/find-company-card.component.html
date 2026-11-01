@@ -195,17 +195,25 @@
       <img [src]="founder.photoUrl" alt="" width="52" height="52" />
       <span class="ec-row__left">{{ founder.name }}<small>{{ founder.role }}</small></span>
     </span>
-    <a class="fp-pill" *ngIf="founder.linkedin" [href]="founder.linkedin" target="_blank" rel="noopener">LinkedIn</a>
+    <a class="fp-pill" *ngIf="founder.linkedin" [href]="founder.linkedin" target="_blank" rel="noopener"><i class="fa-brands fa-linkedin" aria-hidden="true"></i> LinkedIn</a>
   </div>
 </ng-template>
 
 <ng-template #moreBlocks>
   <div *ngFor="let block of overview?.more">
     <h3 class="ec-list-title">{{ block.title }}</h3>
-    <div class="ec-row" *ngFor="let row of block.rows">
-      <span class="ec-row__left">{{ row.name }}</span>
-      <span class="ec-row__right">{{ row.value }}</span>
-    </div>
+    <ng-container *ngFor="let row of block.rows">
+      <a class="ec-row fp-used" *ngIf="row.url; else plainRow" [href]="row.url" target="_blank" rel="noopener">
+        <span class="ec-row__left">{{ row.name }}</span>
+        <span class="ec-row__right">{{ row.value }} <i class="fa-brands fa-linkedin" *ngIf="row.url.includes('linkedin.com')" aria-label="on LinkedIn"></i></span>
+      </a>
+      <ng-template #plainRow>
+        <div class="ec-row">
+          <span class="ec-row__left">{{ row.name }}</span>
+          <span class="ec-row__right">{{ row.value }}</span>
+        </div>
+      </ng-template>
+    </ng-container>
     <p class="fp-more__text" *ngIf="block.text">{{ block.text }}</p>
   </div>
   <div *ngIf="overview?.faq?.length">
@@ -232,7 +240,7 @@
 <ng-template #actionButtons>
   <div class="ec-actions" *ngIf="overview?.actions?.length">
     <a *ngFor="let action of overview?.actions; let first = first" class="ec-action" [class.ec-action--primary]="first" [href]="action.url" [attr.target]="isWebLink(action.url) ? '_blank' : null" [attr.rel]="isWebLink(action.url) ? 'noopener' : null">
-      <i class="fa-solid" [ngClass]="actionIcon(action.kind)" aria-hidden="true"></i>
+      <i [ngClass]="actionIcon(action.kind)" aria-hidden="true"></i>
       <span class="ec-action__label">{{ action.label }}</span>
       <span class="ec-action__short" aria-hidden="true">{{ action.shortLabel }}</span>
     </a>

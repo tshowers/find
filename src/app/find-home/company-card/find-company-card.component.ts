@@ -5,11 +5,12 @@ import { FindEntity, FindEntitySection, FindEntitySummary, FindExperienceService
 import { FindVideoPlayerComponent } from '../video-player/find-video-player.component';
 
 const ACTION_ICONS: Record<string, string> = {
-  email: 'fa-envelope',
-  site: 'fa-arrow-up-right-from-square',
-  open: 'fa-arrow-up-right-from-square',
-  products: 'fa-table-cells-large',
-  company: 'fa-building',
+  email: 'fa-solid fa-envelope',
+  site: 'fa-solid fa-arrow-up-right-from-square',
+  open: 'fa-solid fa-arrow-up-right-from-square',
+  products: 'fa-solid fa-table-cells-large',
+  company: 'fa-solid fa-building',
+  linkedin: 'fa-brands fa-linkedin',
 };
 
 const CONTACT_ICONS: Record<FindFirstPartyContact[ 'kind' ], string> = {
@@ -101,7 +102,7 @@ export class FindCompanyCardComponent implements OnChanges, OnDestroy {
   }
 
   actionIcon ( kind: string ): string {
-    return ACTION_ICONS[ kind ] || 'fa-arrow-up-right-from-square';
+    return ACTION_ICONS[ kind ] || 'fa-solid fa-arrow-up-right-from-square';
   }
 
   contactIcon ( kind: FindFirstPartyContact[ 'kind' ] ): string {

@@ -296,7 +296,7 @@ export interface FindFirstPartyOverview {
   groups?: Array<{ name: string; products: FindProductRow[] }>;
   usedBy?: Array<FindProductRow & { text: string }>;
   founder?: { name: string; role: string; photoUrl: string; linkedin: string };
-  more?: Array<{ title: string; text?: string; rows?: Array<{ name: string; value: string }> }>;
+  more?: Array<{ title: string; text?: string; rows?: Array<{ name: string; value: string; url?: string }> }>;
   faq?: Array<{ q: string; a: string }>;
   actions: Array<{ kind: string; label: string; shortLabel: string; url: string }>;
   footer: string;
