@@ -559,6 +559,111 @@ describe('FindHomeComponent', () => {
     drainSummarize();
   }));
 
+  it('shows another company: market cap first, next earnings over its contacts, its videos, products and leaders', fakeAsync(() => {
+    component.query = 'apple';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: { type: 'corporation', label: 'Technology company', id: 'Q312', name: 'Apple', logoUrl: null },
+    });
+    tick();
+    harness.detectChanges();
+    // The card is deferred (its own chunk): let it load.
+    flush();
+    harness.detectChanges();
+
+    const sections = http.match(r => r.url.endsWith('/find/entity/section'));
+    expect(sections.map(req => req.request.body.section).sort()).toEqual([ 'market', 'overview', 'summary', 'videos' ]);
+    sections.find(req => req.request.body.section === 'overview')!.flush({
+      data: {
+        context: 'Technology company',
+        tags: [ { text: 'Technology company', tone: 'cyan' }, { text: 'NASDAQ: AAPL', tone: 'blue' } ],
+        meta: [ { value: 'CEO John Ternus', strong: true }, { value: 'Cupertino, CA' }, { value: 'Founded 1976' } ],
+        videos: [],
+        panel: {
+          kind: 'contact', label: 'Contact',
+          contacts: [
+            { kind: 'call', label: 'Call HQ', value: '(408) 996-1010', url: 'tel:+14089961010' },
+            { kind: 'website', label: 'Website', value: 'apple.com', url: 'https://apple.com' },
+          ],
+        },
+        tiles: [ { label: 'CEO', value: 'John Ternus', sub: 'Since Sep 2026' } ],
+        chips: { title: 'Products', items: [ 'iPhone', 'Mac' ] },
+        lists: [ { title: 'Leadership', rows: [ { name: 'John Ternus', value: 'CEO since Sep 2026' } ] } ],
+        more: [], actions: [ { kind: 'site', label: 'apple.com', shortLabel: 'Website', url: 'https://apple.com' } ], footer: 'Wikidata, SEC',
+      },
+    });
+    sections.find(req => req.request.body.section === 'summary')!.flush({ data: null });
+    harness.detectChanges();
+    const card = root().querySelector('[data-cy="find-entity-card"]')!;
+    // Videos still loading: a placeholder, not "Video coming soon".
+    expect(card.querySelector('[data-cy="find-video"]')).toBeNull();
+    expect(card.querySelector('.fp-video-skel')).not.toBeNull();
+
+    sections.find(req => req.request.body.section === 'market')!.flush({
+      data: {
+        tile: { label: 'Market cap', value: '≈ $5.03T', sub: 'NASDAQ: AAPL' },
+        next: { label: 'Next up', title: 'Earnings report', text: 'Expected Mon, Nov 2', date: '2026-11-02' },
+        sources: [ 'Yahoo Finance' ],
+      },
+    });
+    sections.find(req => req.request.body.section === 'videos')!.flush({
+      data: { videos: [ { url: 'https://www.youtube.com/watch?v=x5h1JykMcFU', title: 'Introducing the new iPad mini', sub: 'YouTube · Apple', duration: '1:21' } ] },
+    });
+    harness.detectChanges();
+
+    expect(Array.from(card.querySelectorAll('.ec-tile__label')).map(label => label.textContent?.trim())).toEqual([ 'Market cap', 'CEO' ]);
+    const panel = card.querySelector('[data-cy="find-first-party-panel"]')!;
+    expect(panel.textContent).toContain('Earnings report');
+    expect(Array.from(panel.querySelectorAll<HTMLAnchorElement>('a')).map(link => link.getAttribute('href'))).toEqual([ 'tel:+14089961010', 'https://apple.com' ]);
+    expect(Array.from(card.querySelectorAll('.fp-chip')).map(chip => chip.textContent?.trim())).toEqual([ 'iPhone', 'Mac' ]);
+    expect(card.textContent).toContain('CEO since Sep 2026');
+
+    // A YouTube video plays in its embed, in the card.
+    const video = card.querySelector('[data-cy="find-video"]')!;
+    video.querySelector<HTMLButtonElement>('.vp-play')!.click();
+    harness.detectChanges();
+    expect(video.querySelector('iframe')?.getAttribute('src')).toContain('https://www.youtube.com/embed/x5h1JykMcFU');
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('apple'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+  }));
+
+  it('leaves the player off another company\'s card when it has no videos', fakeAsync(() => {
+    component.query = 'caterpillar';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: { type: 'corporation', label: 'Machinery and engines company', id: 'Q459965', name: 'Caterpillar', logoUrl: null },
+    });
+    tick();
+    harness.detectChanges();
+    flush();
+    harness.detectChanges();
+    const sections = http.match(r => r.url.endsWith('/find/entity/section'));
+    sections.find(req => req.request.body.section === 'overview')!.flush({
+      data: { context: 'Machinery and engines company', tags: [], meta: [], videos: [], panel: { kind: 'contact', label: 'Contact', contacts: [] }, tiles: [], actions: [], footer: '' },
+    });
+    sections.find(req => req.request.body.section === 'summary')!.flush({ data: null });
+    sections.find(req => req.request.body.section === 'market')!.flush({ data: null });
+    sections.find(req => req.request.body.section === 'videos')!.flush({ data: { videos: [] } });
+    harness.detectChanges();
+
+    const card = root().querySelector('[data-cy="find-entity-card"]')!;
+    expect(card.querySelector('[data-cy="find-video"]')).toBeNull();
+    expect(card.querySelector('.fp-video-skel')).toBeNull();
+    expect(card.querySelector('[data-cy="find-first-party-panel"]')?.textContent).toContain('Contact');
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('caterpillar'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+  }));
+
   // --- 1. The "Find" search button ---
 
   it('submits the typed query, runs a search, and saves it to history', fakeAsync(() => {

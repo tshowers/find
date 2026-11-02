@@ -196,7 +196,7 @@ export interface FindMovieRatings {
 // clearly names one thing gets one rich card: an NFL, NBA, MLB or college
 // team, a store, a restaurant, a local service, a 16Ahead Store shop, or
 // (round 5) a country, US state, city, movie, TV show, artist, album or song.
-export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service' | 'shop' | 'country' | 'state' | 'city' | 'movie' | 'tv' | 'artist' | 'album' | 'song' | 'company' | 'product';
+export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service' | 'shop' | 'country' | 'state' | 'city' | 'movie' | 'tv' | 'artist' | 'album' | 'song' | 'company' | 'product' | 'corporation';
 export type FindSportsLeague = 'nfl' | 'nba' | 'mlb' | 'college-football' | 'mens-college-basketball';
 
 export interface FindEntity {
@@ -220,7 +220,7 @@ export interface FindEntity {
   tintFgDark?: string | null;
 }
 
-export type FindEntitySection = 'team' | 'games' | 'leaders' | 'news' | 'summary' | 'place' | 'details' | 'sale' | 'shop' | 'region' | 'local' | 'todo' | 'title' | 'facts' | 'show' | 'apple' | 'overview';
+export type FindEntitySection = 'team' | 'games' | 'leaders' | 'news' | 'summary' | 'place' | 'details' | 'sale' | 'shop' | 'region' | 'local' | 'todo' | 'title' | 'facts' | 'show' | 'apple' | 'overview' | 'market' | 'videos';
 
 export interface FindStatTile { label: string; value: string; sub: string }
 export interface FindEntityTag { text: string; tone: 'blue' | 'green' | 'cyan' | 'pink' | 'violet' | 'yellow' | 'plain' }
@@ -285,7 +285,7 @@ export interface FindCardVideo { url: string; urlLight?: string; poster?: string
 // Our own company and products (design_handoff_find_taliferro_results 5a–5c).
 // Everything on the card is our approved wording, in one "overview" section.
 export interface FindProductRow { id: string; name: string; iconUrl: string; url: string }
-export interface FindFirstPartyContact { kind: 'call' | 'email' | 'directions'; label: string; value: string; url: string }
+export interface FindFirstPartyContact { kind: 'call' | 'email' | 'directions' | 'website'; label: string; value: string; url: string }
 export interface FindFirstPartyOverview {
   context: string;
   tags: FindEntityTag[];
@@ -296,11 +296,26 @@ export interface FindFirstPartyOverview {
   groups?: Array<{ name: string; products: FindProductRow[] }>;
   usedBy?: Array<FindProductRow & { text: string }>;
   founder?: { name: string; role: string; photoUrl: string; linkedin: string };
+  /** Another company's products ("iPhone", "Mac") and leaders, as pills and rows. */
+  chips?: { title: string; items: string[] } | null;
+  lists?: Array<{ title: string; rows: Array<{ name: string; value: string }> }>;
   more?: Array<{ title: string; text?: string; rows?: Array<{ name: string; value: string; url?: string }> }>;
   faq?: Array<{ q: string; a: string }>;
   actions: Array<{ kind: string; label: string; shortLabel: string; url: string }>;
   footer: string;
 }
+
+// Another company ("apple", 5e) uses the same overview, filled from
+// Wikidata and the SEC; its market data and videos come in their own
+// sections because they're slower and can fail on their own.
+export interface FindCompanyMarket {
+  /** Market cap, or the share price when the share count isn't known. */
+  tile: FindStatTile | null;
+  /** The next earnings report, for the cyan panel. */
+  next: { label: string; title: string; text: string; date: string } | null;
+  sources: string[];
+}
+export interface FindCompanyVideos { videos: FindCardVideo[] }
 
 // Countries, US states and cities (round 5, types 7–9). Tiles and rows arrive
 // already worded, so the card only lays them out.

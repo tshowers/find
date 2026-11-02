@@ -179,6 +179,23 @@
   object-fit: cover;
 }
 
+/* Another company's products: pills, wrapping. */
+.fp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 0 8px;
+}
+
+.fp-chip {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
 .fp-pill {
   padding: 8px 14px;
   border-radius: 999px;
