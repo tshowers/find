@@ -53,7 +53,7 @@
       <ng-template #businessCard>
         <app-find-shop-card *ngIf="entity.type === 'shop'; else companyCard" [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()" (watched)="onEntityWatched($event)"></app-find-shop-card>
         <ng-template #companyCard>
-          <ng-container *ngIf="entity.type === 'company' || entity.type === 'product' || entity.type === 'corporation'; else regionCard">
+          <ng-container *ngIf="entity.type === 'company' || entity.type === 'product' || entity.type === 'corporation' || entity.type === 'item'; else regionCard">
             <!-- Loaded when first needed, to keep it out of the first download. -->
             @defer (on immediate) {
               <app-find-company-card [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()"></app-find-company-card>

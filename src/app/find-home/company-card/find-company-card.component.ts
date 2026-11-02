@@ -13,6 +13,8 @@ const ACTION_ICONS: Record<string, string> = {
   linkedin: 'fa-brands fa-linkedin',
   stock: 'fa-solid fa-chart-line',
   news: 'fa-solid fa-newspaper',
+  buy: 'fa-solid fa-cart-shopping',
+  compare: 'fa-solid fa-scale-balanced',
 };
 
 const CONTACT_ICONS: Record<FindFirstPartyContact[ 'kind' ], string> = {
@@ -23,7 +25,8 @@ const CONTACT_ICONS: Record<FindFirstPartyContact[ 'kind' ], string> = {
 };
 
 // design_handoff_find_taliferro_results 5a–5c: our own company ("taliferro
-// tech") and products ("image creator"); 5e: any other company ("apple").
+// tech") and products ("image creator"); 5e: any other company ("apple");
+// 5d: a product someone might buy ("dell xps 14"), with store prices.
 // Same layouts and loading behavior as the other single-item cards: A above
 // 900px, B below; undefined = loading, null = hidden. Video first, then the
 // cyan panel: contact options (with another company's next earnings report
@@ -43,7 +46,7 @@ export class FindCompanyCardComponent implements OnChanges, OnDestroy {
 
   overview?: FindFirstPartyOverview | null;
   summary?: FindEntitySummary | null;
-  /** Another company only: market cap and next earnings, and its videos. */
+  /** Another company: market cap and next earnings. Another company or a product to buy: its videos. */
   market?: FindCompanyMarket | null;
   companyVideos?: FindCompanyVideos | null;
 
@@ -71,10 +74,8 @@ export class FindCompanyCardComponent implements OnChanges, OnDestroy {
     this.logoFailed = false;
     this.fetch<FindFirstPartyOverview>( 'overview', data => this.overview = data );
     this.fetch<FindEntitySummary>( 'summary', data => this.summary = data?.text ? data : null );
-    if ( this.isCorporation ) {
-      this.fetch<FindCompanyMarket>( 'market', data => this.market = data );
-      this.fetch<FindCompanyVideos>( 'videos', data => this.companyVideos = data );
-    }
+    if ( this.isCorporation ) this.fetch<FindCompanyMarket>( 'market', data => this.market = data );
+    if ( this.isExternal ) this.fetch<FindCompanyVideos>( 'videos', data => this.companyVideos = data );
   }
 
   private fetch<T> ( section: FindEntitySection, apply: ( data: T | null ) => void ): void {
@@ -100,22 +101,32 @@ export class FindCompanyCardComponent implements OnChanges, OnDestroy {
     return this.entity.type === 'corporation';
   }
 
-  /** Company logos sit on a white tile; our product icons fill theirs. */
+  /** A product someone might buy, not one of ours. */
+  get isItem (): boolean {
+    return this.entity.type === 'item';
+  }
+
+  /** Not ours: videos come from YouTube, in their own section. */
+  get isExternal (): boolean {
+    return this.isCorporation || this.isItem;
+  }
+
+  /** Company logos and product photos sit on a white tile; our product icons fill theirs. */
   get whiteLogo (): boolean {
-    return this.isCompany || this.isCorporation;
+    return this.isCompany || this.isExternal;
   }
 
   get videos (): FindCardVideo[] {
-    return ( this.isCorporation ? this.companyVideos?.videos : this.overview?.videos ) || [];
+    return ( this.isExternal ? this.companyVideos?.videos : this.overview?.videos ) || [];
   }
 
   get videosLoading (): boolean {
-    return this.overview === undefined || ( this.isCorporation && this.companyVideos === undefined );
+    return this.overview === undefined || ( this.isExternal && this.companyVideos === undefined );
   }
 
-  /** Ours always show the player ("Video coming soon" until there is one); another company's only with videos. */
+  /** Ours always show the player ("Video coming soon" until there is one); others' only with videos. */
   get showPlayer (): boolean {
-    return !!this.overview && !this.videosLoading && ( !this.isCorporation || this.videos.length > 0 );
+    return !!this.overview && !this.videosLoading && ( !this.isExternal || this.videos.length > 0 );
   }
 
   /** Another company's next earnings report heads its panel, above the contacts. */
