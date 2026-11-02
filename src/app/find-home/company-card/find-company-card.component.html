@@ -1,7 +1,7 @@
 <!-- ── LAYOUT A: dashboard (above 900px) ── -->
 <section class="ec-a" data-cy="find-entity-card" [attr.aria-label]="entity.name">
   <div class="ec-identity">
-    <span class="ec-logo fp-logo" [class.fp-logo--company]="isCompany">
+    <span class="ec-logo fp-logo" [class.fp-logo--company]="whiteLogo">
       <img *ngIf="logo as image" [src]="image" alt="" (error)="logoFailed = true" />
     </span>
     <div class="ec-identity__text">
@@ -15,8 +15,8 @@
 
   <div class="ec-grid fp-grid">
     <div class="ec-col">
-      <div class="ec-skel fp-video-skel" *ngIf="overview === undefined"></div>
-      <app-find-video-player *ngIf="overview" [videos]="overview.videos" [name]="entity.name" [logoUrl]="logo"></app-find-video-player>
+      <div class="ec-skel fp-video-skel" *ngIf="videosLoading"></div>
+      <app-find-video-player *ngIf="showPlayer" [videos]="videos" [name]="entity.name" [logoUrl]="logo"></app-find-video-player>
       <div class="ec-skel ec-now" *ngIf="overview === undefined"></div>
       <ng-container *ngTemplateOutlet="panel; context: { long: true }"></ng-container>
     </div>
@@ -25,6 +25,14 @@
       <ng-container *ngTemplateOutlet="summaryBlock"></ng-container>
       <div class="ec-skel ec-skel--tiles" *ngIf="overview === undefined"></div>
       <ng-container *ngTemplateOutlet="tiles"></ng-container>
+      <div *ngIf="overview?.chips as chips">
+        <h3 class="ec-list-title">{{ chips.title }}</h3>
+        <ng-container *ngTemplateOutlet="chipList"></ng-container>
+      </div>
+      <div *ngFor="let list of overview?.lists">
+        <h3 class="ec-list-title">{{ list.title }}</h3>
+        <ng-container *ngTemplateOutlet="nameRows; context: { $implicit: list.rows }"></ng-container>
+      </div>
       <div *ngIf="overview?.groups?.length">
         <h3 class="ec-list-title">Spaces</h3>
         <ng-container *ngTemplateOutlet="groupRows"></ng-container>
@@ -57,7 +65,7 @@
 <!-- ── LAYOUT B: stacked (900px and below) ── -->
 <section class="ec-b" [attr.aria-label]="entity.name">
   <div class="ec-identity">
-    <span class="ec-logo fp-logo" [class.fp-logo--company]="isCompany">
+    <span class="ec-logo fp-logo" [class.fp-logo--company]="whiteLogo">
       <img *ngIf="logo as image" [src]="image" alt="" (error)="logoFailed = true" />
     </span>
     <div class="ec-identity__text">
@@ -66,8 +74,8 @@
     </div>
   </div>
 
-  <div class="ec-skel fp-video-skel" *ngIf="overview === undefined"></div>
-  <app-find-video-player *ngIf="overview" [videos]="overview.videos" [chips]="true" [name]="entity.name" [logoUrl]="logo"></app-find-video-player>
+  <div class="ec-skel fp-video-skel" *ngIf="videosLoading"></div>
+  <app-find-video-player *ngIf="showPlayer" [videos]="videos" [chips]="true" [name]="entity.name" [logoUrl]="logo"></app-find-video-player>
 
   <ng-container *ngTemplateOutlet="summaryBlock"></ng-container>
   <ng-container *ngTemplateOutlet="tiles"></ng-container>
@@ -79,11 +87,31 @@
       <span class="fp-contact-tile__label">{{ contact.label }}</span>
     </a>
   </div>
-  <ng-container *ngIf="!isCompany">
+  <ng-container *ngIf="showPanelBelow">
     <ng-container *ngTemplateOutlet="panel; context: { long: false }"></ng-container>
   </ng-container>
 
   <div class="ec-sections">
+    <div class="ec-section" *ngIf="overview?.chips as chips">
+      <button type="button" class="ec-section__head" (click)="toggleSection('chips')" [attr.aria-expanded]="openSections.has('chips')">
+        <strong>{{ chips.title }}</strong>
+        <span class="ec-section__preview">{{ chips.items.join(', ') }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('chips')" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('chips')">
+        <ng-container *ngTemplateOutlet="chipList"></ng-container>
+      </div>
+    </div>
+    <div class="ec-section" *ngFor="let list of overview?.lists">
+      <button type="button" class="ec-section__head" (click)="toggleSection('list:' + list.title)" [attr.aria-expanded]="openSections.has('list:' + list.title)">
+        <strong>{{ list.title }}</strong>
+        <span class="ec-section__preview">{{ list.rows[0].name }}</span>
+        <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('list:' + list.title)" aria-hidden="true"></i>
+      </button>
+      <div class="ec-section__body" *ngIf="openSections.has('list:' + list.title)">
+        <ng-container *ngTemplateOutlet="nameRows; context: { $implicit: list.rows }"></ng-container>
+      </div>
+    </div>
     <div class="ec-section" *ngIf="overview?.groups?.length">
       <button type="button" class="ec-section__head" (click)="toggleSection('spaces')" [attr.aria-expanded]="openSections.has('spaces')">
         <strong>Spaces</strong>
@@ -140,12 +168,12 @@
 
 <ng-template #panel let-long="long">
   <div class="ec-now fp-panel" *ngIf="overview?.panel as panel" data-cy="find-first-party-panel">
-    <span class="ec-now__label">{{ panel.label }}</span>
+    <span class="ec-now__label">{{ panelHead?.label }}</span>
     <ng-container *ngIf="panel.kind === 'contact'">
-      <strong class="fp-panel__title">{{ panel.title }}</strong>
-      <p class="fp-panel__text" *ngIf="panel.text">{{ panel.text }}</p>
-      <hr class="fp-divider" />
-      <div class="fp-contacts">
+      <strong class="fp-panel__title" *ngIf="panelHead?.title">{{ panelHead?.title }}</strong>
+      <p class="fp-panel__text" *ngIf="panelHead?.text">{{ panelHead?.text }}</p>
+      <hr class="fp-divider" *ngIf="panelHead?.title && long" />
+      <div class="fp-contacts" *ngIf="long">
         <a *ngFor="let contact of contacts" class="fp-contact" [href]="contact.url" [attr.target]="isWebLink(contact.url) ? '_blank' : null" [attr.rel]="isWebLink(contact.url) ? 'noopener' : null">
           <span class="fp-contact__icon"><i class="fa-solid" [ngClass]="contactIcon(contact.kind)" aria-hidden="true"></i></span>
           <strong>{{ contact.label }}</strong>
@@ -163,12 +191,25 @@
 </ng-template>
 
 <ng-template #tiles>
-  <div class="ec-tiles" *ngIf="overview?.tiles?.length">
-    <div class="ec-tile" *ngFor="let tile of overview?.tiles">
+  <div class="ec-tiles" *ngIf="statTiles.length">
+    <div class="ec-tile" *ngFor="let tile of statTiles">
       <span class="ec-tile__label">{{ tile.label }}</span>
       <strong class="ec-tile__value">{{ tile.value }}</strong>
       <span class="ec-tile__sub" *ngIf="tile.sub">{{ tile.sub }}</span>
     </div>
+  </div>
+</ng-template>
+
+<ng-template #chipList>
+  <div class="fp-chips">
+    <span class="fp-chip" *ngFor="let item of overview?.chips?.items">{{ item }}</span>
+  </div>
+</ng-template>
+
+<ng-template #nameRows let-rows>
+  <div class="ec-row" *ngFor="let row of rows">
+    <span class="ec-row__left">{{ row.name }}</span>
+    <span class="ec-row__right">{{ row.value }}</span>
   </div>
 </ng-template>
 

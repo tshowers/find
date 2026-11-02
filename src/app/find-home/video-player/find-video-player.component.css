@@ -90,7 +90,12 @@
   min-width: 0;
 }
 
+/* News titles run long: two lines at most over the poster. */
 .vp-title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   font-size: 22px;
   font-weight: 700;
   line-height: 1.15;
@@ -187,6 +192,10 @@
 
 .vp-chip {
   flex: none;
+  max-width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   height: 36px;
   padding: 0 14px;
   border: 0;
@@ -230,7 +239,7 @@
   }
 
   .vp-title {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .vp-sub {
