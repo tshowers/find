@@ -181,6 +181,20 @@
         </a>
       </div>
     </ng-container>
+    <ng-container *ngIf="panel.kind === 'prices'">
+      <ul class="fp-prices" *ngIf="panel.prices?.length">
+        <li *ngFor="let price of panel.prices">
+          <a class="fp-price" [href]="price.url" target="_blank" rel="noopener" data-cy="find-store-price">
+            <span class="fp-price__store"><strong>{{ price.store }}</strong><small>{{ price.name }}</small></span>
+            <span class="fp-price__amount" [class.fp-price__amount--low]="price.lowest">
+              <span class="ec-chip ec-chip--green" *ngIf="price.lowest">Lowest</span>
+              {{ price.price }}
+            </span>
+          </a>
+        </li>
+      </ul>
+      <p class="fp-panel__note" *ngIf="panel.text">{{ panel.text }}</p>
+    </ng-container>
     <ol class="fp-steps" *ngIf="panel.kind === 'steps'" [class.fp-steps--three]="steps.length === 3" [class.fp-steps--list]="!long">
       <li class="fp-step" *ngFor="let step of steps; let i = index">
         <strong class="fp-step__number">{{ i + 1 }}</strong>
@@ -207,10 +221,19 @@
 </ng-template>
 
 <ng-template #nameRows let-rows>
-  <div class="ec-row" *ngFor="let row of rows">
-    <span class="ec-row__left">{{ row.name }}</span>
-    <span class="ec-row__right">{{ row.value }}</span>
-  </div>
+  <ng-container *ngFor="let row of rows">
+    <a class="ec-row fp-used" *ngIf="row.url; else plainNamedRow" [href]="row.url" target="_blank" rel="noopener">
+      <ng-container *ngTemplateOutlet="namedRowBody; context: { $implicit: row }"></ng-container>
+    </a>
+    <ng-template #plainNamedRow>
+      <div class="ec-row"><ng-container *ngTemplateOutlet="namedRowBody; context: { $implicit: row }"></ng-container></div>
+    </ng-template>
+  </ng-container>
+</ng-template>
+
+<ng-template #namedRowBody let-row>
+  <span class="ec-row__left">{{ row.name }}<small *ngIf="row.sub">{{ row.sub }}</small></span>
+  <span class="ec-row__right" [ngClass]="row.tone ? 'fp-tone--' + row.tone : ''">{{ row.value }}</span>
 </ng-template>
 
 <ng-template #groupRows>

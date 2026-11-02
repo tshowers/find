@@ -632,6 +632,70 @@ describe('FindHomeComponent', () => {
     drainSummarize();
   }));
 
+  it('shows a product to buy: store prices with the lowest marked, reviewers\' scores and review videos', fakeAsync(() => {
+    component.query = 'dell xps 14';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: { type: 'item', label: 'Laptop', id: 'dell xps 14', name: 'Dell XPS 14', logoUrl: null },
+    });
+    tick();
+    harness.detectChanges();
+    // The card is deferred (its own chunk): let it load.
+    flush();
+    harness.detectChanges();
+
+    const sections = http.match(r => r.url.endsWith('/find/entity/section'));
+    // No market section: that's for companies.
+    expect(sections.map(req => req.request.body.section).sort()).toEqual([ 'overview', 'summary', 'videos' ]);
+    sections.find(req => req.request.body.section === 'overview')!.flush({
+      data: {
+        context: 'Laptop',
+        tags: [ { text: 'Laptop', tone: 'cyan' }, { text: 'Listed at 2 stores', tone: 'green' } ],
+        meta: [ { value: 'From $1,899.99', strong: true }, { value: 'by Dell' } ],
+        videos: [],
+        panel: {
+          kind: 'prices', label: 'Prices at stores', text: 'As the store pages last showed them; check the store for today\'s price.',
+          prices: [
+            { store: 'Best Buy', name: 'Dell - XPS 14 OLED Laptop', price: '$1,899.99', url: 'https://www.bestbuy.com/xps', lowest: true },
+            { store: 'Dell', name: 'XPS 14 Laptop', price: '$1,989.99', url: 'https://www.dell.com/xps', lowest: false },
+          ],
+        },
+        tiles: [ { label: 'Lowest price', value: '$1,899.99', sub: 'at Best Buy' }, { label: 'Critics', value: '8.0/10', sub: '8 reviews' } ],
+        chips: null,
+        lists: [ { title: 'What reviewers say', rows: [
+          { name: 'PCMag', value: '4/5', sub: 'Dell’s revived XPS 14 dazzles.', url: 'https://www.pcmag.com/r', tone: 'strong' },
+          { name: 'The Verge', value: '7/10', sub: 'More expensive than ever.', url: 'https://www.theverge.com/r', tone: 'mixed' },
+        ] } ],
+        more: [],
+        actions: [ { kind: 'buy', label: 'Buy at Best Buy · $1,899.99', shortLabel: 'Buy', url: 'https://www.bestbuy.com/xps' } ],
+        footer: '',
+      },
+    });
+    sections.find(req => req.request.body.section === 'summary')!.flush({ data: null });
+    sections.find(req => req.request.body.section === 'videos')!.flush({
+      data: { videos: [ { url: 'https://www.youtube.com/watch?v=x5h1JykMcFU', title: 'Dell XPS 14 review', sub: 'YouTube · Crimson Tech', duration: '17:52' } ] },
+    });
+    harness.detectChanges();
+
+    const card = root().querySelector('[data-cy="find-entity-card"]')!;
+    const prices = Array.from(card.querySelectorAll<HTMLAnchorElement>('[data-cy="find-store-price"]'));
+    expect(prices.map(link => link.getAttribute('href'))).toEqual([ 'https://www.bestbuy.com/xps', 'https://www.dell.com/xps' ]);
+    expect(prices[0].textContent).toContain('Lowest');
+    expect(prices[1].textContent).not.toContain('Lowest');
+    expect(card.querySelector('[data-cy="find-first-party-panel"]')?.textContent).toContain('check the store for today');
+    expect(card.querySelector('.fp-tone--strong')?.textContent?.trim()).toBe('4/5');
+    expect(card.querySelector('.fp-tone--mixed')?.textContent?.trim()).toBe('7/10');
+    expect(card.querySelector('[data-cy="find-video"]')).not.toBeNull();
+    expect(card.querySelector('.ec-action--primary')?.getAttribute('href')).toBe('https://www.bestbuy.com/xps');
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('dell xps 14'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+  }));
+
   it('leaves the player off another company\'s card when it has no videos', fakeAsync(() => {
     component.query = 'caterpillar';
     harness.detectChanges();

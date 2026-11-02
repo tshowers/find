@@ -1914,6 +1914,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     if ( this.entity?.type === 'shop' ) return 'Products and prices from 16Ahead Store';
     if ( this.entity?.type === 'company' || this.entity?.type === 'product' ) return 'Taliferro Tech · first-party listing';
     if ( this.entity?.type === 'corporation' ) return 'Facts from Wikidata and the SEC · market data from Yahoo Finance and Nasdaq';
+    if ( this.entity?.type === 'item' ) return 'Prices from store pages, which may have changed · scores from the reviewers';
     if ( this.isRegionEntity( this.entity ) ) return 'Facts from Wikidata · weather from Open-Meteo';
     if ( this.entity?.type === 'movie' ) return 'Ratings via OMDb · box office and cast from Wikidata';
     if ( this.entity?.type === 'tv' ) return 'Ratings via OMDb · episodes from TVmaze';
