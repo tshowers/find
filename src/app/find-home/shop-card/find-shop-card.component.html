@@ -24,7 +24,7 @@
       <span class="ec-now__label">Shop on 16Ahead Store</span>
       <strong class="sc-now__line">{{ shop.heroLine || shop.description }}</strong>
       <div class="sc-facts" *ngIf="facts.length">
-        <span class="sc-fact" *ngFor="let fact of facts"><strong>{{ fact.value }}</strong> {{ fact.label }}</span>
+        <span class="sc-fact" *ngFor="let fact of facts; trackBy: trackByIndex"><strong>{{ fact.value }}</strong> {{ fact.label }}</span>
       </div>
       <a class="ec-action ec-action--primary sc-visit" [href]="storeUrl" target="_blank" rel="noopener">
         <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>
