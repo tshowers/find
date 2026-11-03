@@ -45,6 +45,13 @@ export class FindShopCardComponent implements OnChanges, OnDestroy {
   }
 
   /** The shop's own colors, light and dark, as CSS variables for the tinted tile. */
+  // Getters here build new objects on every check; tracking by position keeps
+  // the rows in place instead of rebuilding them. iPhone Safari drops a tap
+  // when the page rebuilds under it (the award screen's Continue did nothing).
+  trackByIndex ( index: number ): number {
+    return index;
+  }
+
   get tintStyle (): Record<string, string> {
     const style: Record<string, string> = {};
     if ( this.entity.tint ) style[ '--shop-tint' ] = this.entity.tint;

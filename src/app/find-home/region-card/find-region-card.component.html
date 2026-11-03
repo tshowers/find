@@ -86,7 +86,7 @@
 
   <div class="ec-skel ec-skel--facts" *ngIf="region === undefined"></div>
   <div class="ec-facts" *ngIf="keyFacts.length">
-    <span class="ec-fact" *ngFor="let fact of keyFacts"><strong>{{ fact.value }}</strong> {{ fact.label }}</span>
+    <span class="ec-fact" *ngFor="let fact of keyFacts; trackBy: trackByIndex"><strong>{{ fact.value }}</strong> {{ fact.label }}</span>
   </div>
 
   <ng-container *ngIf="local">
@@ -203,7 +203,7 @@
 
 <ng-template #actionButtons>
   <div class="ec-actions" *ngIf="actions.length">
-    <a *ngFor="let action of actions; let first = first" class="ec-action" [class.ec-action--primary]="first" [href]="action.href || '#'" [attr.target]="action.href ? '_blank' : null" [attr.rel]="action.href ? 'noopener' : null" (click)="runAction(action, $event)" [attr.data-cy]="action.search ? 'find-region-convert' : null">
+    <a *ngFor="let action of actions; let first = first; trackBy: trackByIndex" class="ec-action" [class.ec-action--primary]="first" [href]="action.href || '#'" [attr.target]="action.href ? '_blank' : null" [attr.rel]="action.href ? 'noopener' : null" (click)="runAction(action, $event)" [attr.data-cy]="action.search ? 'find-region-convert' : null">
       <i class="fa-solid" [ngClass]="action.icon" aria-hidden="true"></i>
       <span class="ec-action__label">{{ action.label }}</span>
       <span class="ec-action__short" aria-hidden="true">{{ action.shortLabel }}</span>

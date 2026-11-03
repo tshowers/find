@@ -53,7 +53,7 @@
       <ng-template #businessCard>
         <app-find-shop-card *ngIf="entity.type === 'shop'; else companyCard" [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()" (watched)="onEntityWatched($event)"></app-find-shop-card>
         <ng-template #companyCard>
-          <ng-container *ngIf="entity.type === 'company' || entity.type === 'product' || entity.type === 'corporation'; else regionCard">
+          <ng-container *ngIf="entity.type === 'company' || entity.type === 'product' || entity.type === 'corporation' || entity.type === 'item'; else regionCard">
             <!-- Loaded when first needed, to keep it out of the first download. -->
             @defer (on immediate) {
               <app-find-company-card [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()"></app-find-company-card>
@@ -101,7 +101,7 @@
           <span class="find-pager__label" *ngIf="isSingleResultMode; else pagerProgress">{{ pagerCenterLabel }}</span>
           <ng-template #pagerProgress>
             <div class="find-pager__segments" *ngIf="allCards.length > 1 && !isDetailView" aria-hidden="true">
-              <span *ngFor="let segment of pagerSegments" class="find-pager__segment" [class.find-pager__segment--current]="segment.current" [style.background]="segment.color"></span>
+              <span *ngFor="let segment of pagerSegments; trackBy: trackByIndex" class="find-pager__segment" [class.find-pager__segment--current]="segment.current" [style.background]="segment.color"></span>
             </div>
             <span class="find-pager__count">
               <ng-container *ngIf="viewingGroundedAnswer; else pagerCount">Results</ng-container>

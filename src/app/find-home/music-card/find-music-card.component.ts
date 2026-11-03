@@ -74,6 +74,13 @@ export class FindMusicCardComponent implements OnChanges, OnDestroy {
 
   // --- Display helpers ---
 
+  // Getters here build new objects on every check; tracking by position keeps
+  // the rows in place instead of rebuilding them. iPhone Safari drops a tap
+  // when the page rebuilds under it (the award screen's Continue did nothing).
+  trackByIndex ( index: number ): number {
+    return index;
+  }
+
   get kind (): 'song' | 'album' | 'artist' {
     return this.entity.type === 'song' ? 'song' : this.entity.type === 'album' ? 'album' : 'artist';
   }

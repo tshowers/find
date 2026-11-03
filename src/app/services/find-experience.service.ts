@@ -196,7 +196,7 @@ export interface FindMovieRatings {
 // clearly names one thing gets one rich card: an NFL, NBA, MLB or college
 // team, a store, a restaurant, a local service, a 16Ahead Store shop, or
 // (round 5) a country, US state, city, movie, TV show, artist, album or song.
-export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service' | 'shop' | 'country' | 'state' | 'city' | 'movie' | 'tv' | 'artist' | 'album' | 'song' | 'company' | 'product' | 'corporation';
+export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service' | 'shop' | 'country' | 'state' | 'city' | 'movie' | 'tv' | 'artist' | 'album' | 'song' | 'company' | 'product' | 'corporation' | 'item';
 export type FindSportsLeague = 'nfl' | 'nba' | 'mlb' | 'college-football' | 'mens-college-basketball';
 
 export interface FindEntity {
@@ -286,19 +286,23 @@ export interface FindCardVideo { url: string; urlLight?: string; poster?: string
 // Everything on the card is our approved wording, in one "overview" section.
 export interface FindProductRow { id: string; name: string; iconUrl: string; url: string }
 export interface FindFirstPartyContact { kind: 'call' | 'email' | 'directions' | 'website'; label: string; value: string; url: string }
+export interface FindNamedRow { name: string; value: string; sub?: string; url?: string; tone?: 'strong' | 'mixed' | 'weak' }
+/** A product someone might buy ("dell xps 14"): a store's price, as its page last showed it. */
+export interface FindStorePrice { store: string; name: string; price: string; url: string; lowest: boolean }
 export interface FindFirstPartyOverview {
   context: string;
   tags: FindEntityTag[];
   meta: Array<{ value: string; strong?: boolean }>;
   videos: FindCardVideo[];
-  panel: { kind: 'contact' | 'steps'; label: string; title?: string; text?: string; contacts?: FindFirstPartyContact[]; steps?: string[] };
+  panel: { kind: 'contact' | 'steps' | 'prices'; label: string; title?: string; text?: string; contacts?: FindFirstPartyContact[]; steps?: string[]; prices?: FindStorePrice[] };
   tiles: FindStatTile[];
   groups?: Array<{ name: string; products: FindProductRow[] }>;
   usedBy?: Array<FindProductRow & { text: string }>;
   founder?: { name: string; role: string; photoUrl: string; linkedin: string };
   /** Another company's products ("iPhone", "Mac") and leaders, as pills and rows. */
   chips?: { title: string; items: string[] } | null;
-  lists?: Array<{ title: string; rows: Array<{ name: string; value: string }> }>;
+  /** Rows; a product's reviews carry the verdict (sub), a link and how good the score is (tone). */
+  lists?: Array<{ title: string; rows: FindNamedRow[] }>;
   more?: Array<{ title: string; text?: string; rows?: Array<{ name: string; value: string; url?: string }> }>;
   faq?: Array<{ q: string; a: string }>;
   actions: Array<{ kind: string; label: string; shortLabel: string; url: string }>;
