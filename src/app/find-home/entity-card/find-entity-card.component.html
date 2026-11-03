@@ -230,7 +230,7 @@
 
 <ng-template #scoreCard let-game>
   <div class="ec-score">
-    <div class="ec-score__row" *ngFor="let item of sides(game)" [class.ec-muted]="isBehind(game, item.key)">
+    <div class="ec-score__row" *ngFor="let item of sides(game); trackBy: trackByIndex" [class.ec-muted]="isBehind(game, item.key)">
       <span class="ec-score__abbr">{{ item.side.abbr }}</span>
       <span class="ec-score__name">{{ item.side.name }}</span>
       <strong class="ec-score__points">{{ item.side.score }}</strong>
@@ -270,7 +270,7 @@
 
 <ng-template #actionButtons>
   <div class="ec-actions" *ngIf="actions.length">
-    <a *ngFor="let action of actions; let first = first" class="ec-action" [class.ec-action--primary]="first" [href]="action.href" target="_blank" rel="noopener">
+    <a *ngFor="let action of actions; let first = first; trackBy: trackByIndex" class="ec-action" [class.ec-action--primary]="first" [href]="action.href" target="_blank" rel="noopener">
       <i class="fa-solid" [ngClass]="action.icon" aria-hidden="true"></i>
       <span class="ec-action__label">{{ action.label }}</span>
       <span class="ec-action__short" aria-hidden="true">{{ action.shortLabel }}</span>

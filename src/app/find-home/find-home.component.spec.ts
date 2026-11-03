@@ -214,6 +214,13 @@ describe('FindHomeComponent', () => {
     harness.detectChanges();
     expect(card?.textContent).toContain('2nd in NFC North');
 
+    // The buttons stay the same elements from one check to the next. Rebuilt,
+    // iPhone Safari drops taps on whatever covers them (the award's Continue).
+    const espn = card?.querySelector('.ec-action');
+    harness.detectChanges();
+    expect(espn).toBeTruthy();
+    expect(card?.querySelector('.ec-action')).toBe(espn);
+
     http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('Chicago Bears'));
     tick();
     harness.detectChanges();

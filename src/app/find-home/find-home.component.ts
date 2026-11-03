@@ -1130,6 +1130,11 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     return action.key;
   }
 
+  // pagerSegments builds new objects on every check; by position they stay put.
+  trackByIndex ( index: number ): number {
+    return index;
+  }
+
   async copyAction ( action: FindAction ): Promise<void> {
     if ( !action.copyText ) return;
     try {

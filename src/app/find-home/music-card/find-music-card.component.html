@@ -6,10 +6,10 @@
     </span>
     <div class="ec-identity__text">
       <div class="ec-chips">
-        <span class="ec-chip" *ngFor="let tag of tags" [ngClass]="'ec-chip--' + tag.tone">{{ tag.text }}</span>
+        <span class="ec-chip" *ngFor="let tag of tags; trackBy: trackByIndex" [ngClass]="'ec-chip--' + tag.tone">{{ tag.text }}</span>
       </div>
       <h1 class="ec-name">{{ entity.name }}</h1>
-      <p class="ec-meta" *ngIf="meta.length; else metaSkeleton"><span *ngFor="let item of meta">{{ item }}</span></p>
+      <p class="ec-meta" *ngIf="meta.length; else metaSkeleton"><span *ngFor="let item of meta; trackBy: trackByIndex">{{ item }}</span></p>
     </div>
   </div>
 
@@ -27,7 +27,7 @@
       <ng-container *ngTemplateOutlet="summaryBlock"></ng-container>
       <div class="ec-skel ec-skel--tiles" *ngIf="facts === undefined"></div>
       <div class="ec-tiles" *ngIf="tiles.length">
-        <div class="ec-tile" *ngFor="let tile of tiles">
+        <div class="ec-tile" *ngFor="let tile of tiles; trackBy: trackByIndex">
           <span class="ec-tile__label">{{ tile.label }}</span>
           <strong class="ec-tile__value">{{ tile.value }}</strong>
           <span class="ec-tile__sub" *ngIf="tile.sub">{{ tile.sub }}</span>
@@ -109,7 +109,7 @@
         <i class="fa-solid fa-chevron-down ec-chevron" [class.ec-chevron--open]="openSections.has('facts')" aria-hidden="true"></i>
       </button>
       <div class="ec-section__body" *ngIf="openSections.has('facts')">
-        <div class="ec-row" *ngFor="let tile of tiles">
+        <div class="ec-row" *ngFor="let tile of tiles; trackBy: trackByIndex">
           <span class="ec-row__left">{{ tile.label }}<small *ngIf="tile.sub">{{ tile.sub }}</small></span>
           <span class="ec-row__right">{{ tile.value }}</span>
         </div>
@@ -225,7 +225,7 @@
 
 <ng-template #listenButtons>
   <div class="mu-listen" *ngIf="facts !== undefined">
-    <a *ngFor="let action of listen; let first = first" class="ec-action" [class.ec-action--primary]="first" [href]="action.href" target="_blank" rel="noopener">
+    <a *ngFor="let action of listen; let first = first; trackBy: trackByIndex" class="ec-action" [class.ec-action--primary]="first" [href]="action.href" target="_blank" rel="noopener">
       <i class="fa-solid" [ngClass]="action.icon" aria-hidden="true"></i>
       <span>{{ action.label }}</span>
     </a>
@@ -261,7 +261,7 @@
 
 <ng-template #actionButtons>
   <div class="ec-actions" *ngIf="actions.length">
-    <a *ngFor="let action of actions; let first = first" class="ec-action" [class.ec-action--primary]="first" [href]="action.href" target="_blank" rel="noopener">
+    <a *ngFor="let action of actions; let first = first; trackBy: trackByIndex" class="ec-action" [class.ec-action--primary]="first" [href]="action.href" target="_blank" rel="noopener">
       <i class="fa-solid" [ngClass]="action.icon" aria-hidden="true"></i>
       <span class="ec-action__label">{{ action.label }}</span>
       <span class="ec-action__short" aria-hidden="true">{{ action.shortLabel }}</span>
