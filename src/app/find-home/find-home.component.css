@@ -2349,6 +2349,10 @@
   color: var(--todd-panel-text);
 }
 
+a.find-tab {
+  text-decoration: none;
+}
+
 .find-tab--muted {
   opacity: 0.38;
   cursor: default;

@@ -211,6 +211,19 @@ describe( 'Find home - buttons and navigation', () => {
 
   // --- 7-11. The five bottom tab-bar buttons ---
 
+  it( 'shows Guides before a search, All after one, and Home on the All page', () => {
+    cy.visit( '/' );
+    cy.get( '[data-cy="find-guides-tab"]' ).should( 'be.visible' ).and( 'have.attr', 'href', '/guides' );
+    cy.get( '[aria-label="All results"]' ).should( 'not.exist' );
+
+    runSearch( 'coffee', entityResponse( 'coffee', [
+      { rank: 1, title: 'Result A', summary: 'First result.', url: 'https://example.com/a', displayUrl: 'example.com', imageUrl: '', sourceType: 'publisher', confidence: 0.9, pills: [] },
+    ] ) );
+    cy.get( '[data-cy="find-guides-tab"]' ).should( 'not.exist' );
+    cy.get( '[aria-label="All results"]' ).click();
+    cy.get( '[aria-label="Home"]' ).should( 'be.visible' );
+  } );
+
   it( 'opens all results from the All tab', () => {
     runSearch( 'coffee', entityResponse( 'coffee', [
       { rank: 1, title: 'Result A', summary: 'First result.', url: 'https://example.com/a', displayUrl: 'example.com', imageUrl: '', sourceType: 'publisher', confidence: 0.9, pills: [] },

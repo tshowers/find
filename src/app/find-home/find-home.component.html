@@ -30,7 +30,7 @@
       <i class="fa-brands fa-apple" aria-hidden="true"></i>
       <span><small>Download on the</small><strong>App Store</strong></span>
     </a>
-    <p class="made-by"><a href="https://app.16ahead.com" target="_blank" rel="noopener"><span class="made-by__mark"><img class="brand-mark--light" src="assets/brand/products/svg/light/01-16ahead.svg" alt="" width="24" height="24"><img class="brand-mark--dark" src="assets/brand/products/svg/dark/01-16ahead.svg" alt="" width="24" height="24"></span>Powered by <strong>16Ahead</strong></a><i aria-hidden="true"></i><a appAlsoFromUs></a></p>
+    <p class="made-by"><a href="https://16ahead.com" target="_blank" rel="noopener"><span class="made-by__mark"><img class="brand-mark--light" src="assets/brand/products/svg/light/01-16ahead.svg" alt="" width="24" height="24"><img class="brand-mark--dark" src="assets/brand/products/svg/dark/01-16ahead.svg" alt="" width="24" height="24"></span>Powered by <strong>16Ahead</strong></a><i aria-hidden="true"></i><a appAlsoFromUs></a></p>
   </div>
   <!-- ── RESULT VIEW ──────────────────────────────────────────── -->
   <div class="find-result-screen" data-cy="find-result-shell" *ngIf="activeView === 'result' || activeView === 'detail'">
@@ -683,13 +683,20 @@
     </div>
     <!-- Tab bar -->
     <div class="find-tab-bar" role="tablist">
-      <!-- In All results, the All button becomes Home so there's an obvious way back to a new search -->
+      <!-- One slot, three states: Guides before any search (All has nothing to show yet),
+           All once there's a result, and Home on the All results page as the way back to a new search. -->
       <button type="button" class="find-tab" *ngIf="activeView === 'booklet'; else gridTab" role="tab" aria-label="Home" (click)="resetToSearch()">
         <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
         <span class="find-tab__label">Home</span>
       </button>
       <ng-template #gridTab>
-        <button type="button" class="find-tab" [class.find-tab--muted]="!result || isWeatherMode || isMovieMode || isInstantMode" role="tab" aria-label="All results" (click)="setView('booklet')">
+        <a class="find-tab" *ngIf="!result; else allTab" href="/guides" aria-label="Local guides" data-cy="find-guides-tab">
+          <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-book-open"></i></span>
+          <span class="find-tab__label">Guides</span>
+        </a>
+      </ng-template>
+      <ng-template #allTab>
+        <button type="button" class="find-tab" [class.find-tab--muted]="isWeatherMode || isMovieMode || isInstantMode" role="tab" aria-label="All results" (click)="setView('booklet')">
           <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-table-cells-large"></i></span>
           <span class="find-tab__label">All</span>
         </button>
