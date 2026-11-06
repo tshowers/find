@@ -690,8 +690,8 @@
         <span class="find-tab__label">Home</span>
       </button>
       <ng-template #gridTab>
-        <a class="find-tab" *ngIf="!result; else allTab" href="/guides" aria-label="Local guides" data-cy="find-guides-tab">
-          <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid fa-book-open"></i></span>
+        <a class="find-tab" *ngIf="!result; else allTab" href="/guides" aria-label="Local guides" [attr.aria-busy]="guidesLoading" [class.find-tab--loading]="guidesLoading" (click)="openGuides($event)" data-cy="find-guides-tab">
+          <span class="find-tab__icon" aria-hidden="true"><i class="fa-solid" [class.fa-book-open]="!guidesLoading" [class.fa-circle-notch]="guidesLoading" [class.fa-spin]="guidesLoading"></i></span>
           <span class="find-tab__label">Guides</span>
         </a>
       </ng-template>

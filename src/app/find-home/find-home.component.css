@@ -2353,6 +2353,12 @@ a.find-tab {
   text-decoration: none;
 }
 
+.find-tab--loading {
+  color: var(--todd-panel-text);
+  cursor: progress;
+  pointer-events: none;
+}
+
 .find-tab--muted {
   opacity: 0.38;
   cursor: default;

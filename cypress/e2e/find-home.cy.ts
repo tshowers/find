@@ -224,6 +224,14 @@ describe( 'Find home - buttons and navigation', () => {
     cy.get( '[aria-label="Home"]' ).should( 'be.visible' );
   } );
 
+  it( 'spins the Guides tab while the guides page loads', () => {
+    cy.visit( '/' );
+    // Keep the browser here (a listener on the document runs after the tab's own) so the loading state can be seen.
+    cy.document().then( ( doc ) => doc.addEventListener( 'click', ( event ) => event.preventDefault() ) );
+    cy.get( '[data-cy="find-guides-tab"]' ).click();
+    cy.get( '[data-cy="find-guides-tab"]' ).should( 'have.class', 'find-tab--loading' ).find( '.fa-spin' ).should( 'exist' );
+  } );
+
   it( 'opens all results from the All tab', () => {
     runSearch( 'coffee', entityResponse( 'coffee', [
       { rank: 1, title: 'Result A', summary: 'First result.', url: 'https://example.com/a', displayUrl: 'example.com', imageUrl: '', sourceType: 'publisher', confidence: 0.9, pills: [] },

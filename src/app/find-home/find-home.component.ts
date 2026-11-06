@@ -87,6 +87,8 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   lastResponseMs = 0;
 
   activeView: FindView = 'search';
+  /** Guides is a server page; the tab spins until the browser leaves, so a slow start doesn't look like a dead tap. */
+  guidesLoading = false;
   // A `q` parameter is the public handoff format used by TODD and other
   // launchers. Those links should open directly into the answer experience,
   // rather than briefly/rendering the full Find landing screen alongside it.
@@ -276,6 +278,17 @@ export class FindHomeComponent implements OnInit, OnDestroy {
     this.stopLoadingTimer();
     if ( this.copiedTimer !== null ) clearTimeout( this.copiedTimer );
     this.cancelBackspacePress();
+  }
+
+  // Back from Guides restores this page from the browser's cache with the spinner still on.
+  @HostListener( 'window:pageshow' )
+  onPageShow (): void {
+    this.guidesLoading = false;
+  }
+
+  openGuides ( event: MouseEvent ): void {
+    if ( event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) return;
+    this.guidesLoading = true;
   }
 
   // ← / → step through results, the same as the pager's Previous / Next.
