@@ -67,6 +67,22 @@
       gtag('config', 'G-CFNVBS91DF');
     }
   </script>
+  <!-- Meta Pixel / Find website ads (dataset 1136623382219314) -->
+  <script>
+    // Same localhost guard as GA so dev and Cypress runs never reach Meta.
+    if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '1136623382219314');
+      fbq('track', 'PageView');
+    }
+  </script>
 </head>
 
 <body>
