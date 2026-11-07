@@ -46,14 +46,14 @@
           </div>
         </nav>
 
-        <!-- 2 · Spaces (the other 16Ahead apps) -->
+        <!-- 2 · Spaces (all sixteen; the current one is marked) -->
         <section class="um-products" aria-label="Spaces" *ngIf="visibleProducts.length || !query">
           <div class="um-section-head">
             <span class="um-eyebrow">Spaces</span>
             <small>Opens in this tab</small>
           </div>
           <div class="um-tiles">
-            <a *ngFor="let product of visibleProducts; trackBy: trackByLabel" class="um-tile" [href]="product.url" (click)="close()">
+            <a *ngFor="let product of visibleProducts; trackBy: trackByLabel" class="um-tile" [href]="product.url" [attr.aria-current]="product.key === config.app ? 'page' : null" (click)="close()">
               <span class="um-chip" [attr.data-tint]="product.tint"><span class="um-glyph" [attr.data-key]="product.key"></span></span>
               <span>{{ product.label }}</span>
             </a>
