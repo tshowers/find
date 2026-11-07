@@ -73,10 +73,17 @@ describe('PlatformMenuComponent', () => {
     expect(component.isOpen).toBeFalse();
   });
 
-  it('lists the other products but not Find itself', () => {
+  it('lists all sixteen Spaces and marks Find as the current one', () => {
     const labels = component.products.map((product) => product.label);
+    expect(labels.length).toBe(16);
     expect(labels).toContain('Outreach');
-    expect(labels).not.toContain('Find');
+    expect(labels).toContain('Find');
+
+    component.open();
+    fixture.detectChanges();
+    const current = Array.from(document.querySelectorAll('.um-tile[aria-current="page"]'));
+    expect(current.length).toBe(1);
+    expect(current[0].textContent).toContain('Find');
   });
 
   it('filters products by the search query', () => {
