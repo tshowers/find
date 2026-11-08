@@ -195,8 +195,9 @@ export interface FindMovieRatings {
 // Single-item results (docs/design_handoff_find_single_results): a query that
 // clearly names one thing gets one rich card: an NFL, NBA, MLB or college
 // team, a store, a restaurant, a local service, a 16Ahead Store shop, or
-// (round 5) a country, US state, city, movie, TV show, artist, album or song.
-export type FindEntityType = 'sports' | 'store' | 'restaurant' | 'service' | 'shop' | 'country' | 'state' | 'city' | 'movie' | 'tv' | 'artist' | 'album' | 'song' | 'company' | 'product' | 'corporation' | 'item';
+// (round 5) a country, US state, city, movie, TV show, artist, album or song,
+// or a word to define ("define serendipity").
+export type FindEntityType = 'word' | 'sports' | 'store' | 'restaurant' | 'service' | 'shop' | 'country' | 'state' | 'city' | 'movie' | 'tv' | 'artist' | 'album' | 'song' | 'company' | 'product' | 'corporation' | 'item';
 export type FindSportsLeague = 'nfl' | 'nba' | 'mlb' | 'college-football' | 'mens-college-basketball';
 
 export interface FindEntity {
@@ -220,7 +221,25 @@ export interface FindEntity {
   tintFgDark?: string | null;
 }
 
-export type FindEntitySection = 'team' | 'games' | 'leaders' | 'news' | 'summary' | 'place' | 'details' | 'sale' | 'shop' | 'region' | 'local' | 'todo' | 'title' | 'facts' | 'show' | 'apple' | 'overview' | 'market' | 'videos';
+export type FindEntitySection = 'word' | 'team' | 'games' | 'leaders' | 'news' | 'summary' | 'place' | 'details' | 'sale' | 'shop' | 'region' | 'local' | 'todo' | 'title' | 'facts' | 'show' | 'apple' | 'overview' | 'market' | 'videos';
+
+/** A dictionary entry ("define <word>"), trimmed by the backend by fixed rules, never reworded. */
+export interface FindWordSection {
+  word: string;
+  phonetic: string;
+  audioUrl: string | null;
+  meanings: Array<{
+    partOfSpeech: string;
+    definitions: Array<{ text: string; example: string }>;
+    moreCount: number;
+    synonyms: string[];
+    antonyms: string[];
+  }>;
+  sourceUrl: string;
+  sourceName: string;
+  license: string;
+  licenseUrl: string;
+}
 
 export interface FindStatTile { label: string; value: string; sub: string }
 export interface FindEntityTag { text: string; tone: 'blue' | 'green' | 'cyan' | 'pink' | 'violet' | 'yellow' | 'plain' }

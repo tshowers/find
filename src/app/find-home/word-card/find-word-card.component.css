@@ -1,0 +1,167 @@
+/* The dictionary card, on top of find-entity-card.component.css: one column
+   of meanings, each part of speech with its numbered senses. */
+.wc {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px 40px 0;
+}
+
+.wc-logo {
+  background: var(--t-violet);
+  color: var(--t-violet-fg);
+  font-size: 38px;
+}
+
+.wc-word {
+  overflow-wrap: anywhere;
+}
+
+.wc-say {
+  align-items: center;
+}
+
+.wc-phonetic {
+  font-size: 17px;
+  color: var(--text);
+}
+
+.wc-listen {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wc-listen:hover {
+  filter: brightness(0.94);
+}
+
+.wc-loading {
+  height: 220px;
+  border-radius: 20px;
+}
+
+.wc-missing {
+  color: var(--muted);
+}
+
+.wc-meanings {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 760px;
+}
+
+.wc-meaning {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wc-defs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding-left: 24px;
+}
+
+.wc-defs li {
+  padding-left: 4px;
+  font-size: 18px;
+  line-height: 1.45;
+}
+
+.wc-defs li::marker {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.wc-def,
+.wc-example {
+  display: block;
+}
+
+.wc-example {
+  margin-top: 4px;
+  font-size: 15px;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.wc-more-senses {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--blue-ink);
+  text-decoration: none;
+}
+
+.wc-related {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.wc-related__label {
+  margin-right: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.wc-related__word {
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.wc-related__word:hover {
+  filter: brightness(0.94);
+}
+
+@media (max-width: 900px) {
+  .wc {
+    gap: 18px;
+    padding: 24px 16px 0;
+  }
+
+  .ec-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 600px) {
+  .wc {
+    gap: 14px;
+    padding-top: 16px;
+  }
+
+  .ec-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    font-size: 24px;
+  }
+
+  .ec-name {
+    font-size: 34px;
+  }
+
+  .wc-defs li {
+    font-size: 17px;
+  }
+}

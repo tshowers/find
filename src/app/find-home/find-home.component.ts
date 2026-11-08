@@ -20,6 +20,7 @@ import { MarketStripComponent } from '../shared/market-strip/market-strip.compon
 import { FindEntityCardComponent } from './entity-card/find-entity-card.component';
 import { FindBusinessCardComponent } from './business-card/find-business-card.component';
 import { FindShopCardComponent } from './shop-card/find-shop-card.component';
+import { FindWordCardComponent } from './word-card/find-word-card.component';
 import { FindRegionCardComponent } from './region-card/find-region-card.component';
 import { FindMediaCardComponent } from './media-card/find-media-card.component';
 import { FindMusicCardComponent } from './music-card/find-music-card.component';
@@ -67,7 +68,7 @@ function distanceMeters ( from: { latitude: number; longitude: number }, latitud
 @Component( {
   selector: 'app-find-home',
   standalone: true,
-  imports: [ FindEntityCardComponent, FindBusinessCardComponent, FindShopCardComponent, FindRegionCardComponent, FindMediaCardComponent, FindMusicCardComponent, FindCompanyCardComponent, MarketStripComponent, AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
+  imports: [ FindEntityCardComponent, FindBusinessCardComponent, FindShopCardComponent, FindWordCardComponent, FindRegionCardComponent, FindMediaCardComponent, FindMusicCardComponent, FindCompanyCardComponent, MarketStripComponent, AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
   templateUrl: './find-home.component.html',
   styleUrls: ['./find-home.component.css', './find-home.grid.css', './find-home.features.css'],
   // The prerendered "/" always contains the home screen, but a `?query=` or
@@ -1928,6 +1929,7 @@ export class FindHomeComponent implements OnInit, OnDestroy {
   }
 
   get entityFooterNote (): string {
+    if ( this.entity?.type === 'word' ) return 'Definitions from Wiktionary · CC BY-SA';
     if ( this.entity?.type === 'sports' ) return 'Scores and stats from ESPN';
     if ( this.entity?.type === 'shop' ) return 'Products and prices from 16Ahead Store';
     if ( this.entity?.type === 'company' || this.entity?.type === 'product' ) return 'Taliferro Tech · first-party listing';

@@ -49,6 +49,13 @@
         <div class="find-pager__center"><span class="find-pager__label">{{ entity.label }}</span></div>
         <span class="find-pager__spacer" aria-hidden="true"></span>
       </nav>
+      <ng-container *ngIf="entity.type === 'word'; else teamCard">
+        <!-- Loaded when first needed, to keep it out of the first download. -->
+        @defer (on immediate) {
+          <app-find-word-card [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()" (search)="searchFromCard($event)"></app-find-word-card>
+        }
+      </ng-container>
+      <ng-template #teamCard>
       <app-find-entity-card *ngIf="entity.type === 'sports'; else businessCard" [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()"></app-find-entity-card>
       <ng-template #businessCard>
         <app-find-shop-card *ngIf="entity.type === 'shop'; else companyCard" [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" (moreResults)="showAllResults()" (watched)="onEntityWatched($event)"></app-find-shop-card>
@@ -72,6 +79,7 @@
         <ng-template #placeCard>
           <app-find-business-card [entity]="entity" [query]="result?.query || query" [moreCount]="entityMoreCount" [position]="entityPosition" (moreResults)="showAllResults()" (watched)="onEntityWatched($event)"></app-find-business-card>
         </ng-template>
+      </ng-template>
       </ng-template>
       <footer class="find-footer">
         <ng-container *ngIf="!feedbackSent; else entityFeedbackThanks">

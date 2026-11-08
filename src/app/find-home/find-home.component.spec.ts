@@ -290,6 +290,51 @@ describe('FindHomeComponent', () => {
     drainSummarize();
   }));
 
+  it('shows a dictionary card for "define <word>", and a similar word defines that one', fakeAsync(() => {
+    component.query = 'defint serendipity';
+    harness.detectChanges();
+    submitButton().click();
+    tick();
+    http.expectOne(r => r.url.endsWith('/find/entity')).flush({
+      entity: { type: 'word', label: 'Dictionary', id: 'serendipity', name: 'serendipity', logoUrl: null },
+    });
+    tick();
+    harness.detectChanges();
+    // The card is deferred (its own chunk): let it load.
+    flush();
+    harness.detectChanges();
+
+    http.expectOne(r => r.url.endsWith('/find/entity/section') && r.body.section === 'word' && r.body.id === 'serendipity').flush({
+      data: {
+        word: 'serendipity', phonetic: '/ˌsɛ.ɹən.ˈdɪ.pɪ.ti/', audioUrl: null,
+        meanings: [ { partOfSpeech: 'noun', definitions: [ { text: 'A combination of events which have come together by chance to make a surprisingly good or wonderful outcome.', example: '' } ], moreCount: 1, synonyms: [ 'chance' ], antonyms: [] } ],
+        sourceUrl: 'https://en.wiktionary.org/wiki/serendipity', sourceName: 'Wiktionary', license: 'CC BY-SA', licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0',
+      },
+    });
+    harness.detectChanges();
+    const card = root().querySelector('[data-cy="find-entity-card"]');
+    expect(card?.textContent).toContain('A combination of events which have come together by chance');
+    expect(card?.textContent).toContain('/ˌsɛ.ɹən.ˈdɪ.pɪ.ti/');
+    expect(card?.textContent).toContain('1 more meaning as a noun');
+    expect(card?.querySelector('[data-cy="find-word-listen"]')).toBeNull();
+    expect(root().textContent).toContain('Definitions from Wiktionary');
+
+    http.expectOne(r => r.url.endsWith('/find/search')).flush(makeEntityResponse('defint serendipity'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+
+    card!.querySelector<HTMLButtonElement>('.wc-related__word')!.click();
+    tick();
+    harness.detectChanges();
+    expect(component.query).toBe('define chance');
+    for (const pending of http.match(r => r.url.endsWith('/find/entity'))) pending.flush({ entity: null });
+    http.expectOne(r => r.url.endsWith('/find/search') && r.body.query === 'define chance').flush(makeEntityResponse('define chance'));
+    tick();
+    harness.detectChanges();
+    drainSummarize();
+  }));
+
   it('shows a country card with its local time, and "Convert USD to JPY" runs that search', fakeAsync(() => {
     (navigator.geolocation.getCurrentPosition as jasmine.Spy).calls.reset();
     component.query = 'japan';
