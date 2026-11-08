@@ -1,0 +1,53 @@
+<section class="wc" data-cy="find-entity-card" [attr.aria-label]="'Definition of ' + entity.name">
+  <div class="ec-identity">
+    <span class="ec-logo wc-logo" aria-hidden="true"><i class="fa-solid fa-book"></i></span>
+    <div class="ec-identity__text">
+      <div class="ec-chips">
+        <span class="ec-chip ec-chip--violet">Dictionary</span>
+        <span class="ec-chip ec-chip--plain" *ngFor="let meaning of word?.meanings; trackBy: trackByIndex">{{ meaning.partOfSpeech }}</span>
+      </div>
+      <h1 class="ec-name wc-word">{{ word?.word || entity.name }}</h1>
+      <p class="ec-meta wc-say" *ngIf="word; else metaSkeleton">
+        <span class="wc-phonetic" *ngIf="word.phonetic">{{ word.phonetic }}</span>
+        <button type="button" class="wc-listen" *ngIf="word.audioUrl" (click)="playAudio()" [attr.aria-label]="'Hear ' + word.word" data-cy="find-word-listen">
+          <i class="fa-solid" [class.fa-volume-high]="!playing" [class.fa-wave-square]="playing" aria-hidden="true"></i>
+          <span>Listen</span>
+        </button>
+      </p>
+      <ng-template #metaSkeleton><span class="ec-skel ec-skel--meta" *ngIf="word === undefined"></span></ng-template>
+    </div>
+  </div>
+
+  <div class="ec-skel wc-loading" *ngIf="word === undefined"></div>
+  <p class="wc-missing" *ngIf="word === null">The dictionary couldn't be reached. More results has other definitions.</p>
+
+  <div class="wc-meanings" *ngIf="word">
+    <section class="wc-meaning" *ngFor="let meaning of word.meanings; trackBy: trackByIndex" [attr.aria-label]="meaning.partOfSpeech">
+      <h3 class="ec-list-title">{{ meaning.partOfSpeech }}</h3>
+      <ol class="wc-defs">
+        <li *ngFor="let definition of meaning.definitions; trackBy: trackByIndex">
+          <span class="wc-def">{{ definition.text }}</span>
+          <span class="wc-example" *ngIf="definition.example">“{{ definition.example }}”</span>
+        </li>
+      </ol>
+      <a class="wc-more-senses" *ngIf="meaning.moreCount" [href]="word.sourceUrl" target="_blank" rel="noopener">{{ meaning.moreCount }} more {{ meaning.moreCount === 1 ? 'meaning' : 'meanings' }} as {{ article(meaning.partOfSpeech) }} {{ meaning.partOfSpeech }} ↗</a>
+      <div class="wc-related" *ngIf="meaning.synonyms.length">
+        <span class="wc-related__label">Similar</span>
+        <button type="button" class="ec-chip ec-chip--plain wc-related__word" *ngFor="let synonym of meaning.synonyms; trackBy: trackByIndex" (click)="defineWord(synonym)">{{ synonym }}</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="ec-actions" *ngIf="word">
+    <a class="ec-action" [href]="word.sourceUrl" target="_blank" rel="noopener">
+      <i class="fa-solid fa-book-open" aria-hidden="true"></i>
+      <span class="ec-action__label">Full entry on {{ word.sourceName }}</span>
+      <span class="ec-action__short" aria-hidden="true">Full entry</span>
+    </a>
+  </div>
+
+  <button type="button" class="ec-more" data-cy="find-entity-more" (click)="moreResults.emit()">
+    <span class="ec-more__label">More results for “{{ query }}”</span><span class="ec-more__count" *ngIf="moreCount">· {{ moreCount }}</span>
+    <span class="ec-more__circle" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+  </button>
+</section>
