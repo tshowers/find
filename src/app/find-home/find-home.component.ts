@@ -25,6 +25,7 @@ import { FindRegionCardComponent } from './region-card/find-region-card.componen
 import { FindMediaCardComponent } from './media-card/find-media-card.component';
 import { FindMusicCardComponent } from './music-card/find-music-card.component';
 import { FindCompanyCardComponent } from './company-card/find-company-card.component';
+import { FindWelcomeComponent } from './welcome/find-welcome.component';
 
 type FindView = 'search' | 'result' | 'detail' | 'booklet' | 'history' | 'info' | 'awards';
 
@@ -68,7 +69,7 @@ function distanceMeters ( from: { latitude: number; longitude: number }, latitud
 @Component( {
   selector: 'app-find-home',
   standalone: true,
-  imports: [ FindEntityCardComponent, FindBusinessCardComponent, FindShopCardComponent, FindWordCardComponent, FindRegionCardComponent, FindMediaCardComponent, FindMusicCardComponent, FindCompanyCardComponent, MarketStripComponent, AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent],
+  imports: [ FindEntityCardComponent, FindBusinessCardComponent, FindShopCardComponent, FindWordCardComponent, FindRegionCardComponent, FindMediaCardComponent, FindMusicCardComponent, FindCompanyCardComponent, MarketStripComponent, AlsoFromUsComponent, SiteFooterComponent, CommonModule, FormsModule, RouterModule, FindSwipeDirective, PlatformMenuComponent, AwardBadgeComponent, FindWelcomeComponent],
   templateUrl: './find-home.component.html',
   styleUrls: ['./find-home.component.css', './find-home.grid.css', './find-home.features.css'],
   // The prerendered "/" always contains the home screen, but a `?query=` or

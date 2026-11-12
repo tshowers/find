@@ -1460,9 +1460,10 @@ describe('FindHomeComponent', () => {
 
   it('does not fetch browser headlines for other searches', fakeAsync(() => {
     runSearch('bonhomie seattle', makeEntityResponse('bonhomie seattle'));
-    // The only fetch allowed is the TODD Market strip ("From local stores").
+    // The only fetches allowed are the TODD Market strip ("From local stores")
+    // and the app's own sounds, which SoundService preloads at startup.
     const urls = fetchSpy.calls.allArgs().map(([url]) => String(url));
-    expect(urls.filter(url => !url.startsWith('https://16ahead.store/'))).toEqual([]);
+    expect(urls.filter(url => !url.startsWith('https://16ahead.store/') && !url.startsWith('assets/sounds/'))).toEqual([]);
   }));
 
   it('leaves TODD Market\'s strip off searches that aren\'t shopping', fakeAsync(() => {

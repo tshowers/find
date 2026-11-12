@@ -17,7 +17,7 @@
         </a>
         <label class="um-search">
           <span [innerHTML]="icon('search', 18)"></span>
-          <input #search type="search" [(ngModel)]="query" (keydown.enter)="openFirstMatch()" placeholder="Search spaces and pages" aria-label="Search spaces and pages" autocomplete="off" />
+          <input #search type="search" [(ngModel)]="query" (keydown.enter)="openFirstMatch()" placeholder="Search apps and pages" aria-label="Search apps and pages" autocomplete="off" />
         </label>
         <button type="button" class="um-close" (click)="close()" aria-label="Close menu">
           <span [innerHTML]="icon('close', 18)" aria-hidden="true"></span><span class="um-close__label">Close</span>
@@ -46,10 +46,10 @@
           </div>
         </nav>
 
-        <!-- 2 · Spaces (all sixteen; the current one is marked) -->
-        <section class="um-products" aria-label="Spaces" *ngIf="visibleProducts.length || !query">
+        <!-- 2 · Apps (all sixteen; the current one is marked) -->
+        <section class="um-products" aria-label="Apps" *ngIf="visibleProducts.length || !query">
           <div class="um-section-head">
-            <span class="um-eyebrow">Spaces</span>
+            <span class="um-eyebrow">Apps</span>
             <small>Opens in this tab</small>
           </div>
           <div class="um-tiles">
@@ -104,13 +104,13 @@
 
       <footer class="um-foot">
         <span class="um-foot__company">
-          <strong><a [href]="company.url">{{ company.name }}</a></strong>
-          <a [href]="'mailto:' + company.email">{{ company.email }}</a>
-          <a [href]="'tel:' + company.phone">{{ company.phone }}</a>
+          <strong><a [href]="company.url" (click)="close()">{{ company.name }}</a></strong>
+          <a [href]="'mailto:' + company.email" (click)="close()">{{ company.email }}</a>
+          <a [href]="'tel:' + company.phone" (click)="close()">{{ company.phone }}</a>
           <span>{{ company.address }}</span>
         </span>
         <span class="um-foot__legal">
-          <a *ngFor="let link of company.links" [href]="link.url" target="_blank" rel="noopener">{{ link.label }}</a>
+          <a *ngFor="let link of company.links" [href]="link.url" target="_blank" rel="noopener" (click)="close()">{{ link.label }}</a>
           <span *ngIf="version">v{{ version }}</span>
         </span>
       </footer>
