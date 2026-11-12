@@ -48,3 +48,9 @@ Thumbs.db
 /cypress/videos
 /cypress/screenshots
 /cypress/downloads
+
+# Videos live on this Mac only (they still deploy, since the build reads local files).
+*.mp4
+*.mov
+*.m4v
+*.webm
